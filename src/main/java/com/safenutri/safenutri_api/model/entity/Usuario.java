@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,4 +38,8 @@ public class Usuario {
 
     @ElementCollection
     private List<String> restricoes; // Ex: ["Sem Glúten", "Sem Laticínios"]
+
+    @ManyToMany
+    @JoinTable(name = "user_restricao", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "restricao_id"))
+    private List<RestricaoAlimentar> restricoesRelacionadas = new ArrayList<>();
 }
