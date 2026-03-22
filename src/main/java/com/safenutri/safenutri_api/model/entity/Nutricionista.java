@@ -5,24 +5,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "nutricionista")
 @Getter
 @Setter
+@Table(name = "nutricionista")
 public class Nutricionista {
-
     @Id
-    private Long id_user;
+    private Long id;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "id_user")
-    private Usuario usuario;
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private String crn;
+    @Column(name = "crn")
+    private String CRN;
 
     @Column(name = "desc_perfil")
-    private String descricaoPerfil;
+    private String descPerfil;
 
-    @Column(name = "foto_perfil")
-    private String fotoPerfil;
+    @Column(name = "caminho_foto")
+    private String caminhoFoto;
 }

@@ -1,21 +1,20 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "restricao_alimentar")
 @Getter
 @Setter
+@Table(name = "restricao_alimentar")
 public class RestricaoAlimentar {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_restricao_alimentar")
+    @SequenceGenerator(sequenceName = "id_seq_restricao_alimentar", allocationSize = 1, name = "id_seq_restricao_alimentar")
     private Long id;
 
-    @NotBlank(message = "A descrição da restrição é obrigatória")
-    @Column(nullable = false)
+    @Column(name = "restricao", nullable = false)
     private String restricao;
 }
