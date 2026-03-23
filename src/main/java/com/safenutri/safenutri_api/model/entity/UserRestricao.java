@@ -22,4 +22,9 @@ public class UserRestricao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restricao_id")
     private RestricaoAlimentar restricao; 
+
+    public UserRestricao(User user, RestricaoAlimentar restricao) {
+        this.user = user;
+        this.restricao = restricao;
+    }
 }

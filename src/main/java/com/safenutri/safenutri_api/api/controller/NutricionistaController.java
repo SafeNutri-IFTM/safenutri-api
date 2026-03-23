@@ -1,23 +1,27 @@
 package com.safenutri.safenutri_api.api.controller;
 
-import com.safenutri.safenutri_api.model.entity.Nutricionista;
-import com.safenutri.safenutri_api.api.service.NutricionistaService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+
+import io.swagger.v3.oas.annotations.Operation;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.safenutri.safenutri_api.api.service.NutricionistaService;
+import com.safenutri.safenutri_api.model.input.NutricionistaInput;
+
 @RestController
-@RequestMapping("/api/nutricionistas")
+@RequiredArgsConstructor
+@RequestMapping("/nutricao")
 public class NutricionistaController {
-    @Autowired
-    private NutricionistaService service;
+    private final NutricionistaService nutricionistaService;
 
-    @GetMapping("/{id}")
-    public Nutricionista obterPerfil(@PathVariable Long id) {
-        return service.buscarPorId(id);
-    }
-
-    @PutMapping
-    public Nutricionista atualizar(@RequestBody Nutricionista nutricionista) {
-        return service.atualizarPerfil(nutricionista);
+    @PostMapping
+    @Operation(summary = "Cria um nutricionista", description = "Cria um novo nutricionista com base nas informações fornecidas")
+    public ResponseEntity<?> save(@Valid @RequestBody NutricionistaInput nutricionistaInput) {
+        nutricionistaService.save(nutricionistaInput);
+        return ResponseEntity.ok().build();
     }
 }

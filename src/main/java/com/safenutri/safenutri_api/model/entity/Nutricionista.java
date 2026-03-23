@@ -1,6 +1,7 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import jakarta.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,4 +26,9 @@ public class Nutricionista {
 
     @Column(name = "caminho_foto")
     private String caminhoFoto;
+
+    public Nutricionista(User user, String CRN) {
+        this.user = user;
+        this.CRN = CRN;
+    }
 }

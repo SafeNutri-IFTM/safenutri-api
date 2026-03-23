@@ -1,21 +1,19 @@
 package com.safenutri.safenutri_api.api.service;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+
 import com.safenutri.safenutri_api.model.entity.Role;
 import com.safenutri.safenutri_api.repository.RoleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RoleService {
-    @Autowired
-    private RoleRepository repository;
 
-    public List<Role> listarTodas() {
-        return repository.findAll();
-    }
+    private final RoleRepository roleRepository;
 
-    public Role salvar(Role role) {
-        return repository.save(role);
+    public Role findById(Long id) {
+        return roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role não encontrada"));
     }
 }
