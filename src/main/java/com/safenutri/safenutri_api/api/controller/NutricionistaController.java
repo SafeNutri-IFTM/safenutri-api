@@ -14,7 +14,7 @@ import com.safenutri.safenutri_api.model.input.NutricionistaInput;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/nutricao")
+@RequestMapping("/nutricionista")
 public class NutricionistaController {
     private final NutricionistaService nutricionistaService;
 
