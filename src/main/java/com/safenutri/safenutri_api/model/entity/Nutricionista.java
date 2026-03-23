@@ -11,10 +11,11 @@ import lombok.Setter;
 @Table(name = "nutricionista")
 public class Nutricionista {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_nutricionista")
+    @SequenceGenerator(sequenceName = "id_seq_nutricionista", allocationSize = 1, name = "id_seq_nutricionista")
     private Long id;
 
     @OneToOne
-    @MapsId
     @JoinColumn(name = "user_id")
     private User user;
 
