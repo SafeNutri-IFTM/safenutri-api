@@ -47,7 +47,7 @@ public class UserService {
         );
 
         User savedUser = userRepository.save(user);
-        if (userInput.getRestricoes() != null || !userInput.getRestricoes().isEmpty()) {
+        if (userInput.getRestricoes() != null && !userInput.getRestricoes().isEmpty()) {
             processarRestricoes(savedUser, userInput);
         }
         return savedUser;
