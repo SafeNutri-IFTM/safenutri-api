@@ -10,6 +10,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class UserInput {
     private Long genero;
+    private Long role;
     private String nome;
     private String email;
     private String senha;

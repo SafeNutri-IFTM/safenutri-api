@@ -3,8 +3,11 @@ package com.safenutri.safenutri_api.core.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import com.microsoft.playwright.*;
 
+@Component
 public class CrnValidation {
 
     public Boolean pesquisarCrn(String name, String crn, String inscricao) {

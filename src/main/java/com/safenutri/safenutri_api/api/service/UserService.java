@@ -39,7 +39,7 @@ public class UserService {
             throw new EmailAlreadyExistsException("Email já cadastrado");
         }
 
-        Role role = roleService.findById(3L);
+        Role role = roleService.findById(userInput.getRole());
         Genero genero = generoService.findById(userInput.getGenero());
 
         User user = new User(role, genero, userInput.getNome(), userInput.getEmail(), 

@@ -21,7 +21,7 @@ public class RestricaoAlimentarController {
     private final RestricaoAlimentarService restricaoAlimentarService;
 
     @GetMapping
-    @Operation(summary = "Busca os generos", description = "Busca todos os generos")
+    @Operation(summary = "Busca todas as restrições", description = "Busca todas as restrições")
     public ResponseEntity<?> getAll() {
         List<RestricaoAlimentar> restricoes = restricaoAlimentarService.getAll();
         return ResponseEntity.ok(restricoes);
