@@ -1,6 +1,7 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import jakarta.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
 

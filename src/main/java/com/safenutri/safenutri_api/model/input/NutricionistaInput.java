@@ -8,5 +8,4 @@ import lombok.Data;
 public class NutricionistaInput {
     private UserInput userInput;
     private String CRN;
-    private String descPerfil;
 }

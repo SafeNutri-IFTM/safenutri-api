@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.model.input;
 
 import java.time.LocalDate;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

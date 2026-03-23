@@ -4,11 +4,12 @@ import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.model.input.UserInput;
-import io.swagger.v3.oas.annotations.Operation;
 import com.safenutri.safenutri_api.api.service.UserService;
 
 @RestController

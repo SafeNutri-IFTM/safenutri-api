@@ -1,12 +1,16 @@
 package com.safenutri.safenutri_api.api.controller;
 
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import com.safenutri.safenutri_api.api.service.NutricionistaService;
 import com.safenutri.safenutri_api.model.input.NutricionistaInput;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
