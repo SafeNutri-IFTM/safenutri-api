@@ -1,0 +1,26 @@
+package com.safenutri.safenutri_api.api.controller;
+
+import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import com.safenutri.safenutri_api.api.service.GeneroService;
+import com.safenutri.safenutri_api.model.entity.Genero;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/genero")
+public class GeneroController {
+    private final GeneroService generoService;
+
+    @GetMapping
+    @Operation(summary = "Busca os generos", description = "Busca todos os generos")
+    public ResponseEntity<?> getAll() {
+        List<Genero> generos = generoService.getAll();
+        return ResponseEntity.ok(generos);
+    }
+}

@@ -1,7 +1,6 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import jakarta.persistence.*;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,4 +21,9 @@ public class UserRestricao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restricao_id")
     private RestricaoAlimentar restricao; 
+
+    public UserRestricao(User user, RestricaoAlimentar restricao) {
+        this.user = user;
+        this.restricao = restricao;
+    }
 }

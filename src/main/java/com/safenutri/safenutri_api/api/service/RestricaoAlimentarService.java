@@ -1,21 +1,23 @@
 package com.safenutri.safenutri_api.api.service;
 
+import java.util.List;
+import java.util.Set;
+import org.springframework.stereotype.Service;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.repository.RestricaoAlimentarRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class RestricaoAlimentarService {
-    @Autowired
-    private RestricaoAlimentarRepository repository;
 
-    public List<RestricaoAlimentar> listarTodas() {
-        return repository.findAll();
+    private final RestricaoAlimentarRepository restricaoAlimentarRepository;
+
+    public List<RestricaoAlimentar> findAllById(Set<Long> restricoesIdSet) {
+        return restricaoAlimentarRepository.findAllById(restricoesIdSet);
     }
 
-    public RestricaoAlimentar salvar(RestricaoAlimentar restricao) {
-        return repository.save(restricao);
+    public List<RestricaoAlimentar> getAll() {
+        return restricaoAlimentarRepository.findAll();
     }
 }
