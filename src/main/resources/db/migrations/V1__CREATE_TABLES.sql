@@ -52,7 +52,10 @@ CREATE SEQUENCE public.id_seq_restricao_alimentar
 
 CREATE TABLE public.restricao_alimentar (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_restricao_alimentar'),
-    restricao VARCHAR(255) NOT NULL
+    restricao VARCHAR(255) NOT NULL,
+    activated BOOLEAN,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP
 );
 
 ALTER TABLE public.restricao_alimentar
@@ -77,6 +80,7 @@ CREATE TABLE public.user (
     email VARCHAR(50) NOT NULL,
     senha VARCHAR(255) NOT NULL,
     dt_nascimento DATE NOT NULL,
+    activated BOOLEAN,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP
 );
@@ -109,7 +113,10 @@ CREATE SEQUENCE public.id_seq_user_restricao
 CREATE TABLE public.user_restricao (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_user_restricao'),
     user_id BIGINT NOT NULL,
-    restricao_id BIGINT NOT NULL
+    restricao_id BIGINT NOT NULL,
+    activated BOOLEAN,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP
 );
 
 ALTER TABLE public.user_restricao
@@ -142,7 +149,10 @@ CREATE TABLE public.nutricionista (
     user_id BIGINT NOT NULL,
     crn VARCHAR(100) NOT NULL,
     desc_perfil VARCHAR(255),
-    caminho_foto VARCHAR(255)
+    caminho_foto VARCHAR(255),
+    activated BOOLEAN,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP
 );
 
 ALTER TABLE public.nutricionista 
