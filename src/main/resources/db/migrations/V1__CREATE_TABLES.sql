@@ -1,4 +1,4 @@
---TABLE GENERO
+--TABLE GENERO---------------------------------------------------------------------------------------------
 CREATE SEQUENCE public.id_seq_genero
     START WITH 1
     INCREMENT BY 1
@@ -20,7 +20,7 @@ ALTER TABLE public.genero
 ALTER SEQUENCE public.id_seq_genero OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_genero OWNED BY public.genero.id;
 
---TABLE ROLE
+--TABLE ROLE-----------------------------------------------------------------------------------------------
 CREATE SEQUENCE public.id_seq_role
     START WITH 1
     INCREMENT BY 1
@@ -42,7 +42,7 @@ ALTER TABLE public.role
 ALTER SEQUENCE public.id_seq_role OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_role OWNED BY public.role.id;
 
---TABLE RESTRICAO ALIMENTAR
+--TABLE RESTRICAO ALIMENTAR--------------------------------------------------------------------------------
 CREATE SEQUENCE public.id_seq_restricao_alimentar
     START WITH 1
     INCREMENT BY 1
@@ -53,6 +53,7 @@ CREATE SEQUENCE public.id_seq_restricao_alimentar
 CREATE TABLE public.restricao_alimentar (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_restricao_alimentar'),
     restricao VARCHAR(255) NOT NULL,
+    descricao TEXT,
     activated BOOLEAN,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP
@@ -64,7 +65,7 @@ ALTER TABLE public.restricao_alimentar
 ALTER SEQUENCE public.id_seq_restricao_alimentar OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_restricao_alimentar OWNED BY public.restricao_alimentar.id;
 
---TABLE USER
+--TABLE USER-----------------------------------------------------------------------------------------------
 CREATE SEQUENCE public.id_seq_user
     START WITH 1
     INCREMENT BY 1
@@ -102,7 +103,7 @@ ALTER TABLE public.user
 ALTER SEQUENCE public.id_seq_user OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_user OWNED BY public.user.id;
 
---TABLE USER RESTRICAO
+--TABLE USER RESTRICAO-------------------------------------------------------------------------------------
 CREATE SEQUENCE public.id_seq_user_restricao
     START WITH 1
     INCREMENT BY 1
@@ -136,7 +137,7 @@ ALTER TABLE public.user_restricao
 ALTER SEQUENCE public.id_seq_user_restricao OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_user_restricao OWNED BY public.user_restricao.id;
 
---TABLE NUTRICIONISTA
+--TABLE NUTRICIONISTA--------------------------------------------------------------------------------------
 CREATE SEQUENCE public.id_seq_nutricionista
     START WITH 1
     INCREMENT BY 1
@@ -148,7 +149,7 @@ CREATE TABLE public.nutricionista (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_nutricionista'),
     user_id BIGINT NOT NULL,
     crn VARCHAR(100) NOT NULL,
-    desc_perfil VARCHAR(255),
+    desc_perfil TEXT,
     caminho_foto VARCHAR(255),
     activated BOOLEAN,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -167,3 +168,133 @@ ALTER TABLE public.nutricionista
 
 ALTER SEQUENCE public.id_seq_nutricionista OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_nutricionista OWNED BY public.nutricionista.id;
+
+--TABLE TIPO RECEITA---------------------------------------------------------------------------------------
+CREATE SEQUENCE public.id_seq_tipo_receita
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE public.tipo_receita(
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_tipo_receita'),
+    tipo_receita VARCHAR(255)
+);
+
+ALTER TABLE public.tipo_receita
+    ADD CONSTRAINT pk_tipo_receita PRIMARY KEY (id);
+
+ALTER SEQUENCE public.id_seq_tipo_receita OWNER TO postgres;
+ALTER SEQUENCE public.id_seq_tipo_receita OWNED BY public.tipo_receita.id;
+
+--TABLE RECEITA--------------------------------------------------------------------------------------------
+CREATE SEQUENCE public.id_seq_receita
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE public.receita(
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_receita'),
+    user_id BIGINT NOT NULL,
+    tipo_receita_id BIGINT NOT NULL,
+    titulo VARCHAR(255),
+    descricao TEXT,
+    tempo_preparo INTEGER,
+    porcao INTEGER,
+    calorias INTEGER,
+    caminho_foto VARCHAR(255),
+    is_public BOOLEAN,
+    activated BOOLEAN,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP
+);
+
+ALTER TABLE public.receita
+    ADD CONSTRAINT pk_receita PRIMARY KEY (id);
+
+ALTER TABLE public.receita
+    ADD CONSTRAINT fk_receita_tipo_receita FOREIGN KEY (tipo_receita_id)
+    REFERENCES public.tipo_receita (id)
+
+ALTER SEQUENCE public.id_seq_receita OWNER TO postgres;
+ALTER SEQUENCE public.id_seq_receita OWNED BY public.receita.id;
+
+--TABLE INGREDIENTE----------------------------------------------------------------------------------------
+CREATE SEQUENCE public.id_seq_ingrediente
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE public.ingrediente (
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_ingrediente'),
+    ingrediente VARCHAR(255)
+);
+
+ALTER TABLE public.ingrediente
+    ADD CONSTRAINT pk_ingrediente PRIMARY KEY (id);
+
+ALTER SEQUENCE public.id_seq_ingrediente OWNER TO postgres;
+ALTER SEQUENCE public.id_seq_ingrediente OWNED BY public.ingrediente.id;
+
+--TABLE RECEITA INGREDIENTE--------------------------------------------------------------------------------
+CREATE SEQUENCE public.id_seq_receita_ingrediente
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE public.receita_ingrediente (
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_receita_ingrediente'), 
+    receita_id BIGINT NOT NULL,
+    ingredinte_id BIGINT NOT NULL,
+    quantidade INTEGER,
+    unidade VARCHAR(10)
+);
+
+ALTER TABLE public.receita_ingrediente
+    ADD CONSTRAINT fk_receita_ingrediente_receita FOREIGN KEY (receita_id)
+    REFERENCES public.receita (id);
+
+ALTER TABLE public.receita_ingrediente
+    ADD CONSTRAINT fk_receita_ingrediente_ingrediente FOREIGN KEY (ingredinte_id)
+    REFERENCES public.ingrediente (id);
+
+ALTER TABLE public.receita_ingrediente    
+    ADD CONSTRAINT uk_receita_ingrediente UNIQUE (receita_id, ingredinte_id);
+
+ALTER SEQUENCE public.id_seq_receita_ingrediente OWNER TO postgres;
+ALTER SEQUENCE public.id_seq_receita_ingrediente OWNED BY public.receita_ingrediente.id;
+
+--TABLE MODO PREPARO---------------------------------------------------------------------------------------
+CREATE SEQUENCE public.id_seq_modo_preparo
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE public.modo_preparo (
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_modo_preparo'), 
+    receita_id BIGINT NOT NULL,
+    passo INTEGER,
+    descricao TEXT,
+    activated BOOLEAN,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP
+);
+
+ALTER TABLE public.modo_preparo
+    ADD CONSTRAINT fk_modo_preparo_receita FOREIGN KEY (receita_id)
+    REFERENCES public.receita (id);
+
+ALTER TABLE public.modo_preparo    
+    ADD CONSTRAINT uk_modo_preparo_receita UNIQUE (receita_id, passo);
+
+ALTER SEQUENCE public.id_seq_modo_preparo OWNER TO postgres;
+ALTER SEQUENCE public.id_seq_modo_preparo OWNED BY public.modo_preparo.id;
