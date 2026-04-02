@@ -1,6 +1,5 @@
 package com.safenutri.safenutri_api.model.entity;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,7 +16,7 @@ import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
 @Getter
 @Setter
 @Table(name = "user")
-public class User extends DefaultEntity implements Serializable{
+public class User extends DefaultEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_user")
     @SequenceGenerator(sequenceName = "id_seq_user", allocationSize = 1, name = "id_seq_user")

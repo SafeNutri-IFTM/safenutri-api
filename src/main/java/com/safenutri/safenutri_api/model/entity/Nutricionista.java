@@ -5,11 +5,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
+
 @Entity
 @Getter
 @Setter
 @Table(name = "nutricionista")
-public class Nutricionista {
+public class Nutricionista extends DefaultEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_nutricionista")
     @SequenceGenerator(sequenceName = "id_seq_nutricionista", allocationSize = 1, name = "id_seq_nutricionista")
