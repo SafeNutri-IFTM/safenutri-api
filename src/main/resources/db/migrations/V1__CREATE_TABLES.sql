@@ -217,7 +217,7 @@ ALTER TABLE public.receita
 
 ALTER TABLE public.receita
     ADD CONSTRAINT fk_receita_tipo_receita FOREIGN KEY (tipo_receita_id)
-    REFERENCES public.tipo_receita (id)
+    REFERENCES public.tipo_receita (id);
 
 ALTER SEQUENCE public.id_seq_receita OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_receita OWNED BY public.receita.id;
@@ -258,6 +258,9 @@ CREATE TABLE public.receita_ingrediente (
 );
 
 ALTER TABLE public.receita_ingrediente
+    ADD CONSTRAINT pk_receita_ingrediente PRIMARY KEY (id);
+
+ALTER TABLE public.receita_ingrediente
     ADD CONSTRAINT fk_receita_ingrediente_receita FOREIGN KEY (receita_id)
     REFERENCES public.receita (id);
 
@@ -288,6 +291,9 @@ CREATE TABLE public.modo_preparo (
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP
 );
+
+ALTER TABLE public.modo_preparo
+    ADD CONSTRAINT pk_modo_preparo PRIMARY KEY (id);
 
 ALTER TABLE public.modo_preparo
     ADD CONSTRAINT fk_modo_preparo_receita FOREIGN KEY (receita_id)
