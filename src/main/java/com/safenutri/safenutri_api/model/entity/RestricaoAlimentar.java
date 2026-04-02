@@ -19,4 +19,7 @@ public class RestricaoAlimentar extends DefaultEntity {
 
     @Column(name = "restricao", nullable = false)
     private String restricao;
+
+    @Column(name = "descricao", nullable = false)
+    private String descricao;
 }
