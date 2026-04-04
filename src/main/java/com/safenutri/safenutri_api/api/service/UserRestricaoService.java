@@ -15,7 +15,7 @@ public class UserRestricaoService {
 
     private final UserRestricaoRepository userRestricaoRepository;
 
-    public void saveAll(List<UserRestricao> lista) {
-        userRestricaoRepository.saveAll(lista);
+    public void saveAll(List<UserRestricao> userRestricoes) {
+        userRestricaoRepository.saveAll(userRestricoes);
     }
 }

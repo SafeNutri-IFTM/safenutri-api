@@ -35,7 +35,7 @@ public class CrnValidation {
             page.waitForTimeout(1000);
 
             Locator rows = page.locator("table tbody tr");
-            List<CrnInfo> lista = new ArrayList<>();
+            List<CrnInfo> crnInfos = new ArrayList<>();
 
             for (int i = 0; i < rows.count(); i++) {
                 Locator row = rows.nth(i);
@@ -45,12 +45,12 @@ public class CrnValidation {
                 String CRN = cols.nth(2).innerText() + "/" + cols.nth(1).innerText();
                 String situacao = cols.nth(3).innerText();
 
-                CrnInfo info = new CrnInfo(CRN, nome, situacao);
-                lista.add(info);
+                CrnInfo crnInfo = new CrnInfo(CRN, nome, situacao);
+                crnInfos.add(crnInfo);
             }
 
             browser.close();
-            return validarCrn(lista);
+            return validarCrn(crnInfos);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,9 +99,9 @@ public class CrnValidation {
         return crnValue;
     }
 
-    private Boolean validarCrn(List<CrnInfo> lista) {
-        if (lista != null && !lista.isEmpty()) {
-            for (CrnInfo cr : lista) {
+    private Boolean validarCrn(List<CrnInfo> crnInfos) {
+        if (crnInfos != null && !crnInfos.isEmpty()) {
+            for (CrnInfo cr : crnInfos) {
                 if(cr.getSituacao().equals("ATIVO")) {
                     return true;
                 }

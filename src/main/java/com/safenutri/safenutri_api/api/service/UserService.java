@@ -63,13 +63,13 @@ public class UserService {
             throw new RestricaoNotFoundException("Alguma restrição não existe"); 
         }
 
-        List<UserRestricao> lista = new ArrayList<>();
+        List<UserRestricao> userRestricoes = new ArrayList<>();
 
         for (RestricaoAlimentar ra: restricoes) {
             UserRestricao ur = new UserRestricao(user, ra);
-            lista.add(ur);
+            userRestricoes.add(ur);
         }
 
-        userRestricaoService.saveAll(lista);
+        userRestricaoService.saveAll(userRestricoes);
     }
 }
