@@ -22,4 +22,12 @@ public class RestricaoAlimentar extends DefaultEntity {
 
     @Column(name = "descricao", nullable = false)
     private String descricao;
+
+    @Column(name = "approved")
+    private Boolean approved;
+
+    @PrePersist
+    public void onCreate() {
+        this.approved = Boolean.FALSE;
+    }
 }

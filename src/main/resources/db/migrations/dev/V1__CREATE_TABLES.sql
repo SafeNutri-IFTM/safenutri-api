@@ -54,6 +54,7 @@ CREATE TABLE public.restricao_alimentar (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_restricao_alimentar'),
     restricao VARCHAR(255) NOT NULL,
     descricao TEXT,
+    approved BOOLEAN,
     activated BOOLEAN,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP
@@ -61,6 +62,9 @@ CREATE TABLE public.restricao_alimentar (
 
 ALTER TABLE public.restricao_alimentar
     ADD CONSTRAINT pk_restricao_alimentar PRIMARY KEY (id);
+
+ALTER TABLE public.restricao_alimentar   
+    ADD CONSTRAINT uk_restricao UNIQUE (restricao);
 
 ALTER SEQUENCE public.id_seq_restricao_alimentar OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_restricao_alimentar OWNED BY public.restricao_alimentar.id;
@@ -160,6 +164,9 @@ ALTER TABLE public.nutricionista
     ADD CONSTRAINT pk_nutricionista PRIMARY KEY (id);
 
 ALTER TABLE public.nutricionista 
+    ADD CONSTRAINT uk_nutricionista_crn UNIQUE (crn);
+
+ALTER TABLE public.nutricionista 
     ADD CONSTRAINT uk_nutricionista_user UNIQUE (user_id);
 
 ALTER TABLE public.nutricionista 
@@ -206,7 +213,7 @@ CREATE TABLE public.receita(
     porcao INTEGER,
     calorias INTEGER,
     caminho_foto VARCHAR(255),
-    is_public BOOLEAN,
+    public BOOLEAN,
     activated BOOLEAN,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP

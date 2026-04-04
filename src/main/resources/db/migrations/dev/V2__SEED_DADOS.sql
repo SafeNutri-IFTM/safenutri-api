@@ -5,8 +5,11 @@ INSERT INTO role (role) VALUES ('ADMIN');
 INSERT INTO role (role) VALUES ('NUTRICIONISTA');
 INSERT INTO role (role) VALUES ('USER');
 
-INSERT INTO restricao_alimentar (restricao, descricao, activated) VALUES ('LACTOSE', 'Restrição para alérgicos a lactose', TRUE);
-INSERT INTO restricao_alimentar (restricao, descricao, activated) VALUES ('GLÚTEN', 'Restrição para alérgicos a glúten', TRUE);
+INSERT INTO restricao_alimentar (restricao, descricao, approved, activated) 
+    VALUES ('LACTOSE', 'Restrição para alérgicos a lactose', TRUE, TRUE);
+
+INSERT INTO restricao_alimentar (restricao, descricao, approved, activated) 
+    VALUES ('GLÚTEN', 'Restrição para alérgicos a glúten', TRUE, TRUE);
 
 INSERT INTO tipo_receita (tipo_receita) VALUES ('SALGADA');
 INSERT INTO tipo_receita (tipo_receita) VALUES ('DOCE');
