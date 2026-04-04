@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.model.entity.User;
+import com.safenutri.safenutri_api.model.enums.RoleEnum;
 
 @Service
 @RequiredArgsConstructor
@@ -115,14 +116,14 @@ public class JwtService {
     }
 
     public boolean isAdmin() {
-        return "ADMIN".equals(getRole());
+        return RoleEnum.ADMIN.getRole().equals(getRole());
     }
 
-    public boolean isGestorSecretaria() {
-        return "GESTOR_SECRETARIA".equals(getRole());
+    public boolean isNutricionista() {
+        return RoleEnum.NUTRICIONISTA.getRole().equals(getRole());
     }
 
-    public boolean isGestorGeral() {
-        return "GESTOR_GERAL".equals(getRole());
+    public boolean isUser() {
+        return RoleEnum.USER.getRole().equals(getRole());
     }
 }
