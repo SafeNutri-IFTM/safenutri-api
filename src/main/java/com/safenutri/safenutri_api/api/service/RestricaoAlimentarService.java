@@ -13,14 +13,13 @@ import com.safenutri.safenutri_api.repository.RestricaoAlimentarRepository;
 @Service
 @RequiredArgsConstructor
 public class RestricaoAlimentarService {
-
     private final RestricaoAlimentarRepository restricaoAlimentarRepository;
 
     public List<RestricaoAlimentar> findAllById(Set<Long> restricoesIdSet) {
         return restricaoAlimentarRepository.findAllById(restricoesIdSet);
     }
 
-    public List<RestricaoAlimentar> getAll() {
-        return restricaoAlimentarRepository.findAll();
+    public List<RestricaoAlimentar> getAllActivatedAndApproved() {
+        return restricaoAlimentarRepository.findByActivatedAndApproved(true, true);
     }
 }
