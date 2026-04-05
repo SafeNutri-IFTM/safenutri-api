@@ -1,5 +1,6 @@
 package com.safenutri.safenutri_api.api.service;
 
+import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -11,6 +12,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,18 +26,27 @@ import com.safenutri.safenutri_api.model.enums.RoleEnum;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
+
     @Value("${security.jwt.expiration}")
     private String expiration;
+
     @Value("${security.jwt.key}")
     private String key;
 
     private final HttpServletRequest request;
 
+    // Converte a chave Base64 em Key segura
+    private Key getKey() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
+    }
+
     public String recuperarTokenDoHeader() {
         String authHeader = request.getHeader("Authorization");
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
+
         return null;
     }
 
@@ -42,21 +54,24 @@ public class JwtService {
         try {
             if (token == null)
                 return false;
+
             Claims claims = obterClaims(token);
             return !claims.getExpiration().before(new Date());
+
         } catch (Exception e) {
             return false;
         }
     }
 
     public String gerarToken(User user) {
-        long expString = Long.valueOf(expiration);
+        long exp = Long.parseLong(expiration);
 
-        LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(expString);
-        Date data = Date.from(dataHoraExpiracao.atZone(ZoneId.systemDefault()).toInstant());
+        LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(exp);
+        Date data = Date.from(dataHoraExpiracao
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
 
         HashMap<String, Object> claims = new HashMap<>();
-
         claims.put("id", user.getId());
         claims.put("name", user.getNome());
         claims.put("email", user.getEmail());
@@ -67,23 +82,26 @@ public class JwtService {
                 .setSubject(user.getEmail())
                 .setExpiration(data)
                 .addClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, key)
+                .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String gerarTokenEmail(User user) {
-        long expString = Long.valueOf(expiration);
-        LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(expString);
-        Date data = Date.from(dataHoraExpiracao.atZone(ZoneId.systemDefault()).toInstant());
-        HashMap<String, Object> claims = new HashMap<>();
+        long exp = Long.parseLong(expiration);
 
+        LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(exp);
+        Date data = Date.from(dataHoraExpiracao
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+
+        HashMap<String, Object> claims = new HashMap<>();
         claims.put("email", user.getEmail());
 
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .setExpiration(data)
                 .addClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, key)
+                .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -93,18 +111,25 @@ public class JwtService {
         if (authorization == null || authorization.isEmpty()) {
             throw new RuntimeException("Authorization vazio!");
         }
-        if (authorization.split(" ").length == 0) {
+
+        if (!authorization.startsWith("Bearer ")) {
             throw new RuntimeException("Authorization sem Bearer!");
         }
-        return obterClaims(authorization.split(" ")[1]);
+
+        String token = authorization.substring(7);
+        return obterClaims(token);
     }
 
     public Claims obterClaims(String token) throws ExpiredJwtException {
-        return Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public String obterLoginUsuario(String token) throws ExpiredJwtException {
-        return (String) obterClaims(token).getSubject();
+        return obterClaims(token).getSubject();
     }
 
     public Long getIdUsuario() {

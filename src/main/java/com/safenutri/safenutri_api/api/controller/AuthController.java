@@ -16,6 +16,7 @@ import com.safenutri.safenutri_api.api.service.JwtService;
 import com.safenutri.safenutri_api.api.service.UserService;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
 import com.safenutri.safenutri_api.model.entity.User;
+import com.safenutri.safenutri_api.model.input.LoginInput;
 import com.safenutri.safenutri_api.model.output.Token;
 
 @RestController
@@ -29,9 +30,9 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Valida as credenciais do usuário para entrar no sistema")
-    public Token login(@RequestBody User loginInput) {
+    public Token login(@RequestBody LoginInput loginInput) {
         try {
-            User user = userService.autenticarPorEmail(loginInput.getEmail(), loginInput.getSenha());
+            User user = userService.autenticarPorEmail(loginInput.getEmail(), loginInput.getPassword());
 
             String token = jwtService.gerarToken(user);
 
