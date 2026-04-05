@@ -2,11 +2,9 @@ package com.safenutri.safenutri_api.api.service;
 
 import java.util.List;
 import java.util.Set;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional; // Import necessário
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.repository.RestricaoAlimentarRepository;
 
@@ -22,5 +20,11 @@ public class RestricaoAlimentarService {
 
     public List<RestricaoAlimentar> getAll() {
         return restricaoAlimentarRepository.findAll();
+    }
+
+    @Transactional
+    public RestricaoAlimentar salvar(RestricaoAlimentar restricao) {
+        // O repositório salvará o objeto na tabela 'restricao_alimentar'
+        return restricaoAlimentarRepository.save(restricao);
     }
 }
