@@ -16,7 +16,6 @@ import com.safenutri.safenutri_api.repository.NutricionistaRepository;
 @Service
 @RequiredArgsConstructor
 public class NutricionistaService {
-
     private final NutricionistaRepository nutricionistaRepository;
     private final UserService userService;
     private final CrnValidation crnValidation;

@@ -25,7 +25,6 @@ import com.safenutri.safenutri_api.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    
     private final RoleService roleService;
     private final GeneroService generoService;
     private final RestricaoAlimentarService restricaoAlimentarService;

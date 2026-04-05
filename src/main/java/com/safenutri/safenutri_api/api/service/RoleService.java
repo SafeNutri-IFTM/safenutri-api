@@ -10,7 +10,6 @@ import com.safenutri.safenutri_api.repository.RoleRepository;
 @Service
 @RequiredArgsConstructor
 public class RoleService {
-
     private final RoleRepository roleRepository;
 
     public Role findById(Long id) {

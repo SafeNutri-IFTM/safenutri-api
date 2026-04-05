@@ -12,7 +12,6 @@ import com.safenutri.safenutri_api.repository.UserRestricaoRepository;
 @Service
 @RequiredArgsConstructor
 public class UserRestricaoService {
-
     private final UserRestricaoRepository userRestricaoRepository;
 
     public void saveAll(List<UserRestricao> userRestricoes) {
