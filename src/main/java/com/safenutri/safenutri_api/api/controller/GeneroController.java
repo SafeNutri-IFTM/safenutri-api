@@ -2,9 +2,9 @@ package com.safenutri.safenutri_api.api.controller;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-
 import io.swagger.v3.oas.annotations.Operation;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +22,7 @@ public class GeneroController {
 
     @GetMapping
     @Operation(summary = "Busca os generos", description = "Busca todos os generos")
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<List<Genero>> getAll() {
         List<Genero> generos = generoService.getAll();
         return ResponseEntity.ok(generos);
     }
