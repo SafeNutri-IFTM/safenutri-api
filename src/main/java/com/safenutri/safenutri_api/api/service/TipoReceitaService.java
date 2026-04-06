@@ -2,7 +2,10 @@ package com.safenutri.safenutri_api.api.service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
+
 import com.safenutri.safenutri_api.model.entity.TipoReceita;
 import com.safenutri.safenutri_api.repository.TipoReceitaRepository;
 
@@ -17,5 +20,9 @@ public class TipoReceitaService {
 
     public TipoReceita getReference(Long id) {
         return tipoReceitaRepository.getReferenceById(id);
+    }
+
+    public List<TipoReceita> getAll() {
+        return tipoReceitaRepository.findAll();
     }
 }

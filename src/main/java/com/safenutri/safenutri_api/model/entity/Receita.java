@@ -57,6 +57,7 @@ public class Receita extends DefaultEntity {
             this.tempoPreparo = tempoPreparo;
             this.porcao = porcao;
             this.calorias = calorias;
+            this.caminhoFoto = caminhoFoto;
             this.publicBoolean = publicBoolean;
     }
 }
