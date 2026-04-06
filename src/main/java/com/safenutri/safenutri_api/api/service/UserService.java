@@ -32,6 +32,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    public User getReference(Long id) {
+        return userRepository.getReferenceById(id);
+    }
+
     @Transactional
     public User save(UserInput userInput) {
         if(userRepository.existsByEmail(userInput.getEmail())) {
