@@ -8,12 +8,14 @@ import jakarta.validation.constraints.Size;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "user")
 public class User extends DefaultEntity {
     @Id

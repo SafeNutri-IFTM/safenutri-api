@@ -13,7 +13,7 @@ public class CrnValidation {
     public Boolean pesquisarCrn(String name, String crn, String inscricao) {
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions().setHeadless(true)
+                new BrowserType.LaunchOptions().setHeadless(false)
             );
 
             Long crnValue = processarCrn(crn);
@@ -32,7 +32,7 @@ public class CrnValidation {
 
             page.locator("button:has-text('Pesquisar')").click();
 
-            page.waitForTimeout(1000);
+            page.waitForSelector("table tbody tr", new Page.WaitForSelectorOptions().setTimeout(5000));
 
             Locator rows = page.locator("table tbody tr");
             List<CrnInfo> crnInfos = new ArrayList<>();
