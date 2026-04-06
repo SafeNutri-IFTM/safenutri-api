@@ -20,18 +20,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> {})
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.POST, "/user").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/nutricionista").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/genero").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/restricao-alimentar").permitAll()
-                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()                        
-                    .anyRequest().authenticated())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .cors(cors -> {
+                })
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/user").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/nutricionista").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/genero").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/restricao-alimentar").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/documentos-legais/atual").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
