@@ -24,4 +24,9 @@ public class ReceitaRestricao extends DefaultEntity{
     @ManyToOne
     @JoinColumn(name = "restricao_id", nullable = false)
     private RestricaoAlimentar restricao;
+
+    public ReceitaRestricao(Receita receita, RestricaoAlimentar restricao) {
+        this.receita = receita;
+        this.restricao = restricao;
+    }
 }

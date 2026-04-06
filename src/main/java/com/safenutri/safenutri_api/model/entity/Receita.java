@@ -47,7 +47,7 @@ public class Receita extends DefaultEntity {
     private Boolean publicBoolean;
 
     public Receita(User user, TipoReceita tipoReceita, String titulo, String descricao, 
-        Integer tempoPreparo, Integer porcao, Integer calorias, Boolean publicBoolean) {
+        Integer tempoPreparo, Integer porcao, Integer calorias, String caminhoFoto, Boolean publicBoolean) {
             this.user = user;
             this.tipoReceita = tipoReceita;
             this.titulo = titulo;
