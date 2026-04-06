@@ -9,11 +9,15 @@ import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.exception.EmailAlreadyExistsException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
+import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
 import com.safenutri.safenutri_api.model.entity.Genero;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.Role;
@@ -24,8 +28,8 @@ import com.safenutri.safenutri_api.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
-    
+public class UserService implements UserDetailsService {
+
     private final RoleService roleService;
     private final GeneroService generoService;
     private final RestricaoAlimentarService restricaoAlimentarService;
@@ -35,16 +39,15 @@ public class UserService {
 
     @Transactional
     public User save(UserInput userInput) {
-        if(userRepository.existsByEmail(userInput.getEmail())) {
+        if (userRepository.existsByEmail(userInput.getEmail())) {
             throw new EmailAlreadyExistsException("Email já cadastrado");
         }
 
         Role role = roleService.findById(userInput.getRole());
         Genero genero = generoService.findById(userInput.getGenero());
 
-        User user = new User(role, genero, userInput.getNome(), userInput.getEmail(), 
-            passwordEncoder.encode(userInput.getSenha()), userInput.getDtNascimento()
-        );
+        User user = new User(role, genero, userInput.getNome(), userInput.getEmail(),
+                passwordEncoder.encode(userInput.getSenha()), userInput.getDtNascimento());
 
         User savedUser = userRepository.save(user);
         if (userInput.getRestricoes() != null && !userInput.getRestricoes().isEmpty()) {
@@ -60,16 +63,47 @@ public class UserService {
         List<RestricaoAlimentar> restricoes = restricaoAlimentarService.findAllById(restricoesIdSet);
 
         if (restricoesId.size() != restricoes.size()) {
-            throw new RestricaoNotFoundException("Alguma restrição não existe"); 
+            throw new RestricaoNotFoundException("Alguma restrição não existe");
         }
 
         List<UserRestricao> lista = new ArrayList<>();
 
-        for (RestricaoAlimentar ra: restricoes) {
+        for (RestricaoAlimentar ra : restricoes) {
             UserRestricao ur = new UserRestricao(user, ra);
             lista.add(ur);
         }
 
         userRestricaoService.saveAll(lista);
+    }
+
+    public User autenticarPorEmail(String email, String password)
+            throws UsernameNotFoundException, SenhaInvalidaException {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
+
+        if (!passwordEncoder.matches(password, user.getSenha())) {
+            throw new SenhaInvalidaException();
+        }
+
+        return user;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
+        if (!user.getActivated()) {
+            throw new UsernameNotFoundException("Usuário desativado.");
+        }
+
+        String roleNome = user.getRole().getRole();
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getSenha())
+                .roles(roleNome)
+                .build();
     }
 }
