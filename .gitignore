@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+src/main/resources/arquivos/receitas*
+!src/main/resources/arquivos/receitas.gitkeep
+
+src/main/resources/arquivos/nutricionistas*
+!src/main/resources/arquivos/nutricionistas.gitkeep

@@ -26,7 +26,6 @@ import com.safenutri.safenutri_api.model.enums.RoleEnum;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-
     @Value("${security.jwt.expiration}")
     private String expiration;
 
@@ -52,8 +51,9 @@ public class JwtService {
 
     public boolean tokenValido(String token) {
         try {
-            if (token == null)
+            if (token == null) {
                 return false;
+            }
 
             Claims claims = obterClaims(token);
             return !claims.getExpiration().before(new Date());
@@ -68,8 +68,8 @@ public class JwtService {
 
         LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(exp);
         Date data = Date.from(dataHoraExpiracao
-                .atZone(ZoneId.systemDefault())
-                .toInstant());
+            .atZone(ZoneId.systemDefault())
+            .toInstant());
 
         HashMap<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
@@ -79,11 +79,11 @@ public class JwtService {
         claims.put("idRole", user.getRole().getId());
 
         return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setExpiration(data)
-                .addClaims(claims)
-                .signWith(getKey(), SignatureAlgorithm.HS256)
-                .compact();
+            .setSubject(user.getEmail())
+            .setExpiration(data)
+            .addClaims(claims)
+            .signWith(getKey(), SignatureAlgorithm.HS256)
+            .compact();
     }
 
     public String gerarTokenEmail(User user) {
@@ -91,18 +91,18 @@ public class JwtService {
 
         LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(exp);
         Date data = Date.from(dataHoraExpiracao
-                .atZone(ZoneId.systemDefault())
-                .toInstant());
+            .atZone(ZoneId.systemDefault())
+            .toInstant());
 
         HashMap<String, Object> claims = new HashMap<>();
         claims.put("email", user.getEmail());
 
         return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setExpiration(data)
-                .addClaims(claims)
-                .signWith(getKey(), SignatureAlgorithm.HS256)
-                .compact();
+            .setSubject(user.getEmail())
+            .setExpiration(data)
+            .addClaims(claims)
+            .signWith(getKey(), SignatureAlgorithm.HS256)
+            .compact();
     }
 
     private Claims getClaims() {
@@ -122,10 +122,10 @@ public class JwtService {
 
     public Claims obterClaims(String token) throws ExpiredJwtException {
         return Jwts.parserBuilder()
-                .setSigningKey(getKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+            .setSigningKey(getKey())
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
     }
 
     public String obterLoginUsuario(String token) throws ExpiredJwtException {

@@ -29,7 +29,6 @@ import com.safenutri.safenutri_api.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-
     private final RoleService roleService;
     private final GeneroService generoService;
     private final RestricaoAlimentarService restricaoAlimentarService;
@@ -47,7 +46,7 @@ public class UserService implements UserDetailsService {
         Genero genero = generoService.findById(userInput.getGenero());
 
         User user = new User(role, genero, userInput.getNome(), userInput.getEmail(),
-                passwordEncoder.encode(userInput.getSenha()), userInput.getDtNascimento());
+            passwordEncoder.encode(userInput.getSenha()), userInput.getDtNascimento());
 
         User savedUser = userRepository.save(user);
         if (userInput.getRestricoes() != null && !userInput.getRestricoes().isEmpty()) {
@@ -66,21 +65,21 @@ public class UserService implements UserDetailsService {
             throw new RestricaoNotFoundException("Alguma restrição não existe");
         }
 
-        List<UserRestricao> lista = new ArrayList<>();
+        List<UserRestricao> userRestricoes = new ArrayList<>();
 
         for (RestricaoAlimentar ra : restricoes) {
             UserRestricao ur = new UserRestricao(user, ra);
-            lista.add(ur);
+            userRestricoes.add(ur);
         }
 
-        userRestricaoService.saveAll(lista);
+        userRestricaoService.saveAll(userRestricoes);
     }
 
-    public User autenticarPorEmail(String email, String password)
-            throws UsernameNotFoundException, SenhaInvalidaException {
+    public User autenticarPorEmail(String email, String password) 
+        throws UsernameNotFoundException, SenhaInvalidaException {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
 
         if (!passwordEncoder.matches(password, user.getSenha())) {
             throw new SenhaInvalidaException();
@@ -92,7 +91,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         if (!user.getActivated()) {
             throw new UsernameNotFoundException("Usuário desativado.");
@@ -101,9 +100,13 @@ public class UserService implements UserDetailsService {
         String roleNome = user.getRole().getRole();
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getSenha())
-                .roles(roleNome)
-                .build();
+            .username(user.getEmail())
+            .password(user.getSenha())
+            .roles(roleNome)
+            .build();
+    }
+
+    public User getReference(Long id) {
+        return userRepository.getReferenceById(id);
     }
 }

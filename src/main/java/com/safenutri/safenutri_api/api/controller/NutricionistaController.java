@@ -2,10 +2,11 @@ package com.safenutri.safenutri_api.api.controller;
 
 import jakarta.validation.Valid;
 
-import lombok.RequiredArgsConstructor;
-
 import io.swagger.v3.oas.annotations.Operation;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +21,8 @@ public class NutricionistaController {
 
     @PostMapping
     @Operation(summary = "Cria um nutricionista", description = "Cria um novo nutricionista com base nas informações fornecidas")
-    public ResponseEntity<?> save(@Valid @RequestBody NutricionistaInput nutricionistaInput) {
+    public ResponseEntity<Void> save(@Valid @RequestBody NutricionistaInput nutricionistaInput) {
         nutricionistaService.save(nutricionistaInput);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

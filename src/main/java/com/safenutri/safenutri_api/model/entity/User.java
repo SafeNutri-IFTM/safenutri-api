@@ -1,7 +1,6 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +29,7 @@ public class User extends DefaultEntity {
     private Genero genero; 
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role; 
 
@@ -51,9 +50,6 @@ public class User extends DefaultEntity {
     @NotNull
     @Column(name = "dt_nascimento", nullable = false)
     private LocalDate dtNascimento;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserRestricao> restricoes; 
 
     public User(Role role, Genero genero, String nome, String email, String senha, LocalDate dtNascimento) {
         this.role = role;
