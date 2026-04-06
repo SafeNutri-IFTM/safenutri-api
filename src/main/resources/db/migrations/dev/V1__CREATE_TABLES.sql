@@ -327,6 +327,7 @@ CREATE TABLE public.modo_preparo (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_modo_preparo'), 
     receita_id BIGINT NOT NULL,
     passo INTEGER,
+    titulo VARCHAR(255),
     descricao TEXT,
     activated BOOLEAN,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
