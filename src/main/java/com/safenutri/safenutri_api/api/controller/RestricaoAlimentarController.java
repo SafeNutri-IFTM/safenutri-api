@@ -16,7 +16,7 @@ import com.safenutri.safenutri_api.model.input.RestricaoAlimentarInput;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("restricao-alimentar")
+@RequestMapping("/restricao-alimentar")
 public class RestricaoAlimentarController {
     private final RestricaoAlimentarService restricaoAlimentarService;
 

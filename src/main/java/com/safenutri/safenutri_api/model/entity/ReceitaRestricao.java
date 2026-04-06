@@ -3,6 +3,7 @@ package com.safenutri.safenutri_api.model.entity;
 import jakarta.persistence.*;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
@@ -10,6 +11,7 @@ import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "receita_restricao")
 public class ReceitaRestricao extends DefaultEntity{
     @Id

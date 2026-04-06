@@ -45,9 +45,14 @@ public class ReceitaService {
         if (jwtService.isNutricionista()) {
             isPublic = true;
         }
+
+        String[] partes = receitaInput.getTempoPreparo().split(":");
+        Integer horas = Integer.parseInt(partes[0]);   
+        Integer minutos = Integer.parseInt(partes[1]);
+        Integer tempoPreparo = (horas * 60) + minutos;
         
         Receita receita = new Receita(user, tipoReceita, receitaInput.getTitulo(), 
-            receitaInput.getDescricao(), receitaInput.getTempoPreparo(), receitaInput.getPorcao(), 
+            receitaInput.getDescricao(), tempoPreparo, receitaInput.getPorcao(), 
             receitaInput.getCalorias(), caminhoFoto, isPublic);
 
         Receita savedReceita = receitaRepository.save(receita);

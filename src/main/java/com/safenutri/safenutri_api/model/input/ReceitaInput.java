@@ -13,7 +13,7 @@ public class ReceitaInput {
     private Long tipoReceitaId;
     private String titulo;
     private String descricao;
-    private Integer tempoPreparo;
+    private String tempoPreparo;
     private Integer porcao;
     private Integer calorias;
     private MultipartFile imagem;
