@@ -1,7 +1,6 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

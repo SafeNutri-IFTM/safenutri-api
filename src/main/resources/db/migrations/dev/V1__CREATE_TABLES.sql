@@ -229,6 +229,40 @@ ALTER TABLE public.receita
 ALTER SEQUENCE public.id_seq_receita OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_receita OWNED BY public.receita.id;
 
+--TABLE RECEITA RESTRICAO----------------------------------------------------------------------------------
+CREATE SEQUENCE public.id_seq_receita_restricao
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE public.receita_restricao (
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_receita_restricao'),
+    receita_id BIGINT NOT NULL,
+    restricao_id BIGINT NOT NULL,
+    activated BOOLEAN,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP
+);
+
+ALTER TABLE public.receita_restricao
+    ADD CONSTRAINT pk_receita_restricao PRIMARY KEY (id);
+
+ALTER TABLE public.receita_restricao    
+    ADD CONSTRAINT uk_receita_restricao UNIQUE (receita_id, restricao_id);
+
+ALTER TABLE public.receita_restricao
+    ADD CONSTRAINT fk_receita_restricao_receita FOREIGN KEY (receita_id)
+    REFERENCES public.receita (id);
+
+ALTER TABLE public.receita_restricao
+    ADD CONSTRAINT fk_receita_restricao_restricao_alimentar FOREIGN KEY (restricao_id)
+    REFERENCES public.restricao_alimentar (id);
+
+ALTER SEQUENCE public.id_seq_receita_restricao OWNER TO postgres;
+ALTER SEQUENCE public.id_seq_receita_restricao OWNED BY public.receita_restricao.id;
+
 --TABLE INGREDIENTE----------------------------------------------------------------------------------------
 CREATE SEQUENCE public.id_seq_ingrediente
     START WITH 1
