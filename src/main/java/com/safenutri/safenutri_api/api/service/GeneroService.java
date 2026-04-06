@@ -12,7 +12,6 @@ import com.safenutri.safenutri_api.repository.GeneroRepository;
 @Service
 @RequiredArgsConstructor
 public class GeneroService {
-
     private final GeneroRepository generoRepository;
 
     public Genero findById(Long id) {

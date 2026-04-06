@@ -19,4 +19,10 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+
+    @ExceptionHandler(SenhaInvalidaException.class)
+    public ResponseEntity<ErrorResponse> handleSenhaInvalida(SenhaInvalidaException e) {
+        ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 }

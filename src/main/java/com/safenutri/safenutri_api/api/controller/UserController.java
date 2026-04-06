@@ -2,10 +2,11 @@ package com.safenutri.safenutri_api.api.controller;
 
 import jakarta.validation.Valid;
 
-import lombok.RequiredArgsConstructor;
-
 import io.swagger.v3.oas.annotations.Operation;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +21,8 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Cria um usuário", description = "Cria um novo usuário com base nas informações fornecidas")
-    public ResponseEntity<?> save(@Valid @RequestBody UserInput userInput) {
+    public ResponseEntity<Void> save(@Valid @RequestBody UserInput userInput) {
         userService.save(userInput);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

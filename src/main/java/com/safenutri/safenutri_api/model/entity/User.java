@@ -1,8 +1,6 @@
 package com.safenutri.safenutri_api.model.entity;
 
-import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -10,14 +8,16 @@ import jakarta.validation.constraints.Size;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "user")
-public class User extends DefaultEntity implements Serializable{
+public class User extends DefaultEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_user")
     @SequenceGenerator(sequenceName = "id_seq_user", allocationSize = 1, name = "id_seq_user")
@@ -29,7 +29,7 @@ public class User extends DefaultEntity implements Serializable{
     private Genero genero; 
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role; 
 
@@ -50,9 +50,6 @@ public class User extends DefaultEntity implements Serializable{
     @NotNull
     @Column(name = "dt_nascimento", nullable = false)
     private LocalDate dtNascimento;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserRestricao> restricoes; 
 
     public User(Role role, Genero genero, String nome, String email, String senha, LocalDate dtNascimento) {
         this.role = role;

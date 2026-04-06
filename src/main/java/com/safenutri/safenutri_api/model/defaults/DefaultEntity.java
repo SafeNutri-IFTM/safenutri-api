@@ -14,6 +14,10 @@ import lombok.Data;
 @MappedSuperclass
 public abstract class DefaultEntity {
     @NotNull
+    @Column(name = "activated")
+    private Boolean activated;
+
+    @NotNull
     @Column(name = "created")
     private LocalDateTime created;
 
@@ -22,6 +26,7 @@ public abstract class DefaultEntity {
 
     @PrePersist
     public void onCreate() {
+        this.activated = Boolean.TRUE;
         this.created = LocalDateTime.now();
         this.updated = LocalDateTime.now();
     }
