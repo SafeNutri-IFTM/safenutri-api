@@ -346,3 +346,65 @@ ALTER TABLE public.modo_preparo
 
 ALTER SEQUENCE public.id_seq_modo_preparo OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_modo_preparo OWNED BY public.modo_preparo.id;
+
+--TABLE DOCUMENTOS LEGAIS----------------------------------------------------------------------------------
+CREATE SEQUENCE public.id_seq_documentos_legais
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE public.documentos_legais (
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_documentos_legais'),
+    tipo VARCHAR(100) NOT NULL,
+    versao VARCHAR(50) NOT NULL,
+    texto TEXT NOT NULL,
+    activated BOOLEAN,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP
+);
+
+ALTER TABLE public.documentos_legais
+    ADD CONSTRAINT pk_documentos_legais PRIMARY KEY (id);
+
+-- Opcional: Garantir que não existam duas versões iguais do mesmo tipo de documento ativas
+ALTER TABLE public.documentos_legais    
+    ADD CONSTRAINT uk_documentos_legais_tipo_versao UNIQUE (tipo, versao);
+
+ALTER SEQUENCE public.id_seq_documentos_legais OWNER TO postgres;
+ALTER SEQUENCE public.id_seq_documentos_legais OWNED BY public.documentos_legais.id;
+
+
+--TABLE ACEITO TERMOS--------------------------------------------------------------------------------------
+CREATE SEQUENCE public.id_seq_aceito_termos
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE public.aceito_termos (
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_aceito_termos'),
+    user_id BIGINT NOT NULL,
+    documento_id BIGINT NOT NULL,
+    data_aceito_termos TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE public.aceito_termos
+    ADD CONSTRAINT pk_aceito_termos PRIMARY KEY (id);
+
+ALTER TABLE public.aceito_termos
+    ADD CONSTRAINT fk_aceito_termos_user FOREIGN KEY (user_id)
+    REFERENCES public.user (id);
+
+ALTER TABLE public.aceito_termos
+    ADD CONSTRAINT fk_aceito_termos_documentos FOREIGN KEY (documento_id)
+    REFERENCES public.documentos_legais (id);
+
+-- Previne que o mesmo usuário aceite o mesmo documento exato mais de uma vez (evita dados duplicados)
+ALTER TABLE public.aceito_termos    
+    ADD CONSTRAINT uk_aceito_termos_user_doc UNIQUE (user_id, documento_id);
+
+ALTER SEQUENCE public.id_seq_aceito_termos OWNER TO postgres;
+ALTER SEQUENCE public.id_seq_aceito_termos OWNED BY public.aceito_termos.id;

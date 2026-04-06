@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import com.safenutri.safenutri_api.exception.EmailAlreadyExistsException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
+import com.safenutri.safenutri_api.model.entity.AceitoTermos;
+import com.safenutri.safenutri_api.model.entity.DocumentosLegais;
 import com.safenutri.safenutri_api.model.entity.Genero;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.Role;
@@ -25,6 +27,7 @@ import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.repository.UserRepository;
+import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,8 @@ public class UserService implements UserDetailsService {
     private final UserRestricaoService userRestricaoService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final DocumentosLegaisService documentosService;
+    private final AceitoTermosRepository aceitoTermosRepository;
 
     @Transactional
     public User save(UserInput userInput) {
@@ -49,6 +54,13 @@ public class UserService implements UserDetailsService {
             passwordEncoder.encode(userInput.getSenha()), userInput.getDtNascimento());
 
         User savedUser = userRepository.save(user);
+
+        DocumentosLegais termoComum = documentosService.buscarAtualPorTipo("TERMO_USO_COMUM");
+        DocumentosLegais politicaPriv = documentosService.buscarAtualPorTipo("POLITICA_PRIVACIDADE");
+
+        aceitoTermosRepository.save(new AceitoTermos(savedUser, termoComum));
+        aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
+
         if (userInput.getRestricoes() != null && !userInput.getRestricoes().isEmpty()) {
             processarRestricoes(savedUser, userInput);
         }
