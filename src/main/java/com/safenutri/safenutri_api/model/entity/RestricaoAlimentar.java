@@ -34,7 +34,7 @@ public class RestricaoAlimentar extends DefaultEntity {
     }
 
     @PrePersist
-    public void onCreate() {
+    public void createRestricao() {
         this.approved = Boolean.FALSE;
     }
 }
