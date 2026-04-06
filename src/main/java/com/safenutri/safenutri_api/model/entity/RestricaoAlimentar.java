@@ -26,6 +26,11 @@ public class RestricaoAlimentar extends DefaultEntity {
     @Column(name = "approved")
     private Boolean approved;
 
+    public RestricaoAlimentar(String restricao, String descricao) {
+        this.restricao = restricao;
+        this.descricao = descricao;
+    }
+
     @PrePersist
     public void onCreate() {
         this.approved = Boolean.FALSE;
