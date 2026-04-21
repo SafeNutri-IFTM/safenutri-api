@@ -18,6 +18,9 @@ CREATE TABLE public.paciente (
 ALTER TABLE public.paciente 
     ADD CONSTRAINT pk_paciente PRIMARY KEY (id);
 
+ALTER TABLE public.paciente    
+    ADD CONSTRAINT uk_paciente UNIQUE (user_id, nutricionista_id);
+
 ALTER TABLE public.paciente 
     ADD CONSTRAINT fk_paciente_user FOREIGN KEY (user_id)
     REFERENCES public.user (id);
