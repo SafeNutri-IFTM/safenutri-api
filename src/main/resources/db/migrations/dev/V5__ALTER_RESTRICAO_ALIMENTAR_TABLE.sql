@@ -1,2 +1,0 @@
--- ALTER TABLE restricao_alimentar
--- DROP COLUMN approved;
