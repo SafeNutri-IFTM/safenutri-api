@@ -7,7 +7,7 @@ CREATE SEQUENCE public.id_seq_receita_avaliacao
     CACHE 1;
 
 CREATE TABLE public.receita_avaliacao (
-    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_avaliacao'),
+    id BIGINT NOT NULL DEFAULT nextval('public.id_seq_receita_avaliacao'),
     user_id BIGINT NOT NULL,
     receita_id BIGINT NOT NULL,
     qntd_estrela INT,
