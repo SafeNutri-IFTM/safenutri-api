@@ -37,4 +37,11 @@ public class ModoPreparo {
     public void onCreate() {
         this.created = LocalDateTime.now();
     }
+
+    public ModoPreparo(Receita receita, Integer passo, String titulo, String descricao) {
+        this.receita = receita;
+        this.passo = passo;
+        this.titulo = titulo;
+        this.descricao = descricao;
+    }
 }

@@ -2,9 +2,9 @@ package com.safenutri.safenutri_api.api.controller;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-
 import io.swagger.v3.oas.annotations.Operation;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

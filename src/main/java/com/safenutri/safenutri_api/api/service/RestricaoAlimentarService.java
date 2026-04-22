@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;

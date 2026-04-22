@@ -11,7 +11,6 @@ CREATE TABLE public.receita_avaliacao (
     user_id BIGINT NOT NULL,
     receita_id BIGINT NOT NULL,
     qntd_estrela INT,
-    activated BOOLEAN,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP
 );
@@ -45,9 +44,7 @@ CREATE TABLE public.receita_favorita (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_receita_favorita'),
     user_id BIGINT NOT NULL,
     receita_id BIGINT NOT NULL,
-    activated BOOLEAN,
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.receita_favorita 

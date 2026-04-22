@@ -17,4 +17,8 @@ public class ReceitaRestricaoService {
     public void saveAll(List<ReceitaRestricao> receitaRestricoes) {
         receitaRestricaoRepository.saveAll(receitaRestricoes);
     }
+
+    public void deleteByReceitaId(Long id) {
+        receitaRestricaoRepository.deleteByReceitaId(id);
+    }
 }
