@@ -33,6 +33,9 @@ public class Receita extends DefaultEntity {
     @Column(name = "descricao", nullable = false)
     private String descricao;
 
+    @Column(name = "ingredientes", nullable = false)
+    private String ingredientes;
+
     @Column(name = "tempo_preparo", nullable = false)
     private Integer tempoPreparo;
 
