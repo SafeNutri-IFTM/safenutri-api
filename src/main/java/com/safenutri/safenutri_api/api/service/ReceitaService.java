@@ -55,8 +55,10 @@ public class ReceitaService {
         Integer minutos = Integer.parseInt(partes[1]);
         Integer tempoPreparo = (horas * 60) + minutos;
         
-        Receita receita = new Receita(user, tipoReceita, receitaInput.getTitulo(), receitaInput.getDescricao(), tempoPreparo, 
-            receitaInput.getPorcao(), receitaInput.getCalorias(), caminhoFoto, isPublic);
+        Receita receita = new Receita(user, tipoReceita, receitaInput.getTitulo(), receitaInput.getDescricao(), 
+            receitaInput.getIngredientes(), tempoPreparo, receitaInput.getPorcao(), receitaInput.getCalorias(), 
+            caminhoFoto, isPublic
+        );
 
         Receita savedReceita = receitaRepository.save(receita);
 
