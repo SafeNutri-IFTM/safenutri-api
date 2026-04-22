@@ -1,17 +1,17 @@
 package com.safenutri.safenutri_api.model.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
-
 @Entity
 @Getter
 @Setter
 @Table(name = "modo_preparo")
-public class ModoPreparo extends DefaultEntity{
+public class ModoPreparo {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_modo_preparo")
     @SequenceGenerator(sequenceName = "id_seq_modo_preparo", allocationSize = 1, name = "id_seq_modo_preparo")
@@ -29,4 +29,12 @@ public class ModoPreparo extends DefaultEntity{
 
     @Column(name = "descricao", nullable = false)
     private String descricao;
+
+    @Column(name = "created")
+    private LocalDateTime created;
+
+    @PrePersist
+    public void onCreate() {
+        this.created = LocalDateTime.now();
+    }
 }

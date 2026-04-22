@@ -19,8 +19,8 @@ public class RestricaoAlimentarService {
         return restricaoAlimentarRepository.findAllById(restricoesIdSet);
     }
 
-    public List<RestricaoAlimentar> getAllActivatedAndApproved() {
-        return restricaoAlimentarRepository.findByActivatedAndApproved(true, true);
+    public List<RestricaoAlimentar> getAllActivated() {
+        return restricaoAlimentarRepository.findByActivated(true);
     }
 
     public void salvar(RestricaoAlimentarInput restricaoAlimentaInput) {

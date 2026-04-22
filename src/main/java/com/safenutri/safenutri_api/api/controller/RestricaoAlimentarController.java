@@ -22,8 +22,8 @@ public class RestricaoAlimentarController {
 
     @GetMapping
     @Operation(summary = "Busca todas as restrições ativas que foram aprovadas", description = "Busca todas as restrições alimentares que estão ativas e foram aprovadas")
-    public ResponseEntity<List<RestricaoAlimentar>> getAllActivatedAndApproved() {
-        List<RestricaoAlimentar> restricoes = restricaoAlimentarService.getAllActivatedAndApproved();
+    public ResponseEntity<List<RestricaoAlimentar>> getAllActivated() {
+        List<RestricaoAlimentar> restricoes = restricaoAlimentarService.getAllActivated();
         return ResponseEntity.ok(restricoes);
     }
 
