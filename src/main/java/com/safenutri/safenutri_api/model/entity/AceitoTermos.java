@@ -1,11 +1,13 @@
 package com.safenutri.safenutri_api.model.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -29,10 +31,15 @@ public class AceitoTermos {
     private DocumentosLegais documento;
 
     @Column(name = "data_aceito_termos")
-    private LocalDateTime dataAceitoTermos = LocalDateTime.now();
+    private LocalDateTime dataAceitoTermos;
 
     public AceitoTermos(User user, DocumentosLegais documento) {
         this.user = user;
         this.documento = documento;
+    }
+
+    @PrePersist
+    public void onCreate() {
+        this.dataAceitoTermos = LocalDateTime.now();
     }
 }

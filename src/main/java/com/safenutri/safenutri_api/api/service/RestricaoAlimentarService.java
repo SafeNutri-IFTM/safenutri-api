@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
@@ -19,8 +20,8 @@ public class RestricaoAlimentarService {
         return restricaoAlimentarRepository.findAllById(restricoesIdSet);
     }
 
-    public List<RestricaoAlimentar> getAllActivatedAndApproved() {
-        return restricaoAlimentarRepository.findByActivatedAndApproved(true, true);
+    public List<RestricaoAlimentar> getAllActivated() {
+        return restricaoAlimentarRepository.findByActivated(true);
     }
 
     public void salvar(RestricaoAlimentarInput restricaoAlimentaInput) {

@@ -10,5 +10,5 @@ import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 @Repository
 public interface RestricaoAlimentarRepository extends JpaRepository<RestricaoAlimentar, Long>{
 
-    List<RestricaoAlimentar> findByActivatedAndApproved(Boolean activated, Boolean approved);
+    List<RestricaoAlimentar> findByActivated(Boolean activated);
 }

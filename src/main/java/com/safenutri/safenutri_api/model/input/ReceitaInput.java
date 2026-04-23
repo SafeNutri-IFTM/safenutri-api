@@ -18,6 +18,6 @@ public class ReceitaInput {
     private Integer calorias;
     private MultipartFile imagem;
     private List<Long> restricoes;
-    private List<IngredienteInput> ingredientes;
+    private String ingredientes;
     private List<ModoPreparoInput> passos;
 }

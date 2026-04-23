@@ -33,6 +33,9 @@ public class Receita extends DefaultEntity {
     @Column(name = "descricao", nullable = false)
     private String descricao;
 
+    @Column(name = "ingredientes", nullable = false)
+    private String ingredientes;
+
     @Column(name = "tempo_preparo", nullable = false)
     private Integer tempoPreparo;
 
@@ -48,12 +51,13 @@ public class Receita extends DefaultEntity {
     @Column(name = "public")
     private Boolean publicBoolean;
 
-    public Receita(User user, TipoReceita tipoReceita, String titulo, String descricao, 
+    public Receita(User user, TipoReceita tipoReceita, String titulo, String descricao, String ingredientes, 
         Integer tempoPreparo, Integer porcao, Integer calorias, String caminhoFoto, Boolean publicBoolean) {
             this.user = user;
             this.tipoReceita = tipoReceita;
             this.titulo = titulo;
             this.descricao = descricao;
+            this.ingredientes = ingredientes;
             this.tempoPreparo = tempoPreparo;
             this.porcao = porcao;
             this.calorias = calorias;

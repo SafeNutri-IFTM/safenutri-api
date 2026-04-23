@@ -1,7 +1,9 @@
 package com.safenutri.safenutri_api.api.service;
 
-import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+
 import com.safenutri.safenutri_api.model.entity.DocumentosLegais;
 import com.safenutri.safenutri_api.repository.DocumentosLegaisRepository;
 
