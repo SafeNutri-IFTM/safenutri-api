@@ -41,6 +41,7 @@ public class UserService implements UserDetailsService {
     private final DocumentosLegaisService documentosService;
     private final AceitoTermosRepository aceitoTermosRepository;
 
+    
     @Transactional
     public User save(UserInput userInput) {
         if (userRepository.existsByEmail(userInput.getEmail())) {
@@ -67,6 +68,40 @@ public class UserService implements UserDetailsService {
         return savedUser;
     }
 
+
+    @Transactional
+    public User atualizarPerfil(UserInput userInput) {
+        User user = userRepository.findById(userInput.getId())
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
+        user.setNome(userInput.getNome());
+        user.setDtNascimento(userInput.getDtNascimento());
+        
+        if (userInput.getGenero() != null) {
+            Genero genero = generoService.findById(userInput.getGenero());
+            user.setGenero(genero);
+        }
+
+        
+        if (userInput.getSenha() != null && !userInput.getSenha().trim().isEmpty()) {
+            user.setSenha(passwordEncoder.encode(userInput.getSenha()));
+        }
+
+        
+        if (userInput.getRestricoes() != null) {
+            
+            userRestricaoService.deleteByUserId(user.getId());
+            
+            
+            if (!userInput.getRestricoes().isEmpty()) {
+                processarRestricoes(user, userInput);
+            }
+        }
+
+        return userRepository.save(user);
+    }
+
+    
     private void processarRestricoes(User user, UserInput userInput) {
         List<Long> restricoesId = userInput.getRestricoes();
         Set<Long> restricoesIdSet = new HashSet<>(restricoesId);
@@ -89,14 +124,12 @@ public class UserService implements UserDetailsService {
 
     public User autenticarPorEmail(String email, String password) 
         throws UsernameNotFoundException, SenhaInvalidaException {
-
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
 
         if (!passwordEncoder.matches(password, user.getSenha())) {
             throw new SenhaInvalidaException();
         }
-
         return user;
     }
 
@@ -120,5 +153,9 @@ public class UserService implements UserDetailsService {
 
     public User getReference(Long id) {
         return userRepository.getReferenceById(id);
+    }
+    public User getProfileByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
     }
 }
