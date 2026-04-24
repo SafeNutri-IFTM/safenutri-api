@@ -41,6 +41,10 @@ public class UserService implements UserDetailsService {
     private final DocumentosLegaisService documentosService;
     private final AceitoTermosRepository aceitoTermosRepository;
 
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
     @Transactional
     public User save(UserInput userInput) {
         if (userRepository.existsByEmail(userInput.getEmail())) {
@@ -117,9 +121,5 @@ public class UserService implements UserDetailsService {
             .password(user.getSenha())
             .roles(roleNome)
             .build();
-    }
-
-    public User getReference(Long id) {
-        return userRepository.getReferenceById(id);
     }
 }

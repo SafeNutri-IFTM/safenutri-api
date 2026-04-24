@@ -1,5 +1,7 @@
 package com.safenutri.safenutri_api.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +15,7 @@ public interface UserRestricaoRepository extends JpaRepository<UserRestricao, Lo
     @Modifying
     @Query("DELETE FROM UserRestricao ur WHERE ur.user.id = :userId")
     void deleteByUserId(Long userId);
+
+    @Query("SELECT ur.restricao.id FROM UserRestricao ur WHERE ur.user.id = :userId")
+    List<Long> findAllByUserId(Long userId);
 }

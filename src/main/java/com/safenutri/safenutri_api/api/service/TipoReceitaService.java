@@ -18,10 +18,6 @@ public class TipoReceitaService {
         return tipoReceitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Tipo de Receita não encontrada"));
     }
 
-    public TipoReceita getReference(Long id) {
-        return tipoReceitaRepository.getReferenceById(id);
-    }
-
     public List<TipoReceita> getAll() {
         return tipoReceitaRepository.findAll();
     }

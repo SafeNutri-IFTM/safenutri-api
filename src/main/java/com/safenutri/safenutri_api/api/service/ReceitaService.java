@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
@@ -20,6 +22,7 @@ import com.safenutri.safenutri_api.model.entity.TipoReceita;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.ModoPreparoInput;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
+import com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 
 @Service
@@ -33,6 +36,7 @@ public class ReceitaService {
     private final RestricaoAlimentarService restricaoAlimentarService;
     private final ReceitaRestricaoService receitaRestricaoService;
     private final ModoPreparoService modoPreparoService;
+    private final PacienteService pacienteService;
 
     @Transactional
     public void save(ReceitaInput receitaInput) throws Exception {
@@ -42,8 +46,8 @@ public class ReceitaService {
             caminhoFoto = uploadService.saveFotoReceita(receitaInput.getImagem());
         }
 
-        User user = userService.getReference(jwtService.getIdUsuario());
-        TipoReceita tipoReceita = tipoReceitaService.getReference(receitaInput.getTipoReceitaId());
+        User user = userService.findById(jwtService.getIdUsuario());
+        TipoReceita tipoReceita = tipoReceitaService.findById(receitaInput.getTipoReceitaId());
         Boolean isPublic = false;
 
         if (jwtService.isNutricionista()) {
@@ -103,5 +107,19 @@ public class ReceitaService {
 
         modoPreparoService.deleteByReceitaId(receita.getId());
         modoPreparoService.saveAll(mpList);
+    }
+
+    public Page<ReceitaDashboardOutput> findReceitasByRestricoesId(User user, List<Long> restricoesIds, Long qntd, Pageable pageable) {
+        List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
+
+        if (!nutricionistaIds.isEmpty()) {
+            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, pageable);
+        } else {
+            return receitaRepository.findByRestricoesId(restricoesIds, qntd, pageable);
+        }
+    }
+
+    public List<ReceitaDashboardOutput> findTop3(List<Long> restricoesIds, Long qntd) {
+        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd);
     }
 }
