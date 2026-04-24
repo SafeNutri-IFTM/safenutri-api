@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.ModoPreparoInput;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
 import com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 
 @Service
@@ -37,6 +39,7 @@ public class ReceitaService {
     private final ReceitaRestricaoService receitaRestricaoService;
     private final ModoPreparoService modoPreparoService;
     private final PacienteService pacienteService;
+    private final UserRestricaoService userRestricaoService;
 
     @Transactional
     public void save(ReceitaInput receitaInput) throws Exception {
@@ -109,7 +112,12 @@ public class ReceitaService {
         modoPreparoService.saveAll(mpList);
     }
 
-    public Page<ReceitaDashboardOutput> findReceitasByRestricoesId(User user, List<Long> restricoesIds, Long qntd, Pageable pageable) {
+    public Page<ReceitaDashboardOutput> findReceitasByRestricoesId(Long userId, int page, int size) {
+        User user = userService.findById(userId);
+        List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
+        Long qntd = (long) restricoesIds.size();
+        Pageable pageable = PageRequest.of(page, size);
+
         List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
 
         if (!nutricionistaIds.isEmpty()) {
@@ -119,7 +127,22 @@ public class ReceitaService {
         }
     }
 
-    public List<ReceitaDashboardOutput> findTop3(List<Long> restricoesIds, Long qntd) {
+    public List<ReceitaDashboardOutput> findTop3Filtrado(Long userId) {
+        List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
+        Long qntd = (long) restricoesIds.size();
+        
         return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd);
+    }
+
+    public Long countByNutricionistaId(Long nutricionistaId) {
+        return receitaRepository.countByNutricionistaId(nutricionistaId);
+    }
+
+    public List<ReceitaPieChartOutput> countGroupByRestricoes(Long nutricionistaId) {
+        return receitaRepository.countByNutricionistaIdAndGroupByRestricoes(nutricionistaId);
+    }
+
+    public List<ReceitaDashboardOutput> findTop3() {
+        return receitaRepository.findTop3();
     }
 }

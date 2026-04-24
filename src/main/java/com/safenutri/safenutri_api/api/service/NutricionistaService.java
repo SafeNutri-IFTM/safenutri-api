@@ -30,8 +30,8 @@ public class NutricionistaService {
         UserInput userInput = nutricionistaInput.getUserInput();
         User savedUser = userService.save(userInput);
 
-        Boolean crnValido = crnValidation.pesquisarCrn(userInput.getNome(),
-                nutricionistaInput.getCRN(), nutricionistaInput.getInscricao());
+        Boolean crnValido = crnValidation.pesquisarCrn(userInput.getNome(), nutricionistaInput.getCRN(), 
+            nutricionistaInput.getInscricao());
 
         if (crnValido == null) {
             throw new RuntimeException("Erro ao validar CRN");

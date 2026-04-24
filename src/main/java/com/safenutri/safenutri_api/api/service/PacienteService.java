@@ -16,4 +16,8 @@ public class PacienteService {
     public List<Long> findNutricionistaIdByUserId(Long userId) {
         return pacienteRepository.findAllNutricionistaIdByUserId(userId);
     }
+
+    public Long countPacientes(Long nutricionistaId) {
+        return pacienteRepository.countByNutricionistaId(nutricionistaId);
+    }
 }
