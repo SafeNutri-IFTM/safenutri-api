@@ -17,7 +17,7 @@ import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 public interface ReceitaRepository extends JpaRepository<Receita, Long>{
 
     //SQL PARA RECEITAS QUE ATENDEM AS RESTRIÇÕES DO USER
-    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.caminhoFoto, tr.tipoReceita, "+
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.id, tr.tipoReceita, "+
         "r.titulo, r.tempoPreparo, r.calorias, COALESCE(AVG(ra.qntdEstrela), 0.0)) " +
         "FROM Receita r " + 
         "JOIN r.tipoReceita tr " + 
@@ -32,7 +32,7 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         @Param("qntdRestricoes") Long qntdRestricoes, Pageable pageable);
 
     //SQL PARA RECEITAS QUE ATENDEM AS RESTRIÇÕES DO USER LEVANDO EM CONSIDEDRAÇÃO QUE ELE É UM PACIENTE
-    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.caminhoFoto, tr.tipoReceita, "+
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.id, tr.tipoReceita, "+
         "r.titulo, r.tempoPreparo, r.calorias, COALESCE(AVG(ra.qntdEstrela), 0.0)) " +
         "FROM Receita r " + 
         "JOIN r.tipoReceita tr " + 
@@ -48,7 +48,7 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         @Param("qntdRestricoes") Long qntdRestricoes, @Param("nutriIds") List<Long> nutriIds, Pageable pageable);
 
     //SQL PARA O TOP 3 RECEITAS MAIS BEM AVALIADAS QUE ATENDEM AS RESTRIÇÕES DO USER
-    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.caminhoFoto, tr.tipoReceita, "+
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.id, tr.tipoReceita, "+
         "r.titulo, r.tempoPreparo, r.calorias, COALESCE(AVG(ra.qntdEstrela), 0.0)) " +
         "FROM Receita r " + 
         "JOIN r.tipoReceita tr " + 
@@ -65,7 +65,7 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
     );
 
     //SQL PARA O TOP 3 GERAL DAS RECEITAS MAIS BEM AVALIADAS
-    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.caminhoFoto, tr.tipoReceita, "+
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.id, tr.tipoReceita, "+
         "r.titulo, r.tempoPreparo, r.calorias, COALESCE(AVG(ra.qntdEstrela), 0.0)) " +
         "FROM Receita r " + 
         "JOIN r.tipoReceita tr " + 
@@ -88,4 +88,5 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "ORDER BY COUNT(r.id) DESC"
     )
     List<ReceitaPieChartOutput> countByNutricionistaIdAndGroupByRestricoes(@Param("nutricionistaId") Long nutricionistaId);
+
 }

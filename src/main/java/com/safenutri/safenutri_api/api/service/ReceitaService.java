@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,9 @@ public class ReceitaService {
     private final ModoPreparoService modoPreparoService;
     private final PacienteService pacienteService;
     private final UserRestricaoService userRestricaoService;
+
+    @Value("${filediretorioReceita}")
+    private String directoryReceita;
 
     @Transactional
     public void save(ReceitaInput receitaInput) throws Exception {
@@ -145,4 +149,9 @@ public class ReceitaService {
     public List<ReceitaDashboardOutput> findTop3() {
         return receitaRepository.findTop3();
     }
+
+    public Receita findById(Long id) {
+        return receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+    }
+    
 }

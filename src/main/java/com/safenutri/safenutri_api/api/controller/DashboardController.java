@@ -15,8 +15,6 @@ import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 
 import io.swagger.v3.oas.annotations.Operation;
 
-
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dashboard")
@@ -72,6 +70,5 @@ public class DashboardController {
         List<ReceitaDashboardOutput> receitas = dashboardService.getTop3GeralReceitas();
         return ResponseEntity.ok(receitas);
     }
-    
     
 }
