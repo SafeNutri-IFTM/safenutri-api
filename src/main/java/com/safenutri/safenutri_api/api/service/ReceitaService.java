@@ -104,4 +104,23 @@ public class ReceitaService {
         modoPreparoService.deleteByReceitaId(receita.getId());
         modoPreparoService.saveAll(mpList);
     }
+
+    // Lógica de Informações (Detalhes)
+public Receita findById(Long id) {
+    return receitaRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Receita não encontrada com o ID: " + id));
+}
+
+// Lógica de Desativar (Exclusão Lógica)
+@Transactional
+public void desativar(Long id) {
+    Receita receita = findById(id);
+    
+    // Verifica se o usuário tem permissão (ex: se é o dono ou nutricionista)
+    // Long userIdLogado = jwtService.getUserId();
+    // if (!receita.getUser().getId().equals(userIdLogado)) { ... }
+
+    receita.setActivated(false);
+    receitaRepository.save(receita);
+}
 }

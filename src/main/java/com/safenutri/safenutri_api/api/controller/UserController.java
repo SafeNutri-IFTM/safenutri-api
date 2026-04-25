@@ -43,5 +43,10 @@ public class UserController {
         User user = userService.getReference(id); 
         return ResponseEntity.ok(user);
     }
+    
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserInput input) {
+        User savedUser = userService.save(input);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    }
 }
-

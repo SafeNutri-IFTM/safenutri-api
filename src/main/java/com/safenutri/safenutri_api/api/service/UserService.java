@@ -41,7 +41,6 @@ public class UserService implements UserDetailsService {
     private final DocumentosLegaisService documentosService;
     private final AceitoTermosRepository aceitoTermosRepository;
 
-    
     @Transactional
     public User save(UserInput userInput) {
         if (userRepository.existsByEmail(userInput.getEmail())) {
@@ -52,7 +51,7 @@ public class UserService implements UserDetailsService {
         Genero genero = generoService.findById(userInput.getGenero());
 
         User user = new User(role, genero, userInput.getNome(), userInput.getEmail(),
-            passwordEncoder.encode(userInput.getSenha()), userInput.getDtNascimento());
+                passwordEncoder.encode(userInput.getSenha()), userInput.getDtNascimento());
 
         User savedUser = userRepository.save(user);
 
@@ -68,31 +67,27 @@ public class UserService implements UserDetailsService {
         return savedUser;
     }
 
-
     @Transactional
     public User atualizarPerfil(UserInput userInput) {
         User user = userRepository.findById(userInput.getId())
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         user.setNome(userInput.getNome());
         user.setDtNascimento(userInput.getDtNascimento());
-        
+
         if (userInput.getGenero() != null) {
             Genero genero = generoService.findById(userInput.getGenero());
             user.setGenero(genero);
         }
 
-        
         if (userInput.getSenha() != null && !userInput.getSenha().trim().isEmpty()) {
             user.setSenha(passwordEncoder.encode(userInput.getSenha()));
         }
 
-        
         if (userInput.getRestricoes() != null) {
-            
+
             userRestricaoService.deleteByUserId(user.getId());
-            
-            
+
             if (!userInput.getRestricoes().isEmpty()) {
                 processarRestricoes(user, userInput);
             }
@@ -101,7 +96,6 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    
     private void processarRestricoes(User user, UserInput userInput) {
         List<Long> restricoesId = userInput.getRestricoes();
         Set<Long> restricoesIdSet = new HashSet<>(restricoesId);
@@ -122,10 +116,11 @@ public class UserService implements UserDetailsService {
         userRestricaoService.saveAll(userRestricoes);
     }
 
-    public User autenticarPorEmail(String email, String password) 
-        throws UsernameNotFoundException, SenhaInvalidaException {
+    @Transactional // <--- A correção exata e funcional está aqui!
+    public User autenticarPorEmail(String email, String password)
+            throws UsernameNotFoundException, SenhaInvalidaException {
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
 
         if (!passwordEncoder.matches(password, user.getSenha())) {
             throw new SenhaInvalidaException();
@@ -136,7 +131,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         if (!user.getActivated()) {
             throw new UsernameNotFoundException("Usuário desativado.");
@@ -145,17 +140,18 @@ public class UserService implements UserDetailsService {
         String roleNome = user.getRole().getRole();
 
         return org.springframework.security.core.userdetails.User.builder()
-            .username(user.getEmail())
-            .password(user.getSenha())
-            .roles(roleNome)
-            .build();
+                .username(user.getEmail())
+                .password(user.getSenha())
+                .roles(roleNome)
+                .build();
     }
 
     public User getReference(Long id) {
         return userRepository.getReferenceById(id);
     }
+
     public User getProfileByEmail(String email) {
         return userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
     }
 }
