@@ -17,7 +17,6 @@ SELECT setval('public.id_seq_nutricionista', (SELECT MAX(id) FROM public.nutrici
 INSERT INTO public.paciente (id, user_id, nutricionista_id, activated, created, updated)
 VALUES
 (1, 3, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, 4, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, 4, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(2, 4, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 SELECT setval('public.id_seq_paciente', (SELECT MAX(id) FROM public.paciente));
