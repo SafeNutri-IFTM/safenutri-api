@@ -29,7 +29,7 @@ public class Nutricionista extends DefaultEntity {
     @Column(name = "desc_perfil")
     private String descPerfil;
 
-    @Column(name = "imagem")
+    @Column(name = "imagem_perfil")
     private String imagem;
 
     public Nutricionista(User user, String CRN) {
