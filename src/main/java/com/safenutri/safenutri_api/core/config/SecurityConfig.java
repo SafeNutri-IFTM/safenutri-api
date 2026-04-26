@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/genero").permitAll()
                         .requestMatchers(HttpMethod.GET, "/restricao-alimentar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/documentos-legais/atual").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/receita/download-image/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

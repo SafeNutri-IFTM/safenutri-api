@@ -135,7 +135,7 @@ public class ReceitaService {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
         
-        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd);
+        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, PageRequest.of(0, 3));
     }
 
     public Long countByNutricionistaId(Long nutricionistaId) {
@@ -147,7 +147,7 @@ public class ReceitaService {
     }
 
     public List<ReceitaDashboardOutput> findTop3() {
-        return receitaRepository.findTop3();
+        return receitaRepository.findTop3(PageRequest.of(0, 3));
     }
 
     public Receita findById(Long id) {

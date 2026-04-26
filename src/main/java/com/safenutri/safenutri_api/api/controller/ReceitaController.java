@@ -48,12 +48,12 @@ public class ReceitaController {
         try {
             Receita receita = receitaService.findById(id);
 
-            if (receita.getCaminhoFoto() == null || receita.getCaminhoFoto().trim().isEmpty()) {
+            if (receita.getImagem() == null || receita.getImagem().trim().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("{\"error\": \"Receita não possui imagem cadastrada\"}");
             }
 
-            Resource resource = uploadService.carregarImagem(receita.getCaminhoFoto());
+            Resource resource = uploadService.carregarImagem(receita.getImagem());
 
             return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG) 

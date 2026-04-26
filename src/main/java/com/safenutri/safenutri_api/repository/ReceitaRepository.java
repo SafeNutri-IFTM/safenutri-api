@@ -24,7 +24,7 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
         "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
         "WHERE rr.restricao.id IN :restricoesIds " +
-        "GROUP BY r.id, r.caminhoFoto, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
+        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
         "HAVING COUNT(DISTINCT rr.restricao.id) = :qntdRestricoes " +
         "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
     )
@@ -39,7 +39,7 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
         "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
         "WHERE rr.restricao.id IN :restricoesIds " +
-        "GROUP BY r.id, r.user.id, r.caminhoFoto, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
+        "GROUP BY r.id, r.user.id, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
         "HAVING COUNT(DISTINCT rr.restricao.id) = :qntdRestricoes " +
         "ORDER BY (CASE WHEN r.user.id IN :nutriIds THEN 0 ELSE 1 END) ASC, " +
         "COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
@@ -55,13 +55,14 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
         "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
         "WHERE rr.restricao.id IN :restricoesIds " +
-        "GROUP BY r.id, r.caminhoFoto, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
+        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
         "HAVING COUNT(DISTINCT rr.restricao.id) = :qntdRestricoes " + 
-        "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
+        "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC "
     )
     List<ReceitaDashboardOutput> findTop3ByRestricoesIds(
         @Param("restricoesIds") List<Long> restricoesIds, 
-        @Param("qntdRestricoes") Long qntdRestricoes
+        @Param("qntdRestricoes") Long qntdRestricoes,
+        Pageable pageable
     );
 
     //SQL PARA O TOP 3 GERAL DAS RECEITAS MAIS BEM AVALIADAS
@@ -71,10 +72,10 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "JOIN r.tipoReceita tr " + 
         "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
         "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
-        "GROUP BY r.id, r.caminhoFoto, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
+        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
         "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
     )
-    List<ReceitaDashboardOutput> findTop3();
+    List<ReceitaDashboardOutput> findTop3(Pageable pageable);
     
     @Query("SELECT COUNT(*) as total FROM Receita r WHERE r.user.id = :nutricionistaId")
     Long countByNutricionistaId(@Param("nutricionistaId") Long nutricionistaId);
