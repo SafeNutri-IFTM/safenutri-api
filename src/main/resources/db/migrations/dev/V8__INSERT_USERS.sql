@@ -7,6 +7,10 @@ VALUES
 
 SELECT setval('public.id_seq_user', (SELECT MAX(id) FROM public.user));
 
+INSERT INTO public.user_restricao(id, user_id, restricao_id, created)
+VALUES 
+(1, 3, 7, CURRENT_TIMESTAMP);
+
 INSERT INTO public.nutricionista (id, user_id, crn, activated, created, updated)
 VALUES 
 (1, 1, 'CRN1/123', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),

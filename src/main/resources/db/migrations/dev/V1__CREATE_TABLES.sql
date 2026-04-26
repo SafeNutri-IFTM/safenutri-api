@@ -154,7 +154,7 @@ CREATE TABLE public.nutricionista (
     user_id BIGINT NOT NULL,
     crn VARCHAR(100) NOT NULL,
     desc_perfil TEXT,
-    caminho_foto VARCHAR(255),
+    imagem_perfil VARCHAR(255),
     activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -212,7 +212,7 @@ CREATE TABLE public.receita(
     tempo_preparo INTEGER NOT NULL,
     porcao INTEGER NOT NULL,
     calorias INTEGER NOT NULL,
-    caminho_foto VARCHAR(255),
+    imagem VARCHAR(255),
     public BOOLEAN NOT NULL,
     activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

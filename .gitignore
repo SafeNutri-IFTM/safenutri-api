@@ -43,6 +43,16 @@ src/main/resources/arquivos/receitas/*
 !src/main/resources/arquivos/receitas/8.png
 !src/main/resources/arquivos/receitas/9.png
 !src/main/resources/arquivos/receitas/10.png
+!src/main/resources/arquivos/receitas/11.png
+!src/main/resources/arquivos/receitas/12.png
+!src/main/resources/arquivos/receitas/13.png
+!src/main/resources/arquivos/receitas/14.png
+!src/main/resources/arquivos/receitas/15.png
+!src/main/resources/arquivos/receitas/16.png
+!src/main/resources/arquivos/receitas/17.png
+!src/main/resources/arquivos/receitas/18.png
+!src/main/resources/arquivos/receitas/19.png
+!src/main/resources/arquivos/receitas/20.png
 
 src/main/resources/arquivos/nutricionistas/*
 !src/main/resources/arquivos/nutricionistas.gitkeep
