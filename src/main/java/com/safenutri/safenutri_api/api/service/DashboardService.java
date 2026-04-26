@@ -20,6 +20,13 @@ public class DashboardService {
         return receitaService.findReceitasByRestricoesId(userId, page, size);
     }
 
+    // ========================================================================================
+    // NOVO MÉTODO DA TASK SN-110: DELEGA A BUSCA PAGINADA PARA O RECEITA SERVICE
+    // ========================================================================================
+    public Page<ReceitaDashboardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
+        return receitaService.buscarReceitasPaginadas(termo, page, size);
+    }
+
     public List<ReceitaDashboardOutput> getTop3ReceitasFiltradas(Long userId) {
         return receitaService.findTop3Filtrado(userId);
     }
@@ -39,5 +46,4 @@ public class DashboardService {
     public List<ReceitaDashboardOutput> getTop3GeralReceitas() {
         return receitaService.findTop3();
     }
- 
 }

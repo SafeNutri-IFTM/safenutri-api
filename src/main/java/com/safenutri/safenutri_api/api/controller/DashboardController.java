@@ -35,6 +35,21 @@ public class DashboardController {
         return ResponseEntity.ok(receitas); 
     }
 
+    // ========================================================================================
+    // NOVO ENDPOINT DA TASK SN-110: BUSCA DE RECEITAS COM PAGINAÇÃO
+    // ========================================================================================
+    @GetMapping("/busca")
+    @Operation(summary = "Busca receitas pelo título (termo) com paginação")
+    public ResponseEntity<Page<ReceitaDashboardOutput>> buscarReceitasFeed(
+        @RequestParam(required = false, defaultValue = "") String termo,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        // Envia para o service com as configurações da página
+        Page<ReceitaDashboardOutput> receitas = dashboardService.buscarReceitasPaginadas(termo, page, size);
+        return ResponseEntity.ok(receitas);
+    }
+
     @GetMapping("/top")
     @Operation(summary = "Lista o top 3 receitas mais bem avaliadas com base na restrição do usuário")
     public ResponseEntity<List<ReceitaDashboardOutput>> getTop3ReceitasAvaliadas() {
@@ -70,5 +85,4 @@ public class DashboardController {
         List<ReceitaDashboardOutput> receitas = dashboardService.getTop3GeralReceitas();
         return ResponseEntity.ok(receitas);
     }
-    
 }
