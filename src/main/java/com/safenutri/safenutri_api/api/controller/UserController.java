@@ -32,24 +32,24 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/mudarSenha")
-    @Operation(summary = "Muda a senha do usuário logado")
-    public ResponseEntity<?> updateById(@RequestBody @Valid LoginInput loginInput) {
+    // @PostMapping("/mudarSenha")
+    // @Operation(summary = "Muda a senha do usuário logado")
+    // public ResponseEntity<?> updateById(@RequestBody @Valid LoginInput loginInput) {
 
-        Optional<User> userOptional = userService.findByExistEmail(loginInput.getEmail());
+    //     Optional<User> userOptional = userService.findByExistEmail(loginInput.getEmail());
 
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
-        }
+    //     if (userOptional.isEmpty()) {
+    //         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
+    //     }
 
-        User updatedUser = userOptional.get();
+    //     User updatedUser = userOptional.get();
 
-        if (!updatedUser.getActivated()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário desativado.");
-        }
+    //     if (!updatedUser.getActivated()) {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário desativado.");
+    //     }
 
-        userService.mudarSenha(updatedUser, loginInput.getPassword());
+    //     userService.mudarSenha(updatedUser, loginInput.getPassword());
 
-        return ResponseEntity.ok().build();
-    }
+    //     return ResponseEntity.ok().build();
+    // }
 }

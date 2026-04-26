@@ -37,7 +37,7 @@ public class EmailSenderService {
     // Métodos de envio de e-mail
     public void sendEmail(String to, String subject, String message) throws MessagingException {
         var mensagem = this.mailSender.createMimeMessage();
-        var helper = new MimeMessageHelper(mensagem, true);
+        var helper = new MimeMessageHelper(mensagem, true, "UTF-8");
 
         helper.setFrom(emailHost);
         helper.setTo(to);
@@ -59,76 +59,6 @@ public class EmailSenderService {
             template = template.replace("{{" + entry.getKey() + "}}", entry.getValue());
         }
         return template;
-    }
-
-    // Cria o objeto de e-mail para Ativação de Novo Usuário
-    public EmailOutput createEmailUser(User createdUser) {
-        String jwt = jwtService.gerarTokenEmail(createdUser);
-        String mensagem = "<body style=\"margin: 0; padding: 0;\">" +
-                "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" bgcolor=\"#eeeeee\">" +
-                "<tr>" +
-                "<td style=\"padding: 32px 0;\">" +
-                "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"border-collapse: collapse;\">"
-                +
-                "<tr>" +
-                "<td align=\"center\" bgcolor=\"#12295d\" style=\"padding: 32px 32px; color: #ffffff; border-collapse: collapse; font-size: 28px; font-weight: bold; font-family: Arial, sans-serif;\">"
-                +
-                "<b>PROCESSO SELETIVO</b>" +
-                "</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<td bgcolor=\"#ffffff\" style=\"padding: 32px 32px;\">" +
-                "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">" +
-                "<tr>" +
-                "<td align=\"center\" style=\"color: #12295d; font-family: Arial, sans-serif; font-size: 24px;\">" +
-                "</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<td style=\"padding: 0 0 0 0; color: #12295d; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;\">"
-                +
-                "<p>Prezado(a) candidato(a), " + createdUser.getNome() + " </p>" +
-                "<p>Clique no link abaixo para ativar a sua conta.</p>" +
-                "</td>" +
-                "</tr>" +
-                "</table>" +
-                "</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<td bgcolor=\"#12295d\" style=\"padding: 32px 32px;\">" +
-                "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">" +
-                "<tr>" +
-                "<td style=\"font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;\">" +
-                "<a href=\"" + this.uriAtivacao + jwt + "\"><font color=\"#ffffff\">" + this.uriAtivacao + jwt
-                + "</font></a>" +
-                "</td>" +
-                "</tr>" +
-                "</table>" +
-                "</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<td bgcolor=\"#ffffff\" style=\"padding: 32px 32px;\">" +
-                "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">" +
-                "<tr>" +
-                "<td style=\"padding: 0 0; color: #12295d; font-family: Arial, sans-serif; font-size: 14px; line-height: 20px;\">"
-                +
-                "Por favor, não responda este e-mail. Para mais informações, entre em contato com o suporte através do nosso site."
-                +
-                "</td>" +
-                "</tr>" +
-                "</table>" +
-                "</td>" +
-                "</tr>" +
-                "</table>" +
-                "</td>" +
-                "</tr>" +
-                "</table>" +
-                "</body>";
-
-        EmailOutput emailOutput = new EmailOutput();
-        emailOutput.setEmailUsuario(createdUser.getEmail());
-        emailOutput.setAssunto("Ativação de conta");
-        emailOutput.setMensagem(mensagem);
-        return emailOutput;
     }
 
     // Cria o objeto de e-mail para Recuperação de Senha

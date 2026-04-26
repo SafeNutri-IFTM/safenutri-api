@@ -74,9 +74,9 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/confirmar-recuperacao")
+    @PostMapping("/mudar-senha")
     @Operation(summary = "Valida o token enviado por e-mail e troca a senha")
-    public ResponseEntity<?> confirmarRecuperacao(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<?> mudarSenha(@RequestBody Map<String, String> payload) {
         try {
             String token = payload.get("token");
             String novaSenha = payload.get("novaSenha");

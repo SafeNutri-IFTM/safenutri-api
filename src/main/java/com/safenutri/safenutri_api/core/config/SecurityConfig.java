@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/restricao-alimentar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/documentos-legais/atual").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/recuperarSenha/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/confirmar-recuperacao").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/mudar-senha").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
