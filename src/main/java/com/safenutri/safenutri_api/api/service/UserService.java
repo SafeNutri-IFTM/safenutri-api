@@ -47,6 +47,10 @@ public class UserService implements UserDetailsService {
     private final AceitoTermosRepository aceitoTermosRepository;
     private final EmailSenderService emailSenderService;
 
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
     @Transactional
     public User save(UserInput userInput) {
         if (userRepository.existsByEmail(userInput.getEmail())) {
@@ -67,29 +71,30 @@ public class UserService implements UserDetailsService {
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoComum));
         aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
 
-        if (userInput.getRestricoes() != null && !userInput.getRestricoes().isEmpty()) {
-            processarRestricoes(savedUser, userInput);
+        List<Long> restricoesIdList = userInput.getRestricoes();
+        if (restricoesIdList != null && !restricoesIdList.isEmpty()) {
+            processarRestricoes(savedUser, restricoesIdList);
         }
         return savedUser;
     }
 
-    private void processarRestricoes(User user, UserInput userInput) {
-        List<Long> restricoesId = userInput.getRestricoes();
-        Set<Long> restricoesIdSet = new HashSet<>(restricoesId);
+    private void processarRestricoes(User user, List<Long> restricoesIdList) {
+        Set<Long> restricoesIdSet = new HashSet<>(restricoesIdList);
 
-        List<RestricaoAlimentar> restricoes = restricaoAlimentarService.findAllById(restricoesIdSet);
+        List<RestricaoAlimentar> restricoesList = restricaoAlimentarService.findAllById(restricoesIdSet);
 
-        if (restricoesId.size() != restricoes.size()) {
+        if (restricoesIdSet.size() != restricoesList.size()) {
             throw new RestricaoNotFoundException("Alguma restrição não existe");
         }
 
         List<UserRestricao> userRestricoes = new ArrayList<>();
 
-        for (RestricaoAlimentar ra : restricoes) {
+        for (RestricaoAlimentar ra : restricoesList) {
             UserRestricao ur = new UserRestricao(user, ra);
             userRestricoes.add(ur);
         }
 
+        userRestricaoService.deleteByUserId(user.getId());
         userRestricaoService.saveAll(userRestricoes);
     }
 

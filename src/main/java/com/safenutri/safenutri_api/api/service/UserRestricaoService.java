@@ -17,4 +17,12 @@ public class UserRestricaoService {
     public void saveAll(List<UserRestricao> userRestricoes) {
         userRestricaoRepository.saveAll(userRestricoes);
     }
+
+    public void deleteByUserId(Long id) {
+        userRestricaoRepository.deleteByUserId(id);
+    }
+
+    public List<Long> findAllByUserId(Long userId) {
+        return userRestricaoRepository.findAllByUserId(userId);
+    }
 }

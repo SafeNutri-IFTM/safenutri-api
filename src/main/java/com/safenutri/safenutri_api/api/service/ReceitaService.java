@@ -9,6 +9,10 @@ import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
@@ -20,6 +24,8 @@ import com.safenutri.safenutri_api.model.entity.TipoReceita;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.ModoPreparoInput;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
+import com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 
 @Service
@@ -33,6 +39,11 @@ public class ReceitaService {
     private final RestricaoAlimentarService restricaoAlimentarService;
     private final ReceitaRestricaoService receitaRestricaoService;
     private final ModoPreparoService modoPreparoService;
+    private final PacienteService pacienteService;
+    private final UserRestricaoService userRestricaoService;
+
+    @Value("${filediretorioReceita}")
+    private String directoryReceita;
 
     @Transactional
     public void save(ReceitaInput receitaInput) throws Exception {
@@ -42,8 +53,8 @@ public class ReceitaService {
             caminhoFoto = uploadService.saveFotoReceita(receitaInput.getImagem());
         }
 
-        User user = userService.getReference(jwtService.getIdUsuario());
-        TipoReceita tipoReceita = tipoReceitaService.getReference(receitaInput.getTipoReceitaId());
+        User user = userService.findById(jwtService.getIdUsuario());
+        TipoReceita tipoReceita = tipoReceitaService.findById(receitaInput.getTipoReceitaId());
         Boolean isPublic = false;
 
         if (jwtService.isNutricionista()) {
@@ -104,4 +115,43 @@ public class ReceitaService {
         modoPreparoService.deleteByReceitaId(receita.getId());
         modoPreparoService.saveAll(mpList);
     }
+
+    public Page<ReceitaDashboardOutput> findReceitasByRestricoesId(Long userId, int page, int size) {
+        User user = userService.findById(userId);
+        List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
+        Long qntd = (long) restricoesIds.size();
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
+
+        if (!nutricionistaIds.isEmpty()) {
+            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, pageable);
+        } else {
+            return receitaRepository.findByRestricoesId(restricoesIds, qntd, pageable);
+        }
+    }
+
+    public List<ReceitaDashboardOutput> findTop3Filtrado(Long userId) {
+        List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
+        Long qntd = (long) restricoesIds.size();
+        
+        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, PageRequest.of(0, 3));
+    }
+
+    public Long countByNutricionistaId(Long nutricionistaId) {
+        return receitaRepository.countByNutricionistaId(nutricionistaId);
+    }
+
+    public List<ReceitaPieChartOutput> countGroupByRestricoes(Long nutricionistaId) {
+        return receitaRepository.countByNutricionistaIdAndGroupByRestricoes(nutricionistaId);
+    }
+
+    public List<ReceitaDashboardOutput> findTop3() {
+        return receitaRepository.findTop3(PageRequest.of(0, 3));
+    }
+
+    public Receita findById(Long id) {
+        return receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+    }
+    
 }
