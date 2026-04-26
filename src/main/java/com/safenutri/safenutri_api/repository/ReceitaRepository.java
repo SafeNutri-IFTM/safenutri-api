@@ -90,4 +90,18 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
     )
     List<ReceitaPieChartOutput> countByNutricionistaIdAndGroupByRestricoes(@Param("nutricionistaId") Long nutricionistaId);
 
+    //========================================================================================
+    // NOVA QUERY DA TASK SN-110: SQL PARA BUSCA PAGINADA DE RECEITAS POR NOME/TÍTULO NO FEED
+    //========================================================================================
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput(r.id, tr.tipoReceita, "+
+        "r.titulo, r.tempoPreparo, r.calorias, COALESCE(AVG(ra.qntdEstrela), 0.0)) " +
+        "FROM Receita r " + 
+        "JOIN r.tipoReceita tr " + 
+        "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+        "WHERE LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) " +
+        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.tempoPreparo, r.calorias " +
+        "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC, r.id ASC"
+    )
+    Page<ReceitaDashboardOutput> findByTituloPaginado(@Param("termo") String termo, Pageable pageable);
+
 }

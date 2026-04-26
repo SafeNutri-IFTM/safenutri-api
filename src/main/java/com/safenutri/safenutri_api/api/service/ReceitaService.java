@@ -153,5 +153,19 @@ public class ReceitaService {
     public Receita findById(Long id) {
         return receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
     }
+
+    // ========================================================================================
+    // NOVO MÉTODO DA TASK SN-110: BUSCA PAGINADA PARA O FEED
+    // ========================================================================================
+    public Page<ReceitaDashboardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
+        // Previne NullPointerException caso não passem termo na requisição
+        String termoBusca = (termo != null) ? termo : "";
+        
+        // Cria o objeto nativo do Spring Data para realizar a paginação (LIMIT e OFFSET)
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // Chama a query que criámos no ReceitaRepository
+        return receitaRepository.findByTituloPaginado(termoBusca, pageable);
+    }
     
 }
