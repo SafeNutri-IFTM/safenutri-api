@@ -106,10 +106,12 @@ public class ReceitaService {
 
     private void processarModoPreparo(Receita receita, List<ModoPreparoInput> modoPreparoInputList) {
         List<ModoPreparo> mpList = new ArrayList<>();
+        Long passo = 1L;
 
         for (ModoPreparoInput mpi : modoPreparoInputList) {
-            ModoPreparo mp = new ModoPreparo(receita, mpi.getPasso(), mpi.getTituloEtapa(), mpi.getDescricaoEtapa());
+            ModoPreparo mp = new ModoPreparo(receita, passo, mpi.getTituloEtapa(), mpi.getDescricaoEtapa());
             mpList.add(mp);
+            passo++;
         }
 
         modoPreparoService.deleteByReceitaId(receita.getId());
