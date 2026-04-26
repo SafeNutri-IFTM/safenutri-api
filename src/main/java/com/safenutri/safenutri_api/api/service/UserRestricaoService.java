@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.repository.UserRestricaoRepository;
-import jakarta.transaction.Transactional; 
+
 @Service
 @RequiredArgsConstructor
 public class UserRestricaoService {
@@ -17,8 +17,12 @@ public class UserRestricaoService {
     public void saveAll(List<UserRestricao> userRestricoes) {
         userRestricaoRepository.saveAll(userRestricoes);
     }
-    @Transactional
-    public void deleteByUserId(Long userId) {
-        userRestricaoRepository.deleteByUserId(userId);
+
+    public void deleteByUserId(Long id) {
+        userRestricaoRepository.deleteByUserId(id);
+    }
+
+    public List<Long> findAllByUserId(Long userId) {
+        return userRestricaoRepository.findAllByUserId(userId);
     }
 }

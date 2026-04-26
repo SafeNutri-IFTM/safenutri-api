@@ -10,17 +10,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> {
+                    cors.configurationSource(corsConfigurationSource);
                 })
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -31,6 +34,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/genero").permitAll()
                         .requestMatchers(HttpMethod.GET, "/restricao-alimentar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/documentos-legais/atual").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/receita/download-image/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/recuperarSenha/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/mudar-senha").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

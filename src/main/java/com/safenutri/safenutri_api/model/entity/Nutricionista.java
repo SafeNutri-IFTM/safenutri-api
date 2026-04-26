@@ -29,8 +29,8 @@ public class Nutricionista extends DefaultEntity {
     @Column(name = "desc_perfil")
     private String descPerfil;
 
-    @Column(name = "caminho_foto")
-    private String caminhoFoto;
+    @Column(name = "imagem_perfil")
+    private String imagem;
 
     public Nutricionista(User user, String CRN) {
         this.user = user;

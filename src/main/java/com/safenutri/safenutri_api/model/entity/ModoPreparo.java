@@ -5,11 +5,13 @@ import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "modo_preparo")
 public class ModoPreparo {
     @Id
@@ -22,7 +24,7 @@ public class ModoPreparo {
     private Receita receita;
 
     @Column(name = "passo", nullable = false)
-    private Integer passo;
+    private Long passo;
 
     @Column(name = "titulo", nullable = false)
     private String titulo;
@@ -38,7 +40,7 @@ public class ModoPreparo {
         this.created = LocalDateTime.now();
     }
 
-    public ModoPreparo(Receita receita, Integer passo, String titulo, String descricao) {
+    public ModoPreparo(Receita receita, Long passo, String titulo, String descricao) {
         this.receita = receita;
         this.passo = passo;
         this.titulo = titulo;

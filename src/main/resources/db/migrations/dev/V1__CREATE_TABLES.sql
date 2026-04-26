@@ -55,9 +55,9 @@ CREATE TABLE public.restricao_alimentar (
     restricao VARCHAR(255) NOT NULL,
     descricao TEXT,
     approved BOOLEAN,
-    activated BOOLEAN,
+    activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.restricao_alimentar
@@ -85,9 +85,9 @@ CREATE TABLE public.user (
     email VARCHAR(50) NOT NULL,
     senha VARCHAR(255) NOT NULL,
     dt_nascimento DATE NOT NULL,
-    activated BOOLEAN,
+    activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.user
@@ -119,9 +119,9 @@ CREATE TABLE public.user_restricao (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_user_restricao'),
     user_id BIGINT NOT NULL,
     restricao_id BIGINT NOT NULL,
-    activated BOOLEAN,
+    activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.user_restricao
@@ -154,10 +154,10 @@ CREATE TABLE public.nutricionista (
     user_id BIGINT NOT NULL,
     crn VARCHAR(100) NOT NULL,
     desc_perfil TEXT,
-    caminho_foto VARCHAR(255),
-    activated BOOLEAN,
+    imagem_perfil VARCHAR(255),
+    activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.nutricionista 
@@ -186,7 +186,7 @@ CREATE SEQUENCE public.id_seq_tipo_receita
 
 CREATE TABLE public.tipo_receita(
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_tipo_receita'),
-    tipo_receita VARCHAR(255)
+    tipo_receita VARCHAR(255) NOT NULL
 );
 
 ALTER TABLE public.tipo_receita
@@ -207,16 +207,16 @@ CREATE TABLE public.receita(
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_receita'),
     user_id BIGINT NOT NULL,
     tipo_receita_id BIGINT NOT NULL,
-    titulo VARCHAR(255),
+    titulo VARCHAR(255) NOT NULL,
     descricao TEXT,
-    tempo_preparo INTEGER,
-    porcao INTEGER,
-    calorias INTEGER,
-    caminho_foto VARCHAR(255),
-    public BOOLEAN,
-    activated BOOLEAN,
+    tempo_preparo INTEGER NOT NULL,
+    porcao INTEGER NOT NULL,
+    calorias INTEGER NOT NULL,
+    imagem VARCHAR(255),
+    public BOOLEAN NOT NULL,
+    activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.receita
@@ -241,9 +241,9 @@ CREATE TABLE public.receita_restricao (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_receita_restricao'),
     receita_id BIGINT NOT NULL,
     restricao_id BIGINT NOT NULL,
-    activated BOOLEAN,
+    activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.receita_restricao
@@ -326,12 +326,12 @@ CREATE SEQUENCE public.id_seq_modo_preparo
 CREATE TABLE public.modo_preparo (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_modo_preparo'), 
     receita_id BIGINT NOT NULL,
-    passo INTEGER,
-    titulo VARCHAR(255),
-    descricao TEXT,
-    activated BOOLEAN,
+    passo INTEGER NOT NULL,
+    titulo VARCHAR(255) NOT NULL,
+    descricao TEXT NOT NULL,
+    activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.modo_preparo
@@ -360,9 +360,9 @@ CREATE TABLE public.documentos_legais (
     tipo VARCHAR(100) NOT NULL,
     versao VARCHAR(50) NOT NULL,
     texto TEXT NOT NULL,
-    activated BOOLEAN,
+    activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.documentos_legais

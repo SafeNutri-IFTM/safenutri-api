@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -58,6 +60,43 @@ public class AuthController {
             return ResponseEntity.ok(jwtService.obterClaims(token));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido ou ausente");
+        }
+    }
+
+    @PostMapping("/recuperarSenha/{email}")
+    @Operation(summary = "Envia um email de recuperação de senha")
+    public ResponseEntity<?> recuperarSenha(@PathVariable String email) {
+        try {
+            userService.recuperarSenha(email);
+            return ResponseEntity.ok().body("{\"message\": \"Email enviado com sucesso\"}");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
+    }
+
+    @PostMapping("/mudar-senha")
+    @Operation(summary = "Valida o token enviado por e-mail e troca a senha")
+    public ResponseEntity<?> mudarSenha(@RequestBody Map<String, String> payload) {
+        try {
+            String token = payload.get("token");
+            String novaSenha = payload.get("novaSenha");
+
+            if (token == null || !jwtService.tokenValido(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Link de recuperação inválido ou expirado.");
+            }
+
+            Claims claims = jwtService.obterClaims(token);
+            String email = claims.getSubject();
+
+            User user = userService.findByExistEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado para este token."));
+
+            userService.mudarSenha(user, novaSenha);
+
+            return ResponseEntity.ok().body("{\"message\": \"Senha alterada com sucesso!\"}");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
