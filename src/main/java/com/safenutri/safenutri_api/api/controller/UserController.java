@@ -40,6 +40,12 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PutMapping("/me")
+    public ResponseEntity<User> atualizarPerfil(@RequestBody @Valid UserInput input) {
+        User userAtualizado = userService.atualizarPerfil(input);
+        return ResponseEntity.ok(userAtualizado);
+    }
+
     @GetMapping("/me/restricoes")
     public ResponseEntity<List<RestricaoAlimentar>> getRestricoes() {
 
