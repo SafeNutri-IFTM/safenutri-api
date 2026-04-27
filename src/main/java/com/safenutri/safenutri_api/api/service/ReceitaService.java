@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import com.safenutri.safenutri_api.exception.ReceitaNotFoundException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.model.entity.ModoPreparo;
 import com.safenutri.safenutri_api.model.entity.Receita;
@@ -24,8 +26,11 @@ import com.safenutri.safenutri_api.model.entity.TipoReceita;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.ModoPreparoInput;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
-import com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput;
+import com.safenutri.safenutri_api.model.output.ModoPreparoOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaRestricaoOutput;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 
 @Service
@@ -84,6 +89,66 @@ public class ReceitaService {
         }
     }
 
+    @Transactional
+    public void update(ReceitaInput receitaInput, Long id) throws Exception {
+        Receita receitaExistente = receitaRepository.findById(id)
+            .orElseThrow(() -> new ReceitaNotFoundException("Receita não encontrada"));
+        
+        User user = userService.findById(jwtService.getIdUsuario());
+
+        if (!receitaExistente.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Você não tem permissão para alterar esta receita.");
+        }
+
+        boolean novaImagemEnviada = receitaInput.getImagem() != null && !receitaInput.getImagem().isEmpty();
+
+        if (novaImagemEnviada) {
+            if (receitaExistente.getImagem() != null) {
+                uploadService.deletarFotoReceita(receitaExistente.getImagem());
+            }
+
+            String novoNome = uploadService.saveFotoReceita(receitaInput.getImagem());
+            receitaExistente.setImagem(novoNome);
+        } else {
+            if (user.getRole().getRole().equals("NUTRICIONISTA") && receitaExistente.getImagem() == null) {
+                throw new RuntimeException("Nutricionistas devem obrigatoriamente incluir uma imagem.");
+            }
+        }
+
+        TipoReceita tipoReceita = tipoReceitaService.findById(receitaInput.getTipoReceitaId());
+        receitaExistente.setTipoReceita(tipoReceita);
+
+        Boolean isPublic = false;
+
+        if (jwtService.isNutricionista()) {
+            isPublic = true;
+        }
+
+        String[] partes = receitaInput.getTempoPreparo().split(":");
+        Integer horas = Integer.parseInt(partes[0]);   
+        Integer minutos = Integer.parseInt(partes[1]);
+        Integer tempoPreparo = (horas * 60) + minutos;
+
+        receitaExistente.setTitulo(receitaInput.getTitulo());
+        receitaExistente.setDescricao(receitaInput.getDescricao());
+        receitaExistente.setTempoPreparo(tempoPreparo);
+        receitaExistente.setPorcao(receitaInput.getPorcao());
+        receitaExistente.setCalorias(receitaInput.getCalorias());
+        receitaExistente.setIngredientes(receitaInput.getIngredientes());
+
+        Receita savedReceita = receitaRepository.save(receitaExistente);
+
+        List<Long> restricoesIdList = receitaInput.getRestricoes();
+        if (restricoesIdList != null && !restricoesIdList.isEmpty()) {
+            processarRestricoes(savedReceita, restricoesIdList);
+        }
+
+        List<ModoPreparoInput> modoPreparoInputList = receitaInput.getPassos();
+        if (modoPreparoInputList != null && !modoPreparoInputList.isEmpty()) {
+            processarModoPreparo(savedReceita, modoPreparoInputList);
+        }
+    }
+
     private void processarRestricoes(Receita receita, List<Long> restricoesIdList) {
         Set<Long> restricoesIdSet = new HashSet<>(restricoesIdList);
 
@@ -118,7 +183,20 @@ public class ReceitaService {
         modoPreparoService.saveAll(mpList);
     }
 
-    public Page<ReceitaDashboardOutput> findReceitasByRestricoesId(Long userId, int page, int size) {
+    public void desativar(Long id) {
+        Receita receita = findById(id);
+        receita.setActivated(false);
+        receitaRepository.save(receita);
+    }
+
+        public Page<ReceitaCardOutput> getMinhasReceitas(int page, int size) {
+        Long userId = jwtService.getIdUsuario();
+        Pageable pageable = PageRequest.of(page, size);
+
+        return receitaRepository.getMinhasReceitas(userId, pageable);
+    }
+
+    public Page<ReceitaCardOutput> findReceitasByRestricoesId(Long userId, int page, int size) {
         User user = userService.findById(userId);
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
@@ -133,7 +211,7 @@ public class ReceitaService {
         }
     }
 
-    public List<ReceitaDashboardOutput> findTop3Filtrado(Long userId) {
+    public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
         
@@ -148,8 +226,16 @@ public class ReceitaService {
         return receitaRepository.countByNutricionistaIdAndGroupByRestricoes(nutricionistaId);
     }
 
-    public List<ReceitaDashboardOutput> findTop3() {
+    public List<ReceitaCardOutput> findTop3() {
         return receitaRepository.findTop3(PageRequest.of(0, 3));
+    }
+
+    public ReceitaDetalheOutput findDetalheById(Long id) {
+        Receita receita = receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        List<ModoPreparoOutput> passos = modoPreparoService.findByReceitaId(id);
+        List<ReceitaRestricaoOutput> restricoes = receitaRestricaoService.findByReceitaId(id);
+
+        return new ReceitaDetalheOutput(receita, passos, restricoes);
     }
 
     public Receita findById(Long id) {
@@ -159,7 +245,7 @@ public class ReceitaService {
     // ========================================================================================
     // NOVO MÉTODO DA TASK SN-110: BUSCA PAGINADA PARA O FEED
     // ========================================================================================
-    public Page<ReceitaDashboardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
+    public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
         // Previne NullPointerException caso não passem termo na requisição
         String termoBusca = (termo != null) ? termo : "";
         

@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.safenutri.safenutri_api.api.controller.EmailController;
 import com.safenutri.safenutri_api.exception.EmailAlreadyExistsException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
@@ -78,7 +77,33 @@ public class UserService implements UserDetailsService {
         return savedUser;
     }
 
-    private void processarRestricoes(User user, List<Long> restricoesIdList) {
+    @Transactional
+    public User atualizarPerfil(UserInput userInput) {
+        User user = userRepository.findById(userInput.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
+        user.setNome(userInput.getNome());
+        user.setDtNascimento(userInput.getDtNascimento());
+
+        if (userInput.getGenero() != null) {
+            Genero genero = generoService.findById(userInput.getGenero());
+            user.setGenero(genero);
+        }
+
+        if (userInput.getSenha() != null && !userInput.getSenha().trim().isEmpty()) {
+            user.setSenha(passwordEncoder.encode(userInput.getSenha()));
+        }
+
+        List<Long> restricoesIdList = userInput.getRestricoes();
+        if (restricoesIdList != null && !restricoesIdList.isEmpty()) {
+            processarRestricoes(user, restricoesIdList);
+        }
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void processarRestricoes(User user, List<Long> restricoesIdList) {
         Set<Long> restricoesIdSet = new HashSet<>(restricoesIdList);
 
         List<RestricaoAlimentar> restricoesList = restricaoAlimentarService.findAllById(restricoesIdSet);
@@ -107,7 +132,6 @@ public class UserService implements UserDetailsService {
         if (!passwordEncoder.matches(password, user.getSenha())) {
             throw new SenhaInvalidaException();
         }
-
         return user;
     }
 
@@ -131,6 +155,11 @@ public class UserService implements UserDetailsService {
 
     public User getReference(Long id) {
         return userRepository.getReferenceById(id);
+    }
+
+    public User getProfileByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
     }
 
     public Optional<User> findByExistEmail(String email) {

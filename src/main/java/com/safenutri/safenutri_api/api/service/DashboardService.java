@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 
 @Service
@@ -16,18 +16,18 @@ public class DashboardService {
     private final ReceitaService receitaService;
     private final PacienteService pacienteService;
 
-    public Page<ReceitaDashboardOutput> getReceitas(Long userId, int page, int size) {
+    public Page<ReceitaCardOutput> getReceitas(Long userId, int page, int size) {
         return receitaService.findReceitasByRestricoesId(userId, page, size);
     }
 
     // ========================================================================================
     // NOVO MÉTODO DA TASK SN-110: DELEGA A BUSCA PAGINADA PARA O RECEITA SERVICE
     // ========================================================================================
-    public Page<ReceitaDashboardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
+    public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
         return receitaService.buscarReceitasPaginadas(termo, page, size);
     }
 
-    public List<ReceitaDashboardOutput> getTop3ReceitasFiltradas(Long userId) {
+    public List<ReceitaCardOutput> getTop3ReceitasFiltradas(Long userId) {
         return receitaService.findTop3Filtrado(userId);
     }
 
@@ -43,7 +43,7 @@ public class DashboardService {
         return receitaService.countGroupByRestricoes(nutricionistaId);
     }
 
-    public List<ReceitaDashboardOutput> getTop3GeralReceitas() {
+    public List<ReceitaCardOutput> getTop3GeralReceitas() {
         return receitaService.findTop3();
     }
 }

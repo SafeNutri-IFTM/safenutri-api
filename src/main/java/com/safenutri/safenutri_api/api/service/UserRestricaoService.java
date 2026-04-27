@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
+import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.repository.UserRestricaoRepository;
 
@@ -24,5 +25,9 @@ public class UserRestricaoService {
 
     public List<Long> findAllByUserId(Long userId) {
         return userRestricaoRepository.findAllByUserId(userId);
+    }
+
+    public List<RestricaoAlimentar> findRestricoesByUserId(Long userId) {
+        return userRestricaoRepository.findRestricoesByUserId(userId);
     }
 }
