@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.model.entity.ModoPreparo;
+import com.safenutri.safenutri_api.model.output.ModoPreparoOutput;
 import com.safenutri.safenutri_api.repository.ModoPreparoRepository;
 
 @Service
@@ -20,6 +21,10 @@ public class ModoPreparoService {
 
     public void deleteByReceitaId(Long id) {
         modoPreparoRepository.deleteByReceitaId(id);
+    }
+
+    public List<ModoPreparoOutput> findByReceitaId(Long id) {
+        return modoPreparoRepository.findByReceitaId(id);
     }
 
 }

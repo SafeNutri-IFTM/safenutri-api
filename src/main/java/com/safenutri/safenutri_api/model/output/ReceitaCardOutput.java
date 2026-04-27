@@ -5,11 +5,13 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ReceitaDashboardOutput {
+public class ReceitaCardOutput {
     private Long id;
     private String tipoReceita;
     private String titulo;
+    private String descricao;
     private Integer tempo;
     private Integer calorias;
     private Double mediaAvaliacao;
+    private Boolean activated;
 }

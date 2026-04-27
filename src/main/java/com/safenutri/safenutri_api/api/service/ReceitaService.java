@@ -24,7 +24,9 @@ import com.safenutri.safenutri_api.model.entity.TipoReceita;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.ModoPreparoInput;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
-import com.safenutri.safenutri_api.model.output.ReceitaDashboardOutput;
+import com.safenutri.safenutri_api.model.output.ModoPreparoOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 
@@ -124,7 +126,14 @@ public class ReceitaService {
         receitaRepository.save(receita);
     }
 
-    public Page<ReceitaDashboardOutput> findReceitasByRestricoesId(Long userId, int page, int size) {
+        public Page<ReceitaCardOutput> getMinhasReceitas(int page, int size) {
+        Long userId = jwtService.getIdUsuario();
+        Pageable pageable = PageRequest.of(page, size);
+
+        return receitaRepository.getMinhasReceitas(userId, pageable);
+    }
+
+    public Page<ReceitaCardOutput> findReceitasByRestricoesId(Long userId, int page, int size) {
         User user = userService.findById(userId);
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
@@ -139,7 +148,7 @@ public class ReceitaService {
         }
     }
 
-    public List<ReceitaDashboardOutput> findTop3Filtrado(Long userId) {
+    public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
         
@@ -154,8 +163,15 @@ public class ReceitaService {
         return receitaRepository.countByNutricionistaIdAndGroupByRestricoes(nutricionistaId);
     }
 
-    public List<ReceitaDashboardOutput> findTop3() {
+    public List<ReceitaCardOutput> findTop3() {
         return receitaRepository.findTop3(PageRequest.of(0, 3));
+    }
+
+    public ReceitaDetalheOutput findDetalheById(Long id) {
+        Receita receita = receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        List<ModoPreparoOutput> passos = modoPreparoService.findByReceitaId(id);
+
+        return new ReceitaDetalheOutput(receita, passos);
     }
 
     public Receita findById(Long id) {
@@ -165,7 +181,7 @@ public class ReceitaService {
     // ========================================================================================
     // NOVO MÉTODO DA TASK SN-110: BUSCA PAGINADA PARA O FEED
     // ========================================================================================
-    public Page<ReceitaDashboardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
+    public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
         // Previne NullPointerException caso não passem termo na requisição
         String termoBusca = (termo != null) ? termo : "";
         
