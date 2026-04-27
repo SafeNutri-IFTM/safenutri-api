@@ -6,10 +6,13 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
 
+import java.security.Principal;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.api.service.UserService;
 
@@ -20,21 +23,20 @@ public class UserController {
     private final UserService userService;
 
     // Rota EXATA que o Angular está chamando: GET /user/me
-    // @GetMapping("/me")
-    // public ResponseEntity<User> getProfile(Principal principal) {
-    //     if (principal == null) {
-    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    //     }
-    //     User user = userService.getProfileByEmail(principal.getName());
-    //     return ResponseEntity.ok(user);
-    // }
+    @GetMapping("/me")
+    public ResponseEntity<User> getProfile(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User user = userService.getProfileByEmail(principal.getName());
+        return ResponseEntity.ok(user);
+    }
 
-    // Presumindo que o Front-end também use PUT /user/me para salvar
-    // @PutMapping("/me")
-    // public ResponseEntity<User> atualizarPerfil(@RequestBody @Valid UserInput input) {
-    //     User userAtualizado = userService.atualizarPerfil(input);
-    //     return ResponseEntity.ok(userAtualizado);
-    // }
+    @PutMapping("/me")
+    public ResponseEntity<User> atualizarPerfil(@RequestBody @Valid UserInput input) {
+        User userAtualizado = userService.atualizarPerfil(input);
+        return ResponseEntity.ok(userAtualizado);
+    }
 
     
     // @GetMapping("/{id}")

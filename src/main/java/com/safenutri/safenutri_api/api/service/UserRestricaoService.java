@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.model.entity.UserRestricao;
-import com.safenutri.safenutri_api.model.output.UserRestricaoOutput;
 import com.safenutri.safenutri_api.repository.UserRestricaoRepository;
 
 @Service

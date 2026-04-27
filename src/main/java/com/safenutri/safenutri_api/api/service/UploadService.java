@@ -37,6 +37,15 @@ public class UploadService {
         return fileName;   
     }
 
+    public void deletarFotoReceita(String nomeArquivo) {
+        try {
+            Path caminho = Paths.get(directoryReceita, nomeArquivo);
+            Files.deleteIfExists(caminho);
+        } catch (IOException e) {
+         System.err.println("Erro ao deletar imagem antiga: " + e.getMessage());
+        }
+    }
+
     public Resource carregarImagem(String nomeArquivo) {
         try {
             Path basePath = Paths.get(directoryReceita).toAbsolutePath().normalize();

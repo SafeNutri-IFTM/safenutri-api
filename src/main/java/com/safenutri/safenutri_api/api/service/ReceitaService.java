@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import com.safenutri.safenutri_api.exception.ReceitaNotFoundException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.model.entity.ModoPreparo;
 import com.safenutri.safenutri_api.model.entity.Receita;
@@ -75,6 +77,66 @@ public class ReceitaService {
         );
 
         Receita savedReceita = receitaRepository.save(receita);
+
+        List<Long> restricoesIdList = receitaInput.getRestricoes();
+        if (restricoesIdList != null && !restricoesIdList.isEmpty()) {
+            processarRestricoes(savedReceita, restricoesIdList);
+        }
+
+        List<ModoPreparoInput> modoPreparoInputList = receitaInput.getPassos();
+        if (modoPreparoInputList != null && !modoPreparoInputList.isEmpty()) {
+            processarModoPreparo(savedReceita, modoPreparoInputList);
+        }
+    }
+
+    @Transactional
+    public void update(ReceitaInput receitaInput, Long id) throws Exception {
+        Receita receitaExistente = receitaRepository.findById(id)
+            .orElseThrow(() -> new ReceitaNotFoundException("Receita não encontrada"));
+        
+        User user = userService.findById(jwtService.getIdUsuario());
+
+        if (!receitaExistente.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Você não tem permissão para alterar esta receita.");
+        }
+
+        boolean novaImagemEnviada = receitaInput.getImagem() != null && !receitaInput.getImagem().isEmpty();
+
+        if (novaImagemEnviada) {
+            if (receitaExistente.getImagem() != null) {
+                uploadService.deletarFotoReceita(receitaExistente.getImagem());
+            }
+
+            String novoNome = uploadService.saveFotoReceita(receitaInput.getImagem());
+            receitaExistente.setImagem(novoNome);
+        } else {
+            if (user.getRole().getRole().equals("NUTRICIONISTA") && receitaExistente.getImagem() == null) {
+                throw new RuntimeException("Nutricionistas devem obrigatoriamente incluir uma imagem.");
+            }
+        }
+
+        TipoReceita tipoReceita = tipoReceitaService.findById(receitaInput.getTipoReceitaId());
+        receitaExistente.setTipoReceita(tipoReceita);
+
+        Boolean isPublic = false;
+
+        if (jwtService.isNutricionista()) {
+            isPublic = true;
+        }
+
+        String[] partes = receitaInput.getTempoPreparo().split(":");
+        Integer horas = Integer.parseInt(partes[0]);   
+        Integer minutos = Integer.parseInt(partes[1]);
+        Integer tempoPreparo = (horas * 60) + minutos;
+
+        receitaExistente.setTitulo(receitaInput.getTitulo());
+        receitaExistente.setDescricao(receitaInput.getDescricao());
+        receitaExistente.setTempoPreparo(tempoPreparo);
+        receitaExistente.setPorcao(receitaInput.getPorcao());
+        receitaExistente.setCalorias(receitaInput.getCalorias());
+        receitaExistente.setIngredientes(receitaInput.getIngredientes());
+
+        Receita savedReceita = receitaRepository.save(receitaExistente);
 
         List<Long> restricoesIdList = receitaInput.getRestricoes();
         if (restricoesIdList != null && !restricoesIdList.isEmpty()) {

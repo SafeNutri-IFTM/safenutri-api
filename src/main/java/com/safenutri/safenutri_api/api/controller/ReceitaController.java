@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
-import java.util.List;
+
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -14,13 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.safenutri.safenutri_api.api.service.JwtService;
 import com.safenutri.safenutri_api.api.service.ReceitaService;
 import com.safenutri.safenutri_api.api.service.UploadService;
 import com.safenutri.safenutri_api.model.entity.Receita;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
 import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
+
 
 
 @RestController
@@ -38,6 +38,24 @@ public class ReceitaController {
         try {
             receitaInput.setImagem(imagem);
             receitaService.save(receitaInput);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("{\"error\": \"Erro ao salvar Receita: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @Operation(summary = "Atualiza uma receita", description = "Atualiza uma receita com base nas informações fornecidas")
+    public ResponseEntity<?> update(@RequestPart("receita") @Valid ReceitaInput receitaInput,
+        @RequestPart(value = "imagem", required = false) MultipartFile imagem,
+        @PathVariable Long id
+    ) {
+
+        try {
+            receitaInput.setImagem(imagem);
+            receitaService.update(receitaInput, id);
             return ResponseEntity.status(HttpStatus.CREATED).build();
 
         } catch (Exception e) {
