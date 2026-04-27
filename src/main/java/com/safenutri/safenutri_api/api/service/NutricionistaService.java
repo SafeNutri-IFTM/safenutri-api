@@ -44,7 +44,9 @@ public class NutricionistaService {
         DocumentosLegais termoNutri = documentosService.buscarAtualPorTipo("TERMO_NUTRI");
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoNutri));
 
-        Nutricionista nutricionista = new Nutricionista(savedUser, nutricionistaInput.getCRN());
+        String crn = "" + nutricionistaInput.getCRN() + "/" + nutricionistaInput.getInscricao();
+
+        Nutricionista nutricionista = new Nutricionista(savedUser, crn);
         nutricionistaRepository.save(nutricionista);
     }
 }
