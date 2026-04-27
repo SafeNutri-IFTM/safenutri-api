@@ -28,6 +28,7 @@ import com.safenutri.safenutri_api.model.output.ModoPreparoOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaRestricaoOutput;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 
 @Service
@@ -170,8 +171,9 @@ public class ReceitaService {
     public ReceitaDetalheOutput findDetalheById(Long id) {
         Receita receita = receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
         List<ModoPreparoOutput> passos = modoPreparoService.findByReceitaId(id);
+        List<ReceitaRestricaoOutput> restricoes = receitaRestricaoService.findByReceitaId(id);
 
-        return new ReceitaDetalheOutput(receita, passos);
+        return new ReceitaDetalheOutput(receita, passos, restricoes);
     }
 
     public Receita findById(Long id) {

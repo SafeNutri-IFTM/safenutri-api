@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.safenutri.safenutri_api.model.entity.UserRestricao;
+import com.safenutri.safenutri_api.model.output.UserRestricaoOutput;
 
 @Repository
 public interface UserRestricaoRepository extends JpaRepository<UserRestricao, Long> {
