@@ -102,7 +102,8 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    private void processarRestricoes(User user, List<Long> restricoesIdList) {
+    @Transactional
+    public void processarRestricoes(User user, List<Long> restricoesIdList) {
         Set<Long> restricoesIdSet = new HashSet<>(restricoesIdList);
 
         List<RestricaoAlimentar> restricoesList = restricaoAlimentarService.findAllById(restricoesIdSet);
