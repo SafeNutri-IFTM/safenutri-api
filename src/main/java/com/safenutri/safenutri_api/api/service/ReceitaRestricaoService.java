@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.model.entity.ReceitaRestricao;
+import com.safenutri.safenutri_api.model.output.ReceitaRestricaoOutput;
 import com.safenutri.safenutri_api.repository.ReceitaRestricaoRepository;
 
 @Service
@@ -16,5 +17,13 @@ public class ReceitaRestricaoService {
 
     public void saveAll(List<ReceitaRestricao> receitaRestricoes) {
         receitaRestricaoRepository.saveAll(receitaRestricoes);
+    }
+
+    public void deleteByReceitaId(Long id) {
+        receitaRestricaoRepository.deleteByReceitaId(id);
+    }
+
+    public List<ReceitaRestricaoOutput> findByReceitaId(Long id) {
+        return receitaRestricaoRepository.findByReceitaId(id);
     }
 }

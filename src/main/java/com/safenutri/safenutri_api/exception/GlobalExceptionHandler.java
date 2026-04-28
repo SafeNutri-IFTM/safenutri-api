@@ -25,4 +25,10 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+
+    @ExceptionHandler(ReceitaNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReceitaNotFound(ReceitaNotFoundException e) {
+        ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 }

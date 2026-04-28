@@ -20,7 +20,7 @@ public class TipoReceitaController {
 
     @GetMapping
     @Operation(summary = "Busca todos os tipos de receitas", description = "Busca todos os tipos de receitas cadastrados")
-    public ResponseEntity<List<TipoReceita>> getAllActivatedAndApproved() {
+    public ResponseEntity<List<TipoReceita>> getAll() {
         List<TipoReceita> tiposReceitas = tipoReceitaService.getAll();
         return ResponseEntity.ok(tiposReceitas);
     }

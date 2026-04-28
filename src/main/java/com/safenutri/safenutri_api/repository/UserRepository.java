@@ -15,4 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.email LIKE :email AND u.activated = TRUE")
     Optional<User> findByEmail(String email);
+    
 }

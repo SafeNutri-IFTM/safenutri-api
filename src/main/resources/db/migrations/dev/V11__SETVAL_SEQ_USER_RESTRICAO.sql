@@ -1,0 +1,1 @@
+SELECT setval('public.id_seq_user_restricao', (SELECT MAX(id) FROM public.user_restricao));

@@ -1,5 +1,6 @@
 package com.safenutri.safenutri_api.api.service;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,6 +10,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +37,32 @@ public class UploadService {
         return fileName;   
     }
 
-    public String getImageReceita(String filename) {
-        return directoryReceita + filename;
+    public void deletarFotoReceita(String nomeArquivo) {
+        try {
+            Path caminho = Paths.get(directoryReceita, nomeArquivo);
+            Files.deleteIfExists(caminho);
+        } catch (IOException e) {
+         System.err.println("Erro ao deletar imagem antiga: " + e.getMessage());
+        }
+    }
+
+    public Resource carregarImagem(String nomeArquivo) {
+        try {
+            Path basePath = Paths.get(directoryReceita).toAbsolutePath().normalize();
+            Path filePath = basePath.resolve(nomeArquivo).normalize();
+
+            if (!filePath.startsWith(basePath)) {
+                throw new SecurityException("Tentativa de acesso inválido ao diretório.");
+            }
+
+            if (!Files.exists(filePath) || !Files.isReadable(filePath)) {
+                throw new FileNotFoundException("Arquivo não encontrado no disco.");
+            }
+
+            return new UrlResource(filePath.toUri());
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao processar o arquivo", e);
+        }
     }
 }

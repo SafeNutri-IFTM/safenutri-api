@@ -32,8 +32,27 @@ build/
 ### VS Code ###
 .vscode/
 
-src/main/resources/arquivos/receitas*
-!src/main/resources/arquivos/receitas.gitkeep
+src/main/resources/arquivos/receitas/*
+!src/main/resources/arquivos/receitas/1.png
+!src/main/resources/arquivos/receitas/2.png
+!src/main/resources/arquivos/receitas/3.png
+!src/main/resources/arquivos/receitas/4.png
+!src/main/resources/arquivos/receitas/5.png
+!src/main/resources/arquivos/receitas/6.png
+!src/main/resources/arquivos/receitas/7.png
+!src/main/resources/arquivos/receitas/8.png
+!src/main/resources/arquivos/receitas/9.png
+!src/main/resources/arquivos/receitas/10.png
+!src/main/resources/arquivos/receitas/11.png
+!src/main/resources/arquivos/receitas/12.png
+!src/main/resources/arquivos/receitas/13.png
+!src/main/resources/arquivos/receitas/14.png
+!src/main/resources/arquivos/receitas/15.png
+!src/main/resources/arquivos/receitas/16.png
+!src/main/resources/arquivos/receitas/17.png
+!src/main/resources/arquivos/receitas/18.png
+!src/main/resources/arquivos/receitas/19.png
+!src/main/resources/arquivos/receitas/20.png
 
-src/main/resources/arquivos/nutricionistas*
+src/main/resources/arquivos/nutricionistas/*
 !src/main/resources/arquivos/nutricionistas.gitkeep

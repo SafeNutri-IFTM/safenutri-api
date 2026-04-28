@@ -30,8 +30,8 @@ public class NutricionistaService {
         UserInput userInput = nutricionistaInput.getUserInput();
         User savedUser = userService.save(userInput);
 
-        Boolean crnValido = crnValidation.pesquisarCrn(userInput.getNome(),
-                nutricionistaInput.getCRN(), nutricionistaInput.getInscricao());
+        Boolean crnValido = crnValidation.pesquisarCrn(userInput.getNome(), nutricionistaInput.getCRN(), 
+            nutricionistaInput.getInscricao());
 
         if (crnValido == null) {
             throw new RuntimeException("Erro ao validar CRN");
@@ -44,7 +44,9 @@ public class NutricionistaService {
         DocumentosLegais termoNutri = documentosService.buscarAtualPorTipo("TERMO_NUTRI");
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoNutri));
 
-        Nutricionista nutricionista = new Nutricionista(savedUser, nutricionistaInput.getCRN());
+        String crn = "" + nutricionistaInput.getCRN() + "/" + nutricionistaInput.getInscricao();
+
+        Nutricionista nutricionista = new Nutricionista(savedUser, crn);
         nutricionistaRepository.save(nutricionista);
     }
 }

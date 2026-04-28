@@ -1,8 +1,8 @@
 package com.safenutri.safenutri_api.api.service;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
@@ -16,10 +16,6 @@ public class TipoReceitaService {
 
     public TipoReceita findById(Long id) {
         return tipoReceitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Tipo de Receita não encontrada"));
-    }
-
-    public TipoReceita getReference(Long id) {
-        return tipoReceitaRepository.getReferenceById(id);
     }
 
     public List<TipoReceita> getAll() {
