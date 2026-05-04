@@ -3,7 +3,7 @@ name: Deploy Backend Safenutri
 on:
   push:
     branches:
-      - dev # Quando for para produção, é só trocar para main
+      - main
 
 jobs:
   build-and-deploy:
