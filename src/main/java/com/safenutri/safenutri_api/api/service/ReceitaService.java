@@ -135,6 +135,7 @@ public class ReceitaService {
         receitaExistente.setPorcao(receitaInput.getPorcao());
         receitaExistente.setCalorias(receitaInput.getCalorias());
         receitaExistente.setIngredientes(receitaInput.getIngredientes());
+        receitaExistente.setPublicBoolean(isPublic);
 
         Receita savedReceita = receitaRepository.save(receitaExistente);
 
