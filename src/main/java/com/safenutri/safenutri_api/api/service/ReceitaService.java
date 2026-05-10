@@ -20,6 +20,7 @@ import com.safenutri.safenutri_api.exception.ReceitaNotFoundException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.model.entity.ModoPreparo;
 import com.safenutri.safenutri_api.model.entity.Receita;
+import com.safenutri.safenutri_api.model.entity.ReceitaFavorita;
 import com.safenutri.safenutri_api.model.entity.ReceitaRestricao;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.TipoReceita;
@@ -31,6 +32,7 @@ import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaRestricaoOutput;
+import com.safenutri.safenutri_api.repository.ReceitaFavoritaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 
 @Service
@@ -46,6 +48,7 @@ public class ReceitaService {
     private final ModoPreparoService modoPreparoService;
     private final PacienteService pacienteService;
     private final UserRestricaoService userRestricaoService;
+    private final ReceitaFavoritaRepository receitaFavoritaRepository;
 
     @Value("${filediretorioReceita}")
     private String directoryReceita;
@@ -67,14 +70,13 @@ public class ReceitaService {
         }
 
         String[] partes = receitaInput.getTempoPreparo().split(":");
-        Integer horas = Integer.parseInt(partes[0]);   
+        Integer horas = Integer.parseInt(partes[0]);
         Integer minutos = Integer.parseInt(partes[1]);
         Integer tempoPreparo = (horas * 60) + minutos;
-        
-        Receita receita = new Receita(user, tipoReceita, receitaInput.getTitulo(), receitaInput.getDescricao(), 
-            receitaInput.getIngredientes(), tempoPreparo, receitaInput.getPorcao(), receitaInput.getCalorias(), 
-            caminhoFoto, isPublic
-        );
+
+        Receita receita = new Receita(user, tipoReceita, receitaInput.getTitulo(), receitaInput.getDescricao(),
+                receitaInput.getIngredientes(), tempoPreparo, receitaInput.getPorcao(), receitaInput.getCalorias(),
+                caminhoFoto, isPublic);
 
         Receita savedReceita = receitaRepository.save(receita);
 
@@ -92,8 +94,8 @@ public class ReceitaService {
     @Transactional
     public void update(ReceitaInput receitaInput, Long id) throws Exception {
         Receita receitaExistente = receitaRepository.findById(id)
-            .orElseThrow(() -> new ReceitaNotFoundException("Receita não encontrada"));
-        
+                .orElseThrow(() -> new ReceitaNotFoundException("Receita não encontrada"));
+
         User user = userService.findById(jwtService.getIdUsuario());
 
         if (!receitaExistente.getUser().getId().equals(user.getId())) {
@@ -125,7 +127,7 @@ public class ReceitaService {
         }
 
         String[] partes = receitaInput.getTempoPreparo().split(":");
-        Integer horas = Integer.parseInt(partes[0]);   
+        Integer horas = Integer.parseInt(partes[0]);
         Integer minutos = Integer.parseInt(partes[1]);
         Integer tempoPreparo = (horas * 60) + minutos;
 
@@ -190,7 +192,7 @@ public class ReceitaService {
         receitaRepository.save(receita);
     }
 
-        public Page<ReceitaCardOutput> getMinhasReceitas(int page, int size) {
+    public Page<ReceitaCardOutput> getMinhasReceitas(int page, int size) {
         Long userId = jwtService.getIdUsuario();
         Pageable pageable = PageRequest.of(page, size);
 
@@ -206,7 +208,8 @@ public class ReceitaService {
         List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
 
         if (!nutricionistaIds.isEmpty()) {
-            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, pageable);
+            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds,
+                    pageable);
         } else {
             return receitaRepository.findByRestricoesId(restricoesIds, qntd, pageable);
         }
@@ -215,7 +218,7 @@ public class ReceitaService {
     public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
-        
+
         return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, PageRequest.of(0, 3));
     }
 
@@ -232,7 +235,8 @@ public class ReceitaService {
     }
 
     public ReceitaDetalheOutput findDetalheById(Long id) {
-        Receita receita = receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        Receita receita = receitaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
         List<ModoPreparoOutput> passos = modoPreparoService.findByReceitaId(id);
         List<ReceitaRestricaoOutput> restricoes = receitaRestricaoService.findByReceitaId(id);
 
@@ -249,12 +253,46 @@ public class ReceitaService {
     public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
         // Previne NullPointerException caso não passem termo na requisição
         String termoBusca = (termo != null) ? termo : "";
-        
-        // Cria o objeto nativo do Spring Data para realizar a paginação (LIMIT e OFFSET)
+
+        // Cria o objeto nativo do Spring Data para realizar a paginação (LIMIT e
+        // OFFSET)
         Pageable pageable = PageRequest.of(page, size);
-        
+
         // Chama a query que criámos no ReceitaRepository
         return receitaRepository.findByTituloPaginado(termoBusca, pageable);
     }
-    
+
+    @Transactional
+    public void favoritar(Long receitaId) {
+        Long userId = jwtService.getIdUsuario();
+
+        if (receitaFavoritaRepository.existsByUserIdAndReceitaId(userId, receitaId)) {
+            throw new RuntimeException("Você já favoritou esta receita.");
+        }
+
+        User user = userService.findById(userId);
+        Receita receita = findById(receitaId);
+
+        ReceitaFavorita favorita = new ReceitaFavorita(user, receita);
+        receitaFavoritaRepository.save(favorita);
+    }
+
+    public Page<ReceitaCardOutput> getFavoritas(int page, int size) {
+        Long userId = jwtService.getIdUsuario();
+        Pageable pageable = PageRequest.of(page, size);
+
+        return receitaFavoritaRepository.findFavoritasByUserId(userId, pageable);
+    }
+
+    @Transactional
+    public void desfavoritar(Long receitaId) {
+        Long userId = jwtService.getIdUsuario();
+
+        if (!receitaFavoritaRepository.existsByUserIdAndReceitaId(userId, receitaId)) {
+            throw new RuntimeException("Esta receita não está na sua lista de favoritos.");
+        }
+
+        receitaFavoritaRepository.deleteByUserIdAndReceitaId(userId, receitaId);
+    }
+
 }
