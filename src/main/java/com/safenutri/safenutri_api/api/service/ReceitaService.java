@@ -212,6 +212,11 @@ public class ReceitaService {
         }
     }
 
+    public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return receitaRepository.findReceitasAvaliadasByUserId(userId, pageable);
+    }
+
     public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();

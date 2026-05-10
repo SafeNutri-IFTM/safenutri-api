@@ -20,6 +20,10 @@ public class DashboardService {
         return receitaService.findReceitasByRestricoesId(userId, page, size);
     }
 
+    public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size) {
+        return receitaService.getReceitasAvaliadas(userId, page, size);
+    }
+
     // ========================================================================================
     // NOVO MÉTODO DA TASK SN-110: DELEGA A BUSCA PAGINADA PARA O RECEITA SERVICE
     // ========================================================================================
