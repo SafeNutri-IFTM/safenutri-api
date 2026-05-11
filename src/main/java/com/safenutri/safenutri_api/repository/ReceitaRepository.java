@@ -24,7 +24,6 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "FROM Receita r " +
         "JOIN r.tipoReceita tr " +
         "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
-        "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
         "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " + 
         "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
         "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
@@ -78,7 +77,6 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "FROM Receita r " + 
         "JOIN r.tipoReceita tr " + 
         "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
-        "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
         "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
         "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
         "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC "
