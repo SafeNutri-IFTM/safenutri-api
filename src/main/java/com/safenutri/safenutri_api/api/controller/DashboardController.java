@@ -35,16 +35,16 @@ public class DashboardController {
         return ResponseEntity.ok(receitas); 
     }
 
-    @GetMapping("/avaliadas")
-    @Operation(summary = "Lista as receitas avaliadas pelo usuário logado")
-    public ResponseEntity<Page<ReceitaCardOutput>> getReceitasAvaliadas(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Long userId = jwtService.getIdUsuario();
-        Page<ReceitaCardOutput> receitas = dashboardService.getReceitasAvaliadas(userId, page, size);
-        return ResponseEntity.ok(receitas);
-    }
+    // @GetMapping("/avaliadas")
+    // @Operation(summary = "Lista as receitas avaliadas pelo usuário logado")
+    // public ResponseEntity<Page<ReceitaCardOutput>> getReceitasAvaliadas(
+    //     @RequestParam(defaultValue = "0") int page,
+    //     @RequestParam(defaultValue = "10") int size
+    // ) {
+    //     Long userId = jwtService.getIdUsuario();
+    //     Page<ReceitaCardOutput> receitas = dashboardService.getReceitasAvaliadas(userId, page, size);
+    //     return ResponseEntity.ok(receitas);
+    // }
 
     // ========================================================================================
     // NOVO ENDPOINT DA TASK SN-110: BUSCA DE RECEITAS COM PAGINAÇÃO
