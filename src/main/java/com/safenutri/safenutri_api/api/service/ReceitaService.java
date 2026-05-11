@@ -201,17 +201,35 @@ public class ReceitaService {
         modoPreparoService.saveAll(mpList);
     }
 
+    private String formatarTempo(Integer minutos) {
+        Integer horas = minutos / 60;
+        Integer min = minutos % 60;
+
+        if (horas > 0 && min > 0) {
+            return horas + "hr " + min + "min";
+        } else if (horas > 0) {
+            return horas + "hr";
+        } else {
+            return min + "min";
+        }
+    }
+
     public void desativar(Long id) {
         Receita receita = findById(id);
         receita.setActivated(false);
         receitaRepository.save(receita);
     }
 
-    public Page<ReceitaCardOutput> getMinhasReceitas(int page, int size) {
+    public Page<ReceitaCardOutput> getMinhasReceitas(String termo, int page, int size) {
         Long userId = jwtService.getIdUsuario();
         Pageable pageable = PageRequest.of(page, size);
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, userId, pageable);
 
-        return receitaRepository.getMinhasReceitas(userId, pageable);
+        return rcoPage.map(r -> {
+            String tempoFormato = formatarTempo(r.getTempo());
+            r.setTempoFormatado(tempoFormato);
+            return r;
+        });
     }
 
     public Page<ReceitaCardOutput> findReceitasByRestricoesId(Long userId, int page, int size) {
@@ -221,13 +239,24 @@ public class ReceitaService {
         Pageable pageable = PageRequest.of(page, size);
 
         List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
+        Page<ReceitaCardOutput> rcoPage;
 
-        if (!nutricionistaIds.isEmpty()) {
-            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, userId,
-                    pageable);
+        if (restricoesIds.isEmpty()) {
+            rcoPage = receitaRepository.findReceitasForUserWithNoRestrictions(userId, pageable);
         } else {
-            return receitaRepository.findByRestricoesId(restricoesIds, qntd, userId, pageable);
+
+            if (!nutricionistaIds.isEmpty()) {
+                rcoPage = receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, userId, pageable);
+            } else {
+                rcoPage = receitaRepository.findByRestricoesId(restricoesIds, qntd, userId, pageable);
+            }
         }
+
+        return rcoPage.map(r -> {
+            String tempoFormato = formatarTempo(r.getTempo());
+            r.setTempoFormatado(tempoFormato);
+            return r;
+        });
     }
 
     public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size, String termo) {
@@ -239,8 +268,21 @@ public class ReceitaService {
     public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
+        List<ReceitaCardOutput> rcoList;
 
-        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, userId, PageRequest.of(0, 3));
+        if (restricoesIds.isEmpty()) {
+            rcoList = receitaRepository.findTop3ReceitasForUserWithNoRestrictions(userId, PageRequest.of(0, 3));
+        } else {
+            rcoList = receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, userId, PageRequest.of(0, 3));
+        }
+
+        return rcoList.stream()
+            .map(r -> {
+                String tempoFormato = formatarTempo(r.getTempo());
+                r.setTempoFormatado(tempoFormato);
+                return r;
+            })
+        .toList();
     }
 
     public Long countByNutricionistaId(Long nutricionistaId) {
@@ -253,7 +295,17 @@ public class ReceitaService {
 
     public List<ReceitaCardOutput> findTop3() {
         Long userId = jwtService.getIdUsuario();
-        return receitaRepository.findTop3(userId, PageRequest.of(0, 3));
+        List<ReceitaCardOutput> rcoList;
+
+        rcoList = receitaRepository.findTop3(userId, PageRequest.of(0, 3));
+
+        return rcoList.stream()
+            .map(r -> {
+                String tempoFormato = formatarTempo(r.getTempo());
+                r.setTempoFormatado(tempoFormato);
+                return r;
+            })
+        .toList();
     }
 
     public ReceitaDetalheOutput findDetalheById(Long id) {
@@ -269,23 +321,22 @@ public class ReceitaService {
         return receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
     }
 
-    // ========================================================================================
-    // BUSCA PAGINADA (Atualizado com userId da branch DEV)
-    // ========================================================================================
     public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
         String termoBusca = (termo != null) ? termo : "";
         Long userId = jwtService.getIdUsuario();
 
-        // Cria o objeto nativo do Spring Data para realizar a paginação
         Pageable pageable = PageRequest.of(page, size);
+        Page<ReceitaCardOutput> rcoPage;
 
-        // Chama a query que criámos no ReceitaRepository
-        return receitaRepository.findByTituloPaginado(termoBusca, userId, pageable);
+        rcoPage = receitaRepository.findByTituloPaginado(termoBusca, userId, pageable);
+
+        return rcoPage.map(r -> {
+            String tempoFormato = formatarTempo(r.getTempo());
+            r.setTempoFormatado(tempoFormato);
+            return r;
+        });
     }
 
-    // ========================================================================================
-    // AVALIAÇÃO (NOSSOS MÉTODOS - HEAD)
-    // ========================================================================================
     @Transactional 
     public Map<String, Object> getReceitaCompletaById(Long id) {
         Receita receita = receitaRepository.findById(id)
@@ -379,9 +430,6 @@ public class ReceitaService {
         receitaAvaliacaoRepository.save(avaliacao);
     }
 
-    // ========================================================================================
-    // FAVORITOS (MÉTODOS DA BRANCH DEV)
-    // ========================================================================================
     @Transactional
     public void favoritar(Long receitaId) {
         Long userId = jwtService.getIdUsuario();
@@ -401,8 +449,15 @@ public class ReceitaService {
         Long userId = jwtService.getIdUsuario();
         Pageable pageable = PageRequest.of(page, size);
         String termoBusca = (termo != null) ? termo : "";
+        Page<ReceitaCardOutput> rcoPage;
 
-        return receitaFavoritaRepository.findFavoritasByUserId(userId, termoBusca, pageable);
+        rcoPage = receitaFavoritaRepository.findFavoritasByUserId(userId, termoBusca, pageable);
+
+        return rcoPage.map(r -> {
+            String tempoFormato = formatarTempo(r.getTempo());
+            r.setTempoFormatado(tempoFormato);
+            return r;
+        });
     }
 
     @Transactional

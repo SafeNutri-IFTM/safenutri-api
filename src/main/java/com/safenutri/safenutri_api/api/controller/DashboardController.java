@@ -45,16 +45,13 @@ public class DashboardController {
         return ResponseEntity.ok(receitas);
     }
 
-    // ========================================================================================
-    // NOVO ENDPOINT DA TASK SN-110: BUSCA DE RECEITAS COM PAGINAÇÃO
-    // ========================================================================================
     @GetMapping("/busca")
     @Operation(summary = "Busca receitas pelo título (termo) com paginação")
     public ResponseEntity<Page<ReceitaCardOutput>> buscarReceitasFeed(
-            @RequestParam(required = false, defaultValue = "") String termo,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        // Envia para o service com as configurações da página
+        @RequestParam(required = false, defaultValue = "") String termo,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
         Page<ReceitaCardOutput> receitas = dashboardService.buscarReceitasPaginadas(termo, page, size);
         return ResponseEntity.ok(receitas);
     }

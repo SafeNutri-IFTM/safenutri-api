@@ -1,6 +1,8 @@
 package com.safenutri.safenutri_api.api.service;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +32,7 @@ import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EmailOutput;
+import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.repository.UserRepository;
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 
@@ -45,6 +48,7 @@ public class UserService implements UserDetailsService {
     private final DocumentosLegaisService documentosService;
     private final AceitoTermosRepository aceitoTermosRepository;
     private final EmailSenderService emailSenderService;
+    private final JwtService jwtService;
 
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -157,9 +161,13 @@ public class UserService implements UserDetailsService {
         return userRepository.getReferenceById(id);
     }
 
-    public User getProfileByEmail(String email) {
-        return userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
+    public UserOutput getProfileInfos() {
+        Long userId = jwtService.getIdUsuario();
+        UserOutput userOutput = userRepository.getProfileInfos(userId);
+        Long diasConta = ChronoUnit.DAYS.between(userOutput.getCreated().toLocalDate(), LocalDate.now());
+        userOutput.setDiasConta(diasConta);
+
+        return userOutput;
     }
 
     public Optional<User> findByExistEmail(String email) {
