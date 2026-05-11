@@ -23,16 +23,26 @@ public class DashboardController {
     private final JwtService jwtService;
 
     @GetMapping
-    @Operation(summary = "Lista as receitas que atendem as restrições do usuário logado", 
-    description = "Lista todas as receitas que atendam as restrições do usuário, dando prioridade para as receitas do nutricionista do usuário, caso ele tenha um"
-    )
+    @Operation(summary = "Lista as receitas que atendem as restrições do usuário logado", description = "Lista todas as receitas que atendam as restrições do usuário, dando prioridade para as receitas do nutricionista do usuário, caso ele tenha um")
     public ResponseEntity<Page<ReceitaCardOutput>> getReceitas(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "6") int size
-    ) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
         Long userId = jwtService.getIdUsuario();
         Page<ReceitaCardOutput> receitas = dashboardService.getReceitas(userId, page, size);
-        return ResponseEntity.ok(receitas); 
+        return ResponseEntity.ok(receitas);
+    }
+
+    @GetMapping("/avaliadas")
+    @Operation(summary = "Lista as receitas avaliadas pelo usuário logado")
+    public ResponseEntity<Page<ReceitaCardOutput>> getReceitasAvaliadas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "") String termo // Adicionado aqui
+    ) {
+        Long userId = jwtService.getIdUsuario();
+        // Passamos o termo para o service
+        Page<ReceitaCardOutput> receitas = dashboardService.getReceitasAvaliadas(userId, page, size, termo);
+        return ResponseEntity.ok(receitas);
     }
 
     @GetMapping("/busca")

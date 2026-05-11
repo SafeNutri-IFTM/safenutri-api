@@ -1,5 +1,7 @@
 package com.safenutri.safenutri_api.api.controller;
 
+import java.util.Map;
+
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +22,7 @@ import com.safenutri.safenutri_api.model.entity.Receita;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
 import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
+import com.safenutri.safenutri_api.model.input.AvaliacaoInput;
 
 @RestController
 @RequiredArgsConstructor
@@ -121,6 +124,56 @@ public class ReceitaController {
         }
     }
 
+    // ==========================================
+    // ENDPOINTS DE AVALIAÇÃO (NOSSOS)
+    // ==========================================
+    @GetMapping("/receita-completa/{id}")
+    @Operation(summary = "Busca os detalhes completos de uma receita pelo ID (Receita, Passos e Restrições)")
+    public ResponseEntity<?> getReceitaById(@PathVariable Long id) {
+        try {
+            Map<String, Object> response = receitaService.getReceitaCompletaById(id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("{\"error\": \"Receita não encontrada: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @PostMapping("/{id}/avaliar")
+    @Operation(summary = "Adiciona ou atualiza a avaliação do usuário logado para uma receita")
+    public ResponseEntity<?> avaliarReceita(
+            @PathVariable Long id, 
+            @RequestBody AvaliacaoInput input, 
+            java.security.Principal principal) {
+        
+        try {
+            String emailLogado = principal.getName();
+            receitaService.avaliar(id, emailLogado, input.getNota(), input.getComentario());
+            
+            return ResponseEntity.ok().body("{\"message\": \"Avaliação salva com sucesso!\"}");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @GetMapping("/{id}/minha-avaliacao")
+    @Operation(summary = "Busca a avaliação do usuário logado para uma receita específica")
+    public ResponseEntity<?> getMinhaAvaliacao(@PathVariable Long id, java.security.Principal principal) {
+        try {
+            Map<String, Object> avaliacao = receitaService.getMinhaAvaliacao(id, principal.getName());
+            
+            if (avaliacao != null) {
+                return ResponseEntity.ok(avaliacao);
+            }
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==========================================
+    // ENDPOINTS DE FAVORITOS (BRANCH DEV)
+    // ==========================================
     @PostMapping("/{id}/favoritar")
     @Operation(summary = "Favorita uma receita", description = "Adiciona a receita a lista de receitas favoritas do usuário logado")
     public ResponseEntity<?> favoritar(@PathVariable Long id) {
@@ -155,5 +208,4 @@ public class ReceitaController {
         Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(page, size, termo);
         return ResponseEntity.ok(favoritas);
     }
-
 }

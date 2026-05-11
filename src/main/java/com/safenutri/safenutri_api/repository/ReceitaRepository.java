@@ -14,7 +14,7 @@ import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 
 @Repository
-public interface ReceitaRepository extends JpaRepository<Receita, Long>{
+public interface ReceitaRepository extends JpaRepository<Receita, Long> {
 
     //SQL PARA RECEITAS QUANDO O USUÁRIO NÃO TEM RESTRIÇÕES
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
@@ -131,16 +131,6 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
     @Query("SELECT COUNT(*) as total FROM Receita r WHERE r.user.id = :nutricionistaId")
     Long countByNutricionistaId(@Param("nutricionistaId") Long nutricionistaId);
 
-    //SQL PARA RETORNAR A QNTD DE RECEITAS QUE UM NUTRICIONISTA TEM CADASTRADA, AGRUPADAS POR TIPO DE RESTRICAO
-    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput(rr.restricao.restricao , COUNT(r.id) AS total) "+ 
-        "FROM Receita r " + 
-        "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
-        "WHERE r.user.id = :nutricionistaId " +
-        "GROUP BY rr.restricao.id, rr.restricao.restricao " +
-        "ORDER BY COUNT(r.id) DESC"
-    )
-    List<ReceitaPieChartOutput> countByNutricionistaIdAndGroupByRestricoes(@Param("nutricionistaId") Long nutricionistaId);
-
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
         "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
         "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
@@ -169,5 +159,44 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC, r.id ASC"
     )
     Page<ReceitaCardOutput> getMinhasReceitas(@Param("termo") String termo, @Param("userId") Long userId, Pageable pageable);
+        // SQL PARA RETORNAR A QNTD DE RECEITAS QUE UM NUTRICIONISTA TEM CADASTRADA,
+        // AGRUPADAS POR TIPO DE RESTRICAO
+        @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput(rr.restricao.restricao , COUNT(r.id) AS total) "
+                        +
+                        "FROM Receita r " +
+                        "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
+                        "WHERE r.user.id = :nutricionistaId " +
+                        "GROUP BY rr.restricao.id, rr.restricao.restricao " +
+                        "ORDER BY COUNT(r.id) DESC")
+        List<ReceitaPieChartOutput> countByNutricionistaIdAndGroupByRestricoes(@Param("nutricionistaId") Long nutricionistaId);
 
+        @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
+                        "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+                        "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+                        "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
+                        "FROM Receita r " +
+                        "JOIN r.tipoReceita tr " +
+                        "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+                        "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
+                        "WHERE r.user.id = :userId " +
+                        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id "
+                        +
+                        "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC, r.id ASC")
+        Page<ReceitaCardOutput> getMinhasReceitas(@Param("userId") Long userId, Pageable pageable);
+
+        @Query(value = "SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
+                        "r.id, tr.tipoReceita, " +
+                        "r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+                        "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+                        "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), " + "r.activated) " +
+                        "FROM Receita r " + "JOIN r.tipoReceita tr " +
+                        "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+                        "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
+                        "WHERE EXISTS (SELECT 1 FROM ReceitaAvaliacao rau WHERE rau.receita.id = r.id AND rau.user.id = :userId) " +
+                        "AND (:termo = '' OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
+                        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
+                        "ORDER BY r.id DESC", countQuery = "SELECT COUNT(r) FROM Receita r WHERE EXISTS (" +
+                                        "SELECT 1 FROM ReceitaAvaliacao rau WHERE rau.receita.id = r.id AND rau.user.id = :userId"
+                                        +") AND (:termo = '' OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')))")                                                                                     
+        Page<ReceitaCardOutput> findReceitasAvaliadasByUserId(@Param("userId") Long userId, @Param("termo") String termo, Pageable pageable);
 }
