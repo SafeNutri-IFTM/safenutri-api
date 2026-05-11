@@ -208,10 +208,10 @@ public class ReceitaService {
         List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
 
         if (!nutricionistaIds.isEmpty()) {
-            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds,
+            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, userId,
                     pageable);
         } else {
-            return receitaRepository.findByRestricoesId(restricoesIds, qntd, pageable);
+            return receitaRepository.findByRestricoesId(restricoesIds, qntd, userId, pageable);
         }
     }
 
@@ -219,7 +219,7 @@ public class ReceitaService {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
 
-        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, PageRequest.of(0, 3));
+        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, userId, PageRequest.of(0, 3));
     }
 
     public Long countByNutricionistaId(Long nutricionistaId) {
@@ -231,7 +231,8 @@ public class ReceitaService {
     }
 
     public List<ReceitaCardOutput> findTop3() {
-        return receitaRepository.findTop3(PageRequest.of(0, 3));
+        Long userId = jwtService.getIdUsuario();
+        return receitaRepository.findTop3(userId, PageRequest.of(0, 3));
     }
 
     public ReceitaDetalheOutput findDetalheById(Long id) {
@@ -253,13 +254,14 @@ public class ReceitaService {
     public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
         // Previne NullPointerException caso não passem termo na requisição
         String termoBusca = (termo != null) ? termo : "";
+        Long userId = jwtService.getIdUsuario();
 
         // Cria o objeto nativo do Spring Data para realizar a paginação (LIMIT e
         // OFFSET)
         Pageable pageable = PageRequest.of(page, size);
 
         // Chama a query que criámos no ReceitaRepository
-        return receitaRepository.findByTituloPaginado(termoBusca, pageable);
+        return receitaRepository.findByTituloPaginado(termoBusca, userId, pageable);
     }
 
     @Transactional
@@ -277,11 +279,12 @@ public class ReceitaService {
         receitaFavoritaRepository.save(favorita);
     }
 
-    public Page<ReceitaCardOutput> getFavoritas(int page, int size) {
+    public Page<ReceitaCardOutput> getFavoritas(int page, int size, String termo) {
         Long userId = jwtService.getIdUsuario();
         Pageable pageable = PageRequest.of(page, size);
+        String termoBusca = (termo != null) ? termo : "";
 
-        return receitaFavoritaRepository.findFavoritasByUserId(userId, pageable);
+        return receitaFavoritaRepository.findFavoritasByUserId(userId, termoBusca, pageable);
     }
 
     @Transactional

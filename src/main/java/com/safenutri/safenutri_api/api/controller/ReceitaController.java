@@ -139,7 +139,8 @@ public class ReceitaController {
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("{\"error\": \"Erro ao remover receita da lista de receitas favoritas: " + e.getMessage() + "\"}");
+                    .body("{\"error\": \"Erro ao remover receita da lista de receitas favoritas: " + e.getMessage()
+                            + "\"}");
         }
     }
 
@@ -147,8 +148,9 @@ public class ReceitaController {
     @Operation(summary = "Lista receitas favoritas", description = "Retorna a página de receitas que o usuário logado favoritou")
     public ResponseEntity<Page<ReceitaCardOutput>> getFavoritas(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "") String termo) {
+        Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(page, size, termo);
         return ResponseEntity.ok(favoritas);
     }
 

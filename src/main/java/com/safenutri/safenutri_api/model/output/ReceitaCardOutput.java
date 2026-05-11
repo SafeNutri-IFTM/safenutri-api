@@ -13,5 +13,6 @@ public class ReceitaCardOutput {
     private Integer tempo;
     private Integer calorias;
     private Double mediaAvaliacao;
+    private Boolean favoritada;
     private Boolean activated;
 }
