@@ -164,10 +164,10 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         "JOIN r.tipoReceita tr " + 
         "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " + 
         "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
-        "WHERE r.user.id = :userId " +
+        "WHERE r.user.id = :userId AND LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) " +
         "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
         "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC, r.id ASC"
     )
-    Page<ReceitaCardOutput> getMinhasReceitas(@Param("userId") Long userId, Pageable pageable);
+    Page<ReceitaCardOutput> getMinhasReceitas(@Param("termo") String termo, @Param("userId") Long userId, Pageable pageable);
 
 }

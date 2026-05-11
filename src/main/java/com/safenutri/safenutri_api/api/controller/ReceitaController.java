@@ -63,9 +63,11 @@ public class ReceitaController {
 
     @GetMapping("/minhas-receitas")
     public ResponseEntity<Page<ReceitaCardOutput>> getMinhasReceitas(
+            @RequestParam(required = false, defaultValue = "") String termo,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<ReceitaCardOutput> receita = receitaService.getMinhasReceitas(page, size);
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ReceitaCardOutput> receita = receitaService.getMinhasReceitas(termo, page, size);
         return ResponseEntity.ok(receita);
     }
 
