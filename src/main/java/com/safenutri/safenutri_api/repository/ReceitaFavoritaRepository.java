@@ -25,7 +25,7 @@ public interface ReceitaFavoritaRepository extends JpaRepository<ReceitaFavorita
             "JOIN r.tipoReceita tr " +
             "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
             "WHERE rf.user.id = :userId " +
-            "AND LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) " + // 👈 Linha adicionada para o filtro
+            "AND LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) " +
             "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, rf.created "
             +
             "ORDER BY rf.created DESC")
