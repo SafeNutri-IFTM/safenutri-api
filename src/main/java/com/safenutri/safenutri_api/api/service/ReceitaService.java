@@ -24,6 +24,7 @@ import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.model.entity.ModoPreparo;
 import com.safenutri.safenutri_api.model.entity.Receita;
 import com.safenutri.safenutri_api.model.entity.ReceitaAvaliacao;
+import com.safenutri.safenutri_api.model.entity.ReceitaFavorita;
 import com.safenutri.safenutri_api.model.entity.ReceitaRestricao;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.TipoReceita;
@@ -35,8 +36,10 @@ import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaRestricaoOutput;
+
 import com.safenutri.safenutri_api.repository.ModoPreparoRepository;
 import com.safenutri.safenutri_api.repository.ReceitaAvaliacaoRepository;
+import com.safenutri.safenutri_api.repository.ReceitaFavoritaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRestricaoRepository;
 import com.safenutri.safenutri_api.repository.UserRepository;
@@ -56,8 +59,11 @@ public class ReceitaService {
     private final ModoPreparoService modoPreparoService;
     private final PacienteService pacienteService;
     private final UserRestricaoService userRestricaoService;
+    
+    // Repositorios unidos (Avaliação + Favoritos)
     private final UserRepository userRepository;
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
+    private final ReceitaFavoritaRepository receitaFavoritaRepository;
 
     @Value("${filediretorioReceita}")
     private String directoryReceita;
@@ -67,7 +73,7 @@ public class ReceitaService {
         String caminhoFoto = null;
 
         if (receitaInput.getImagem() != null && !receitaInput.getImagem().isEmpty()) {
-            caminhoFoto = uploadService.saveFotoReceita(receitaInput.getImagem());
+            caminhoFoto = uploadService.saveFotoReceita(receitaInput.getImagem()); // <-- CORRIGIDO AQUI
         }
 
         User user = userService.findById(jwtService.getIdUsuario());
@@ -79,14 +85,13 @@ public class ReceitaService {
         }
 
         String[] partes = receitaInput.getTempoPreparo().split(":");
-        Integer horas = Integer.parseInt(partes[0]);   
+        Integer horas = Integer.parseInt(partes[0]);
         Integer minutos = Integer.parseInt(partes[1]);
         Integer tempoPreparo = (horas * 60) + minutos;
-        
-        Receita receita = new Receita(user, tipoReceita, receitaInput.getTitulo(), receitaInput.getDescricao(), 
-            receitaInput.getIngredientes(), tempoPreparo, receitaInput.getPorcao(), receitaInput.getCalorias(), 
-            caminhoFoto, isPublic
-        );
+
+        Receita receita = new Receita(user, tipoReceita, receitaInput.getTitulo(), receitaInput.getDescricao(),
+                receitaInput.getIngredientes(), tempoPreparo, receitaInput.getPorcao(), receitaInput.getCalorias(),
+                caminhoFoto, isPublic); // <-- CORRIGIDO AQUI
 
         Receita savedReceita = receitaRepository.save(receita);
 
@@ -104,8 +109,8 @@ public class ReceitaService {
     @Transactional
     public void update(ReceitaInput receitaInput, Long id) throws Exception {
         Receita receitaExistente = receitaRepository.findById(id)
-            .orElseThrow(() -> new ReceitaNotFoundException("Receita não encontrada"));
-        
+                .orElseThrow(() -> new ReceitaNotFoundException("Receita não encontrada"));
+
         User user = userService.findById(jwtService.getIdUsuario());
 
         if (!receitaExistente.getUser().getId().equals(user.getId())) {
@@ -137,7 +142,7 @@ public class ReceitaService {
         }
 
         String[] partes = receitaInput.getTempoPreparo().split(":");
-        Integer horas = Integer.parseInt(partes[0]);   
+        Integer horas = Integer.parseInt(partes[0]);
         Integer minutos = Integer.parseInt(partes[1]);
         Integer tempoPreparo = (horas * 60) + minutos;
 
@@ -147,6 +152,7 @@ public class ReceitaService {
         receitaExistente.setPorcao(receitaInput.getPorcao());
         receitaExistente.setCalorias(receitaInput.getCalorias());
         receitaExistente.setIngredientes(receitaInput.getIngredientes());
+        receitaExistente.setPublicBoolean(isPublic);
 
         Receita savedReceita = receitaRepository.save(receitaExistente);
 
@@ -217,17 +223,18 @@ public class ReceitaService {
         List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
 
         if (!nutricionistaIds.isEmpty()) {
-            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, pageable);
+            return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, userId,
+                    pageable);
         } else {
-            return receitaRepository.findByRestricoesId(restricoesIds, qntd, pageable);
+            return receitaRepository.findByRestricoesId(restricoesIds, qntd, userId, pageable);
         }
     }
 
     public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
-        
-        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, PageRequest.of(0, 3));
+
+        return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, userId, PageRequest.of(0, 3));
     }
 
     public Long countByNutricionistaId(Long nutricionistaId) {
@@ -239,11 +246,13 @@ public class ReceitaService {
     }
 
     public List<ReceitaCardOutput> findTop3() {
-        return receitaRepository.findTop3(PageRequest.of(0, 3));
+        Long userId = jwtService.getIdUsuario();
+        return receitaRepository.findTop3(userId, PageRequest.of(0, 3));
     }
 
     public ReceitaDetalheOutput findDetalheById(Long id) {
-        Receita receita = receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        Receita receita = receitaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
         List<ModoPreparoOutput> passos = modoPreparoService.findByReceitaId(id);
         List<ReceitaRestricaoOutput> restricoes = receitaRestricaoService.findByReceitaId(id);
 
@@ -255,14 +264,22 @@ public class ReceitaService {
     }
 
     // ========================================================================================
-    // NOVO MÉTODO DA TASK SN-110: BUSCA PAGINADA PARA O FEED
+    // BUSCA PAGINADA (Atualizado com userId da branch DEV)
     // ========================================================================================
     public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
         String termoBusca = (termo != null) ? termo : "";
+        Long userId = jwtService.getIdUsuario();
+
+        // Cria o objeto nativo do Spring Data para realizar a paginação
         Pageable pageable = PageRequest.of(page, size);
-        return receitaRepository.findByTituloPaginado(termoBusca, pageable);
+
+        // Chama a query que criámos no ReceitaRepository
+        return receitaRepository.findByTituloPaginado(termoBusca, userId, pageable);
     }
 
+    // ========================================================================================
+    // AVALIAÇÃO (NOSSOS MÉTODOS - HEAD)
+    // ========================================================================================
     @Transactional 
     public Map<String, Object> getReceitaCompletaById(Long id) {
         Receita receita = receitaRepository.findById(id)
@@ -274,7 +291,6 @@ public class ReceitaService {
         List<ReceitaAvaliacao> avaliacoes = receitaAvaliacaoRepository.findByReceitaIdOrderByIdDesc(id);
         List<Map<String, Object>> avaliacoesNutri = new ArrayList<>();
         
-        // --- Variáveis para calcular a média geral ---
         double somaNutri = 0.0;
         int qtdNutri = 0;
         double somaUser = 0.0;
@@ -282,29 +298,24 @@ public class ReceitaService {
         
         for (ReceitaAvaliacao aval : avaliacoes) {
             try {
-                // Proteção Máxima: Só entra se tiver usuário e role
                 if (aval.getUser() != null && aval.getUser().getRole() != null) {
                     
-                    // Pega EXATAMENTE a String do cargo, sem o nome do projeto junto
                     String userRole = aval.getUser().getRole().getRole();
                     Double nota = aval.getQntdEstrela() != null ? aval.getQntdEstrela() : 0.0;
                     
                     if (userRole != null && userRole.toUpperCase().equals("NUTRICIONISTA")) {
-                        // Soma para a média de Nutricionistas
                         somaNutri += nota;
                         qtdNutri++;
                         
-                        // Separa o comentário para a lista (se existir)
                         if (aval.getDescricao() != null && !aval.getDescricao().trim().isEmpty()) {
                             Map<String, Object> map = new HashMap<>();
-                            map.put("nome", aval.getUser().getNome()); // Troque para getName() se ficar vermelho
+                            map.put("nome", aval.getUser().getNome()); 
                             map.put("nota", aval.getQntdEstrela());
                             map.put("comentario", aval.getDescricao());
                             map.put("avatar", null); 
                             avaliacoesNutri.add(map);
                         }
                     } else {
-                        // Soma para a média de Usuários (Pacientes)
                         somaUser += nota;
                         qtdUser++;
                     }
@@ -314,7 +325,6 @@ public class ReceitaService {
             }
         }
 
-        // Calcula as médias finais (evitando erro de divisão por zero)
         double mediaNutri = qtdNutri > 0 ? (somaNutri / qtdNutri) : 0.0;
         double mediaUser = qtdUser > 0 ? (somaUser / qtdUser) : 0.0;
 
@@ -324,7 +334,6 @@ public class ReceitaService {
         response.put("restricoes", receitaRestricoes);
         response.put("avaliacoesNutricionistas", avaliacoesNutri);
         
-        // Envia as médias reais para o Angular
         response.put("mediaNutricionistas", mediaNutri);
         response.put("qtdAvaliacoesNutri", qtdNutri);
         response.put("mediaUsuarios", mediaUser);
@@ -333,7 +342,6 @@ public class ReceitaService {
         return response;
     }
 
-    // 1. ESSE MÉTODO BUSCA A NOTA PARA O ANGULAR PREENCHER AS ESTRELAS SOZINHO:
     public Map<String, Object> getMinhaAvaliacao(Long receitaId, String emailUser) {
         User user = userRepository.findByEmail(emailUser)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
@@ -347,7 +355,6 @@ public class ReceitaService {
                 }).orElse(null);
     }
 
-    // 2. ESSE MÉTODO ATUALIZA A NOTA EM VEZ DE CRIAR UMA NOVA DUPLICADA:
     public void avaliar(Long receitaId, String emailUser, Integer nota, String comentario) {
         User user = userRepository.findByEmail(emailUser)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
@@ -355,7 +362,6 @@ public class ReceitaService {
         Receita receita = receitaRepository.findById(receitaId)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada."));
 
-        // Busca se já existe, se não existir, cria uma nova
         ReceitaAvaliacao avaliacao = receitaAvaliacaoRepository.findByReceitaIdAndUserId(receitaId, user.getId())
                 .orElse(new ReceitaAvaliacao());
 
@@ -365,5 +371,42 @@ public class ReceitaService {
         avaliacao.setDescricao(comentario);
 
         receitaAvaliacaoRepository.save(avaliacao);
+    }
+
+    // ========================================================================================
+    // FAVORITOS (MÉTODOS DA BRANCH DEV)
+    // ========================================================================================
+    @Transactional
+    public void favoritar(Long receitaId) {
+        Long userId = jwtService.getIdUsuario();
+
+        if (receitaFavoritaRepository.existsByUserIdAndReceitaId(userId, receitaId)) {
+            throw new RuntimeException("Você já favoritou esta receita.");
+        }
+
+        User user = userService.findById(userId);
+        Receita receita = findById(receitaId);
+
+        ReceitaFavorita favorita = new ReceitaFavorita(user, receita);
+        receitaFavoritaRepository.save(favorita);
+    }
+
+    public Page<ReceitaCardOutput> getFavoritas(int page, int size, String termo) {
+        Long userId = jwtService.getIdUsuario();
+        Pageable pageable = PageRequest.of(page, size);
+        String termoBusca = (termo != null) ? termo : "";
+
+        return receitaFavoritaRepository.findFavoritasByUserId(userId, termoBusca, pageable);
+    }
+
+    @Transactional
+    public void desfavoritar(Long receitaId) {
+        Long userId = jwtService.getIdUsuario();
+
+        if (!receitaFavoritaRepository.existsByUserIdAndReceitaId(userId, receitaId)) {
+            throw new RuntimeException("Esta receita não está na sua lista de favoritos.");
+        }
+
+        receitaFavoritaRepository.deleteByUserIdAndReceitaId(userId, receitaId);
     }
 }
