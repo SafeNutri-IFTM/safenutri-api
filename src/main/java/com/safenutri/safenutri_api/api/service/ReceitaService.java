@@ -207,6 +207,10 @@ public class ReceitaService {
 
         List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
 
+        if (restricoesIds.isEmpty()) {
+            return receitaRepository.findReceitasForUserWithNoRestrictions(userId, pageable);
+        }
+
         if (!nutricionistaIds.isEmpty()) {
             return receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, userId,
                     pageable);
@@ -218,6 +222,10 @@ public class ReceitaService {
     public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
         Long qntd = (long) restricoesIds.size();
+
+        if (restricoesIds.isEmpty()) {
+            return receitaRepository.findTop3ReceitasForUserWithNoRestrictions(userId, PageRequest.of(0, 3));
+        }
 
         return receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, userId, PageRequest.of(0, 3));
     }

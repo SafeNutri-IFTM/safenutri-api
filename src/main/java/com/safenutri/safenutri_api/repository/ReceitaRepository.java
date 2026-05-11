@@ -16,6 +16,21 @@ import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 @Repository
 public interface ReceitaRepository extends JpaRepository<Receita, Long>{
 
+    //SQL PARA RECEITAS QUANDO O USUÁRIO NAO TEM RESTRIÇÕES
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
+        "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+        "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+        "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
+        "FROM Receita r " +
+        "JOIN r.tipoReceita tr " +
+        "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+        "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
+        "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " + 
+        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
+        "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
+    )
+    Page<ReceitaCardOutput> findReceitasForUserWithNoRestrictions(@Param("userId") Long userId, Pageable pageable);
+
     //SQL PARA RECEITAS QUE ATENDEM AS RESTRIÇÕES DO USER
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
         "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
@@ -55,6 +70,20 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long>{
         @Param("nutriIds") List<Long> nutriIds, 
         @Param("userId") Long userId, 
         Pageable pageable);
+
+    //SQL PARA O TOP 3 RECEITAS MAIS BEM AVALIADAS PARA USUÁRIOS SEM RESTRIÇÕES
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(r.id, tr.tipoReceita, "+
+        "r.titulo, r.descricao, r.tempoPreparo, r.calorias, COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+        "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
+        "FROM Receita r " + 
+        "JOIN r.tipoReceita tr " + 
+        "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+        "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
+        "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
+        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
+        "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC "
+    )
+    List<ReceitaCardOutput> findTop3ReceitasForUserWithNoRestrictions(@Param("userId") Long userId, Pageable pageable);
 
     //SQL PARA O TOP 3 RECEITAS MAIS BEM AVALIADAS QUE ATENDEM AS RESTRIÇÕES DO USER
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(r.id, tr.tipoReceita, "+
