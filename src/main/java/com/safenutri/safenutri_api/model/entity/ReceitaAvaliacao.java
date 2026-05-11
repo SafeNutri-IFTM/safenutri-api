@@ -30,6 +30,9 @@ public class ReceitaAvaliacao {
     @Column(name = "qntd_estrela")
     private Double qntdEstrela;
 
+    @Column(name = "descricao", columnDefinition = "TEXT")
+    private String descricao;
+
     @Column(name = "created")
     private LocalDateTime created;
 
