@@ -18,6 +18,7 @@ import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.model.input.UserInput;
+import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.api.service.JwtService;
 import com.safenutri.safenutri_api.api.service.UserRestricaoService;
 import com.safenutri.safenutri_api.api.service.UserService;
@@ -32,12 +33,9 @@ public class UserController {
 
     // Rota EXATA que o Angular está chamando: GET /user/me
     @GetMapping("/me")
-    public ResponseEntity<User> getProfile(Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        User user = userService.getProfileByEmail(principal.getName());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserOutput> getProfile() {
+        UserOutput userOutput = userService.getProfileInfos();
+        return ResponseEntity.ok(userOutput);
     }
 
     @PutMapping("/me")
