@@ -215,9 +215,10 @@ public class ReceitaService {
         }
     }
 
-    public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size) {
+    public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size, String termo) {
         Pageable pageable = PageRequest.of(page, size);
-        return receitaRepository.findReceitasAvaliadasByUserId(userId, pageable);
+        String termoBusca = (termo != null) ? termo : "";
+        return receitaRepository.findReceitasAvaliadasByUserId(userId, termoBusca, pageable);
     }
 
     public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
