@@ -11,11 +11,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "custom_restricao")
-public class CustomRestricao extends DefaultEntity {
+@Table(name = "restricao_pessoal")
+public class RestricaoPessoal extends DefaultEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_custom_restricao")
-    @SequenceGenerator(sequenceName = "id_seq_custom_restricao", allocationSize = 1, name = "id_seq_custom_restricao")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_seq_restricao_pessoal")
+    @SequenceGenerator(sequenceName = "id_seq_restricao_pessoal", allocationSize = 1, name = "id_seq_restricao_pessoal")
     private Long id;
 
     @ManyToOne
@@ -31,7 +31,7 @@ public class CustomRestricao extends DefaultEntity {
     @Column(name = "public")
     private Boolean publicBoolean;
 
-    public CustomRestricao(User user, String restricao, String descricao, Boolean publicBoolean) {
+    public RestricaoPessoal(User user, String restricao, String descricao, Boolean publicBoolean) {
         this.user = user;
         this.restricao = restricao;
         this.descricao = descricao;
