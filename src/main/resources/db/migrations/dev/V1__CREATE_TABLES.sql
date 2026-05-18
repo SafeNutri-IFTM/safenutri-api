@@ -372,7 +372,7 @@ CREATE TABLE public.receita_avaliacao (
     qntd_estrela INTEGER NOT NULL,
     descricao TEXT,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.receita_avaliacao 
@@ -497,7 +497,7 @@ CREATE TABLE public.feedback (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_feedback'),
     user_id BIGINT NOT NULL,
     descricao TEXT NOT NULL,
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.feedback
@@ -546,7 +546,7 @@ CREATE TABLE public.receita_denuncia (
     activated BOOLEAN NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 ALTER TABLE public.receita_denuncia
     ADD CONSTRAINT pk_receita_denuncia PRIMARY KEY (id);
@@ -560,8 +560,8 @@ ALTER TABLE public.receita_denuncia
     REFERENCES public.receita (id);
 
 ALTER TABLE public.receita_denuncia
-    ADD CONSTRAINT fk_receita_denuncia_receita FOREIGN KEY (status_id)
-    REFERENCES public.status (id);
+    ADD CONSTRAINT fk_receita_denuncia_status FOREIGN KEY (status_id)
+    REFERENCES public.status_denuncia (id);
 
 ALTER SEQUENCE public.id_seq_receita_denuncia OWNER TO postgres;
 ALTER SEQUENCE public.id_seq_receita_denuncia OWNED BY public.receita_denuncia.id;

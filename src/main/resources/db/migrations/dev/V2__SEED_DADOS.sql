@@ -93,16 +93,15 @@ VALUES
     '1 banana madura,
 2 colheres de sopa de aveia em flocos, 
 1 ovo, 
-canela a gosto.'
-),
+canela a gosto.'),
+
     (2, 1, 1, 'Quinoa com Legumes Assados', 'Refeição proteica completa e colorida, ideal para marmitas saudáveis.',
     35, 2, 310, '2.png', TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
     '1 xícara de quinoa cozida,
 1 abobrinha, 
 1 cenoura, 
 1 pimentão, 
-1 colher de azeite de oliva.'
-),
+1 colher de azeite de oliva.'),
 
     (3, 1, 5, 'Suco Verde Energizante', 'Bebida funcional para auxiliar na digestão e imunidade.',
     5, 1, 85, '3.png', TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
@@ -233,46 +232,123 @@ INSERT INTO public.modo_preparo (id, receita_id, passo, titulo, descricao, creat
 VALUES
     (1, 1, 1, 'Preparo da Massa', 'Amasse bem a banana com um garfo e misture o ovo e a aveia.', CURRENT_TIMESTAMP),
     (2, 1, 2, 'Cozimento', 'Aqueça uma frigideira antiaderente e doure a panqueca dos dois lados.', CURRENT_TIMESTAMP),
+
     (3, 2, 1, 'Legumes', 'Corte os legumes e asse com azeite por 25 minutos a 200 graus.', CURRENT_TIMESTAMP),
     (4, 2, 2, 'Finalização', 'Misture a quinoa cozida com os legumes assados e sirva.', CURRENT_TIMESTAMP),
+
     (5, 3, 1, 'Processamento', 'Bata todos os ingredientes no liquidificador até ficar homogêneo.', CURRENT_TIMESTAMP),
+
     (6, 4, 1, 'Ovos', 'Bata os ovos e jogue na frigideira com o espinafre e a ricota.', CURRENT_TIMESTAMP),
+
     (7, 5, 1, 'Cozimento', 'Cozinhe a abóbora com temperos até ficar macia.', CURRENT_TIMESTAMP),
     (8, 5, 2, 'Creme', 'Bata tudo no liquidificador até obter uma textura aveludada.', CURRENT_TIMESTAMP),
-    (9, 12, 1, 'Corte', 'Corte a abobrinha em fios longos como se fosse espaguete.', CURRENT_TIMESTAMP),
-    (10, 12, 2, 'Saltear', 'Refogue rapidamente a abobrinha e misture o molho pesto.', CURRENT_TIMESTAMP),
-    (11, 20, 1, 'Bater', 'Bata as bananas congeladas no processador até virar creme.', CURRENT_TIMESTAMP);
+
+    (9, 6, 1, 'Liquidificador', 'Coloque as frutas vermelhas e o leite de amêndoas no liquidificador.', CURRENT_TIMESTAMP),
+    (10, 6, 2, 'Mistura', 'Bata até obter uma consistência homogênea e sirva gelado.', CURRENT_TIMESTAMP),
+
+    (11, 7, 1, 'Temperagem', 'Pique as ervas bem finas e misture com um pouco de azeite.', CURRENT_TIMESTAMP),
+    (12, 7, 2, 'Crosta', 'Pressione a mistura de ervas sobre o frango e grelhe até dourar.', CURRENT_TIMESTAMP),
+
+    (13, 8, 1, 'Hidratação', 'Misture a chia com o leite de coco e o adoçante em um pote.', CURRENT_TIMESTAMP),
+    (14, 8, 2, 'Espera', 'Deixe descansar na geladeira por pelo menos 4 horas antes de consumir.', CURRENT_TIMESTAMP),
+
+    (15, 9, 1, 'Preparo', 'Amasse o abacate grosseiramente e misture os demais ingredientes picados.', CURRENT_TIMESTAMP),
+
+    (16, 10, 1, 'Massa', 'Bata os ovos, amasse as bananas e misture com a aveia e o cacau.', CURRENT_TIMESTAMP),
+    (17, 10, 2, 'Assar', 'Coloque em forminhas e leve ao forno médio por cerca de 20 minutos.', CURRENT_TIMESTAMP),
+
+    (18, 11, 1, 'Grelha', 'Tempere o salmão com sal e limão e grelhe o peixe.', CURRENT_TIMESTAMP),
+    (19, 11, 2, 'Molho', 'Pique a manga em cubos e sirva por cima do salmão com a pimenta.', CURRENT_TIMESTAMP),
+
+    (20, 12, 1, 'Corte', 'Corte a abobrinha em fios longos como se fosse espaguete.', CURRENT_TIMESTAMP),
+    (21, 12, 2, 'Saltear', 'Refogue rapidamente a abobrinha e misture o molho pesto.', CURRENT_TIMESTAMP),
+
+    (22, 13, 1, 'Massa', 'Bata o ovo com a tapioca e leve à frigideira antiaderente.', CURRENT_TIMESTAMP),
+    (23, 13, 2, 'Recheio', 'Coloque o queijo no meio, dobre a massa e deixe derreter.', CURRENT_TIMESTAMP),
+
+    (24, 14, 1, 'Mistura', 'Pique a hortelã bem fina e misture vigorosamente ao iogurte e limão.', CURRENT_TIMESTAMP),
+
+    (25, 15, 1, 'Montagem', 'Em uma tigela, misture o grão-de-bico com os vegetais picados e tempere.', CURRENT_TIMESTAMP),
+
+    (26, 16, 1, 'Refogado', 'Refogue a cebola e o alho, adicione a couve-flor triturada e mexa por 5 min.', CURRENT_TIMESTAMP),
+
+    (27, 17, 1, 'Montagem', 'Intercale cubos de frango e abacaxi nos espetos.', CURRENT_TIMESTAMP),
+    (28, 17, 2, 'Cozimento', 'Grelhe ouasse até o frango estar cozido e o abacaxi levemente dourado.', CURRENT_TIMESTAMP),
+
+    (29, 18, 1, 'Corte', 'Corte as batatas em fatias quase transparentes.', CURRENT_TIMESTAMP),
+    (30, 18, 2, 'Assar', 'Arrume em uma assadeira sem sobrepor e asse até ficarem crocantes.', CURRENT_TIMESTAMP),
+
+    (31, 19, 1, 'Cozimento', 'Cozinhe os tomates com os temperos em fogo baixo até desmanchar.', CURRENT_TIMESTAMP),
+
+    (32, 20, 1, 'Bater', 'Bata as bananas congeladas no processador até virar creme.', CURRENT_TIMESTAMP);
 
 -----------------------------------------------------------------------------------------------------------
 INSERT INTO public.receita_restricao (id, receita_id, restricao_id, created) 
 VALUES
     (1, 1, 1, CURRENT_TIMESTAMP),
     (2, 1, 8, CURRENT_TIMESTAMP),
+
     (3, 2, 7, CURRENT_TIMESTAMP),
     (4, 2, 2, CURRENT_TIMESTAMP),
+
     (5, 3, 7, CURRENT_TIMESTAMP),
     (6, 3, 9, CURRENT_TIMESTAMP),
-    (7, 5, 7, CURRENT_TIMESTAMP),
-    (8, 8, 7, CURRENT_TIMESTAMP),
-    (9, 8, 9, CURRENT_TIMESTAMP),
-    (10, 9, 7, CURRENT_TIMESTAMP),
-    (11, 12, 7, CURRENT_TIMESTAMP),
-    (12, 12, 2, CURRENT_TIMESTAMP),
-    (13, 15, 7, CURRENT_TIMESTAMP),
-    (14, 16, 7, CURRENT_TIMESTAMP),
-    (15, 16, 9, CURRENT_TIMESTAMP),
-    (16, 18, 7, CURRENT_TIMESTAMP),
-    (17, 19, 7, CURRENT_TIMESTAMP),
-    (18, 20, 7, CURRENT_TIMESTAMP),
-    (19, 20, 1, CURRENT_TIMESTAMP);
+
+    (7, 4, 8, CURRENT_TIMESTAMP),
+    (8, 4, 2, CURRENT_TIMESTAMP),
+
+    (9, 5, 7, CURRENT_TIMESTAMP),
+
+    (10, 6, 7, CURRENT_TIMESTAMP),
+    (11, 6, 1, CURRENT_TIMESTAMP),
+    (12, 6, 2, CURRENT_TIMESTAMP),
+
+    (13, 7, 1, CURRENT_TIMESTAMP),
+    (14, 7, 2, CURRENT_TIMESTAMP),
+
+    (15, 8, 7, CURRENT_TIMESTAMP),
+    (16, 8, 9, CURRENT_TIMESTAMP),
+
+    (17, 9, 7, CURRENT_TIMESTAMP),
+
+    (18, 10, 8, CURRENT_TIMESTAMP),
+    (19, 10, 1, CURRENT_TIMESTAMP),
+
+    (20, 11, 1, CURRENT_TIMESTAMP),
+    (21, 11, 2, CURRENT_TIMESTAMP),
+
+    (22, 12, 7, CURRENT_TIMESTAMP),
+    (23, 12, 2, CURRENT_TIMESTAMP),
+
+    (24, 13, 8, CURRENT_TIMESTAMP),
+    (25, 13, 2, CURRENT_TIMESTAMP),
+
+    (26, 14, 8, CURRENT_TIMESTAMP),
+    (27, 14, 2, CURRENT_TIMESTAMP),
+
+    (28, 15, 7, CURRENT_TIMESTAMP),
+
+    (29, 16, 7, CURRENT_TIMESTAMP),
+    (30, 16, 9, CURRENT_TIMESTAMP),
+
+    (31, 17, 1, CURRENT_TIMESTAMP),
+    (32, 17, 2, CURRENT_TIMESTAMP),
+
+    (33, 18, 7, CURRENT_TIMESTAMP),
+
+    (34, 19, 7, CURRENT_TIMESTAMP),
+
+    (35, 20, 7, CURRENT_TIMESTAMP),
+    (36, 20, 1, CURRENT_TIMESTAMP);
 
 -- Inserção dos documentos legais TEMPORARIO (SERÃO RETIRADOS DEPOIS, POIS ADMINISTRADOR CADASTRARÁ PELO SISTEMA)
 -- 1. Política de Privacidade (Comum para ambos)
-INSERT INTO public.documentos_legais (tipo, versao, texto, activated, created) 
-VALUES (
-    'POLITICA_PRIVACIDADE', 
-    '1.0', 
-    '**1. Introdução**
+INSERT INTO public.documentos_legais (id, tipo, versao, texto, activated, created)
+VALUES
+    (1,
+'POLITICA_PRIVACIDADE',
+'1.0',
+'**1. Introdução**
 O SafeNutri valoriza a sua privacidade e está comprometido em proteger os seus dados pessoais. Esta Política de Privacidade explica como coletamos, usamos e protegemos as informações que você nos fornece ao se cadastrar e utilizar nossa plataforma, em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).
 
 **2. Quais dados coletamos**
@@ -303,14 +379,12 @@ Você tem total controle sobre os seus dados. A qualquer momento, você pode:
 Caso tenha qualquer dúvida sobre esta Política de Privacidade ou sobre o tratamento dos seus dados, entre em contato conosco através do e-mail: **safenutri.iftm@gmail.com**', 
     TRUE, 
     CURRENT_TIMESTAMP
-);
+),
 
--- 2. Termos de Uso (Para Usuário Comum)
-INSERT INTO public.documentos_legais (tipo, versao, texto, activated, created) 
-VALUES (
-    'TERMO_USO_COMUM', 
-    '1.0', 
-    '**1. Aceitação dos Termos**
+    (2,
+'TERMO_USO_COMUM',
+'1.0',
+'**1. Aceitação dos Termos**
 Ao marcar a caixa de seleção e concluir o cadastro, o usuário concorda integralmente com as regras descritas neste documento. Caso não concorde, o cadastro não poderá ser concluído.
 
 **2. Natureza do Serviço e Isenção de Responsabilidade Médica**
@@ -326,14 +400,12 @@ O usuário poderá solicitar a adição de novas restrições alimentares ao ban
 É proibido utilizar a plataforma para fins ilegais. O descumprimento de qualquer regra pode resultar na suspensão ou exclusão permanente da sua conta.', 
     TRUE, 
     CURRENT_TIMESTAMP
-);
+),
 
--- 3. Termo de Compromisso (Para Nutricionistas)
-INSERT INTO public.documentos_legais (tipo, versao, texto, activated, created) 
-VALUES (
-    'TERMO_NUTRI', 
-    '1.0', 
-    '**1. Aceitação e Identificação**
+    (3,
+'TERMO_NUTRI',
+'1.0',
+'**1. Aceitação e Identificação**
 Ao marcar a caixa de seleção, o profissional concorda com este termo e declara, sob as penas da lei, que todas as informações fornecidas no cadastro são verdadeiras.
 
 **2. Veracidade do CRN e Falsidade Ideológica**
@@ -350,3 +422,17 @@ A administração do sistema se reserva o direito de ocultar ou excluir qualquer
     TRUE, 
     CURRENT_TIMESTAMP
 );
+-----------------------------------------------------------------------------------------------------------
+INSERT INTO public.aceito_termos (id, user_id, documento_id, created)
+VALUES
+    (1,1,1,CURRENT_TIMESTAMP),
+    (2,1,3,CURRENT_TIMESTAMP),
+
+    (3,2,1,CURRENT_TIMESTAMP),
+    (4,2,3,CURRENT_TIMESTAMP),
+
+    (5,3,1,CURRENT_TIMESTAMP),
+    (6,3,2,CURRENT_TIMESTAMP),
+
+    (7,4,1,CURRENT_TIMESTAMP),
+    (8,4,2,CURRENT_TIMESTAMP);
