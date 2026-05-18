@@ -6,21 +6,21 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import com.safenutri.safenutri_api.model.entity.CustomRestricao;
+import com.safenutri.safenutri_api.model.entity.RestricaoPessoal;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.RestricaoAlimentarInput;
-import com.safenutri.safenutri_api.repository.CustomRestricaoRepository;
+import com.safenutri.safenutri_api.repository.RestricaoPessoalRepository;
 
 @Service
 @RequiredArgsConstructor
-public class CustomRestricaoService {
-    private final CustomRestricaoRepository customRestricaoRepository;
+public class RestricaoPessoalService {
+    private final RestricaoPessoalRepository restricaoPessoalRepository;
     private final UserService userService;
     private final JwtService jwtService;
 
-    public List<CustomRestricao> getAllActivated() {
+    public List<RestricaoPessoal> getAllActivated() {
         User user = userService.findById(jwtService.getIdUsuario());
-        return customRestricaoRepository.findByActivated(user.getId());
+        return restricaoPessoalRepository.findByActivated(user.getId());
     }
 
     public void salvar(RestricaoAlimentarInput restricaoAlimentaInput) {
@@ -32,9 +32,9 @@ public class CustomRestricaoService {
             isPublic = true;
         }
 
-        CustomRestricao customRestricao = new CustomRestricao (user, restricaoAlimentaInput.getRestricao(),
+        RestricaoPessoal customRestricao = new RestricaoPessoal (user, restricaoAlimentaInput.getRestricao(),
             restricaoAlimentaInput.getDescricao(), isPublic);
-            
-        customRestricaoRepository.save(customRestricao);
+
+        restricaoPessoalRepository.save(customRestricao);
     }
 }
