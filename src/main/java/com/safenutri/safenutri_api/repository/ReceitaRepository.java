@@ -156,8 +156,8 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
             "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
             "WHERE r.user.id = :userId " +
             "AND r.activated = :activated " +
-            "AND r.tipoReceita.id = :tipoReceitaId " +
-            "AND LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) " +
+            "AND (:tipoReceitaId IS NULL OR r.tipoReceita.id = :tipoReceitaId) " +
+            "AND (:termo IS NULL OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
             "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
             "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC, r.id ASC"
     )
