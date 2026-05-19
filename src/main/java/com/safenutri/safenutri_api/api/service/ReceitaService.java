@@ -220,10 +220,10 @@ public class ReceitaService {
         receitaRepository.save(receita);
     }
 
-    public Page<ReceitaCardOutput> getMinhasReceitas(String termo, int page, int size) {
+    public Page<ReceitaCardOutput> getMinhasReceitas(String termo, Long tipoReceitaId, Boolean activated, int page, int size) {
         Long userId = jwtService.getIdUsuario();
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, userId, pageable);
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, tipoReceitaId, activated, userId, pageable);
 
         return rcoPage.map(r -> {
             String tempoFormato = formatarTempo(r.getTempo());
