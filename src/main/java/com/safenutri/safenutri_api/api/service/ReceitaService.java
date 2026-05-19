@@ -214,9 +214,9 @@ public class ReceitaService {
         }
     }
 
-    public void desativar(Long id) {
+    public void alternarStatus(Long id) {
         Receita receita = findById(id);
-        receita.setActivated(false);
+        receita.setActivated(!receita.getActivated());
         receitaRepository.save(receita);
     }
 

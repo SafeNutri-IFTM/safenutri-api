@@ -85,11 +85,11 @@ public class ReceitaController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Desativa uma receita", description = "Realiza a desativação lógica da receita (setAtivo = false)")
-    public ResponseEntity<?> desativar(@PathVariable Long id) {
+    @DeleteMapping("/{id}/status")
+    @Operation(summary = "Alterna o status de uma receita", description = "Realiza a desativação e ativação na lógica da receita")
+    public ResponseEntity<?> alternarStatus(@PathVariable Long id) {
         try {
-            receitaService.desativar(id);
+            receitaService.alternarStatus(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
