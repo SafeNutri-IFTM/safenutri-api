@@ -214,16 +214,17 @@ public class ReceitaService {
         }
     }
 
-    public void desativar(Long id) {
+    public void alternarStatus(Long id) {
         Receita receita = findById(id);
-        receita.setActivated(false);
+        receita.setActivated(!receita.getActivated());
         receitaRepository.save(receita);
     }
 
-    public Page<ReceitaCardOutput> getMinhasReceitas(String termo, int page, int size) {
+    public Page<ReceitaCardOutput> getMinhasReceitas(String termo, Long tipoReceitaId, Boolean activated, int page, int size) {
         Long userId = jwtService.getIdUsuario();
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, userId, pageable);
+
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, tipoReceitaId, activated, userId, pageable);
 
         return rcoPage.map(r -> {
             String tempoFormato = formatarTempo(r.getTempo());

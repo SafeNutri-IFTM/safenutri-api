@@ -66,11 +66,13 @@ public class ReceitaController {
 
     @GetMapping("/minhas-receitas")
     public ResponseEntity<Page<ReceitaCardOutput>> getMinhasReceitas(
-            @RequestParam(required = false, defaultValue = "") String termo,
+            @RequestParam(required = false) String termo,
+            @RequestParam(required = false) Long tipoReceitaId,
+            @RequestParam(required = false, defaultValue = "true") Boolean activated,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<ReceitaCardOutput> receita = receitaService.getMinhasReceitas(termo, page, size);
+        Page<ReceitaCardOutput> receita = receitaService.getMinhasReceitas(termo, tipoReceitaId, activated, page, size);
         return ResponseEntity.ok(receita);
     }
 
@@ -85,11 +87,11 @@ public class ReceitaController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Desativa uma receita", description = "Realiza a desativação lógica da receita (setAtivo = false)")
-    public ResponseEntity<?> desativar(@PathVariable Long id) {
+    @DeleteMapping("/{id}/status")
+    @Operation(summary = "Alterna o status de uma receita", description = "Realiza a desativação e ativação na lógica da receita")
+    public ResponseEntity<?> alternarStatus(@PathVariable Long id) {
         try {
-            receitaService.desativar(id);
+            receitaService.alternarStatus(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
