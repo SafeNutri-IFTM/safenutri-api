@@ -436,3 +436,8 @@ VALUES
 
     (7,4,1,CURRENT_TIMESTAMP),
     (8,4,2,CURRENT_TIMESTAMP);
+-----------------------------------------------------------------------------------------------------------
+INSERT INTO public.status_denuncia (id, status)
+VALUES
+    (1, 'AGUARDANDO'),
+    (2, 'CONCLUÍDA');
