@@ -22,12 +22,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> {
-                    cors.configurationSource(corsConfigurationSource);
-                })
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user").permitAll()
                         .requestMatchers(HttpMethod.POST, "/nutricionista").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
@@ -37,8 +36,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/receita/download-image/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/recuperarSenha/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/mudar-senha").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/auth/oauth2/success").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler((request, response, authentication) -> {
+                            response.sendRedirect("http://localhost:4200/login-success");
+                        }))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

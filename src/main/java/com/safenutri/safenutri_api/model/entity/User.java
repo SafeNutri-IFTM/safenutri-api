@@ -23,15 +23,14 @@ public class User extends DefaultEntity {
     @SequenceGenerator(sequenceName = "id_seq_user", allocationSize = 1, name = "id_seq_user")
     private Long id;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "genero_id", nullable = false)
-    private Genero genero; 
+    @JoinColumn(name = "genero_id")
+    private Genero genero;
 
     @NotNull
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
-    private Role role; 
+    private Role role;
 
     @NotNull
     @Size(max = 255)
@@ -43,13 +42,17 @@ public class User extends DefaultEntity {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @NotNull
-    @Column(name = "senha", nullable = false)
+    @Column(name = "senha")
     private String senha;
 
-    @NotNull
-    @Column(name = "dt_nascimento", nullable = false)
+    @Column(name = "dt_nascimento")
     private LocalDate dtNascimento;
+
+    @Column(name = "onboarding_completed", nullable = false)
+    private Boolean onboardingCompleted = false;
+
+    @Column(name = "auth_provider", nullable = false)
+    private String authProvider;
 
     public User(Role role, Genero genero, String nome, String email, String senha, LocalDate dtNascimento) {
         this.role = role;
@@ -58,5 +61,7 @@ public class User extends DefaultEntity {
         this.email = email;
         this.senha = senha;
         this.dtNascimento = dtNascimento;
+        this.onboardingCompleted = false;
+        this.authProvider = "LOCAL";
     }
 }

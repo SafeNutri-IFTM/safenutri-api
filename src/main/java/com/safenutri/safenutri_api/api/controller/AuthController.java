@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 import com.safenutri.safenutri_api.api.service.JwtService;
 import com.safenutri.safenutri_api.api.service.UserService;
@@ -98,5 +101,26 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/oauth2/success")
+    public ResponseEntity<?> loginGoogle(Authentication authentication) {
+
+        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+
+        OAuth2User userGoogle = oauthToken.getPrincipal();
+
+        String email = userGoogle.getAttribute("email");
+        String nome = userGoogle.getAttribute("name");
+
+        User user = userService.loginGoogle(email, nome);
+
+        String token = jwtService.gerarToken(user);
+
+        String url = "http://localhost:4200/login-success?token=" + token;
+
+        return ResponseEntity.status(302)
+                .header("Location", url)
+                .build();
     }
 }

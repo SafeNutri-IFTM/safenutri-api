@@ -52,13 +52,15 @@ CREATE SEQUENCE public.id_seq_user
 
 CREATE TABLE public.user (
     id BIGINT NOT NULL DEFAULT nextval('public.id_seq_user'),
-    genero_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL,
+    genero_id BIGINT,
+    role_id BIGINT,
     nome VARCHAR(255) NOT NULL,
     email VARCHAR(50) NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    dt_nascimento DATE NOT NULL,
+    senha VARCHAR(255),
+    dt_nascimento DATE,
     activated BOOLEAN NOT NULL,
+    onboarding_completed BOOLEAN DEFAULT false,
+    login_provider VARCHAR(20) NOT NULL DEFAULT 'LOCAL',
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

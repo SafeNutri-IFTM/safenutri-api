@@ -30,6 +30,7 @@ import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.Role;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.entity.UserRestricao;
+import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EmailOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
@@ -106,7 +107,8 @@ public class UserService implements UserDetailsService {
         }
 
         if ("NUTRICIONISTA".equals(user.getRole().getRole()) && userInput.getSobreMim() != null) {
-            com.safenutri.safenutri_api.model.entity.Nutricionista nutricionista = nutricionistaRepository.findByUserId(user.getId());
+            com.safenutri.safenutri_api.model.entity.Nutricionista nutricionista = nutricionistaRepository
+                    .findByUserId(user.getId());
             if (nutricionista != null) {
                 nutricionista.setDescPerfil(userInput.getSobreMim());
                 nutricionistaRepository.save(nutricionista);
@@ -200,5 +202,39 @@ public class UserService implements UserDetailsService {
         EmailOutput emailOutput = emailSenderService.createEmailRecuperarSenha(user);
         emailSenderService.sendEmail(emailOutput.getEmailUsuario(), emailOutput.getAssunto(),
                 emailOutput.getMensagem());
+    }
+
+    @Transactional
+    public User loginGoogle(String email, String nome) {
+        return userRepository.findByEmail(email)
+                .map(user -> {
+                    if (user.getNome() == null || user.getNome().isBlank()) {
+                        user.setNome(nome);
+                    }
+
+                    if (user.getAuthProvider() == null) {
+                        user.setAuthProvider("GOOGLE");
+                    }
+
+                    return userRepository.save(user);
+                })
+                .orElseGet(() -> criarUsuarioGoogle(email, nome));
+    }
+
+    private User criarUsuarioGoogle(String email, String nome) {
+
+        Role rolePadrao = roleService.findById(RoleEnum.USER.getId());
+
+        User user = new User();
+        user.setEmail(email);
+        user.setNome(nome);
+        user.setRole(rolePadrao);
+        user.setActivated(true);
+        user.setOnboardingCompleted(false);
+        user.setAuthProvider("GOOGLE");
+
+        user.setSenha(null);
+
+        return userRepository.save(user);
     }
 }
