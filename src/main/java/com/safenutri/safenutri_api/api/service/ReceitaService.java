@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.safenutri.safenutri_api.model.output.*;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -31,11 +32,6 @@ import com.safenutri.safenutri_api.model.entity.TipoReceita;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.ModoPreparoInput;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
-import com.safenutri.safenutri_api.model.output.ModoPreparoOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaRestricaoOutput;
 
 import com.safenutri.safenutri_api.repository.ModoPreparoRepository;
 import com.safenutri.safenutri_api.repository.ReceitaAvaliacaoRepository;
@@ -310,8 +306,7 @@ public class ReceitaService {
     }
 
     public ReceitaDetalheOutput findDetalheById(Long id) {
-        Receita receita = receitaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        ReceitaOutput receita = receitaRepository.findReceita(id);
         List<ModoPreparoOutput> passos = modoPreparoService.findByReceitaId(id);
         List<ReceitaRestricaoOutput> restricoes = receitaRestricaoService.findByReceitaId(id);
 

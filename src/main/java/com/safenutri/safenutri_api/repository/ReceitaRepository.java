@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.repository;
 
 import java.util.List;
 
+import com.safenutri.safenutri_api.model.output.ReceitaOutput;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,13 @@ import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 
 @Repository
 public interface ReceitaRepository extends JpaRepository<Receita, Long> {
+
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaOutput (r.id, r.titulo, r.descricao, " +
+            "r.tipoReceita.id, r.tipoReceita.tipoReceita, r.porcao, r.tempoPreparo, r.ingredientes, r.calorias) " +
+            "FROM Receita r " +
+            "WHERE r.id = :receitaId " +
+            "AND r.activated = TRUE")
+    ReceitaOutput findReceita(@Param("receitaId") Long receitaId);
 
     //SQL PARA RECEITAS QUANDO O USUÁRIO NÃO TEM RESTRIÇÕES
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
