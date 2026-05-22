@@ -24,8 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
         "u.dtNascimento, u.created, " +
             "(SELECT COUNT(rf) FROM ReceitaFavorita rf WHERE rf.user.id = :userId) AS qntdFavoritas, " + 
             "(SELECT COUNT(ra) FROM ReceitaAvaliacao ra WHERE ra.user.id = :userId) AS qntdAvaliadas, " +
-            "(SELECT COUNT(r) FROM Receita r WHERE r.user.id = :userId) AS qntdMinhasReceitas" +
-        ") FROM User u WHERE u.id = :userId"
+            "(SELECT COUNT(r) FROM Receita r WHERE r.user.id = :userId) AS qntdMinhasReceitas, " +
+            "n.CRN, n.descPerfil" +
+        ") FROM User u LEFT JOIN Nutricionista n ON n.user.id = u.id WHERE u.id = :userId"
     )
     UserOutput getProfileInfos(@Param("userId") Long userId);
     

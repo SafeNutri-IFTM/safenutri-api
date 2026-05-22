@@ -43,6 +43,8 @@ public class UserController {
 
     @PutMapping("/me")
     public ResponseEntity<User> atualizarPerfil(@RequestBody @Valid UserInput input) {
+        Long userId = jwtService.getIdUsuario();
+        input.setId(userId);
         User userAtualizado = userService.atualizarPerfil(input);
         return ResponseEntity.ok(userAtualizado);
     }

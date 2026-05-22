@@ -21,10 +21,12 @@ public class UserOutput {
     private Long qntdAvaliadas;
     private Long qntdMinhasReceitas;
     private Long diasConta;
+    private String crn;
+    private String sobreMim;
 
     //CONSTRUCTOR SEM O ATRIBUTO diasConta
     public UserOutput(String nome, String email, String genero, LocalDate dtNascimento, LocalDateTime created,
-        Long qntdFavoritas, Long qntdAvaliadas, Long qntdMinhasReceitas) {
+        Long qntdFavoritas, Long qntdAvaliadas, Long qntdMinhasReceitas, String crn, String sobreMim) {
             this.nome = nome;
             this.email = email;
             this.genero = genero;
@@ -33,5 +35,7 @@ public class UserOutput {
             this.qntdFavoritas = qntdFavoritas;
             this.qntdAvaliadas = qntdAvaliadas;
             this.qntdMinhasReceitas = qntdMinhasReceitas;
+            this.crn = crn;
+            this.sobreMim = sobreMim;
     }
 }

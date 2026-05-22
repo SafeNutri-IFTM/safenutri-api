@@ -19,4 +19,5 @@ public class UserInput {
     private String senha;
     private LocalDate dtNascimento;
     private List<Long> restricoes;
+    private String sobreMim;
 }

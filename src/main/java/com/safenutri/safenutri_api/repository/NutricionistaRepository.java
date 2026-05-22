@@ -8,4 +8,5 @@ import com.safenutri.safenutri_api.model.entity.Nutricionista;
 @Repository
 public interface NutricionistaRepository extends JpaRepository<Nutricionista, Long>{
 
+    Nutricionista findByUserId(Long userId);
 }
