@@ -35,6 +35,7 @@ import com.safenutri.safenutri_api.model.output.EmailOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.repository.UserRepository;
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
+import com.safenutri.safenutri_api.repository.NutricionistaRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +45,7 @@ public class UserService implements UserDetailsService {
     private final RestricaoAlimentarService restricaoAlimentarService;
     private final UserRestricaoService userRestricaoService;
     private final UserRepository userRepository;
+    private final NutricionistaRepository nutricionistaRepository;
     private final PasswordEncoder passwordEncoder;
     private final DocumentosLegaisService documentosService;
     private final AceitoTermosRepository aceitoTermosRepository;
@@ -101,6 +103,14 @@ public class UserService implements UserDetailsService {
         List<Long> restricoesIdList = userInput.getRestricoes();
         if (restricoesIdList != null && !restricoesIdList.isEmpty()) {
             processarRestricoes(user, restricoesIdList);
+        }
+
+        if ("NUTRICIONISTA".equals(user.getRole().getRole()) && userInput.getSobreMim() != null) {
+            com.safenutri.safenutri_api.model.entity.Nutricionista nutricionista = nutricionistaRepository.findByUserId(user.getId());
+            if (nutricionista != null) {
+                nutricionista.setDescPerfil(userInput.getSobreMim());
+                nutricionistaRepository.save(nutricionista);
+            }
         }
 
         return userRepository.save(user);
