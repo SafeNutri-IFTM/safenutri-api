@@ -215,7 +215,7 @@ public class UserService implements UserDetailsService {
         emailSenderService.sendEmail(emailOutput.getEmailUsuario(), emailOutput.getAssunto(),
                 emailOutput.getMensagem());
     }
-    
+
     @Transactional
     public User loginGoogle(String email, String nome) {
         return userRepository.findByEmail(email)
@@ -235,26 +235,25 @@ public class UserService implements UserDetailsService {
                     }
                     return user;
                 })
-                // Se não achar o usuário, avisa o Controller para que o Front exiba o modal
                 .orElseThrow(() -> new RuntimeException("USUARIO_NAO_ENCONTRADO_GOOGLE"));
     }
 
     @Transactional
-    public User cadastrarUsuarioComumGoogle(String email, String nome) {
+    public User cadastrarUsuarioComumGoogle(String email, String nome, List<Long> restricoesIds) {
         if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyExistsException("Email já cadastrado");
         }
 
-        Role rolePadrao = roleService.findById(RoleEnum.USER.getId());
+        Role role = roleService.findById(RoleEnum.USER.getId());
 
-        User user = new User();
-        user.setEmail(email);
-        user.setNome(nome);
-        user.setRole(rolePadrao);
+        Genero genero = null;
+        LocalDate dataNascimento = null;
+
+        User user = new User(role, genero, nome, email, null, dataNascimento);
+
         user.setActivated(true);
         user.setOnboardingCompleted(false);
         user.setLoginProvider("GOOGLE");
-        user.setSenha(null);
 
         User savedUser = userRepository.save(user);
 
@@ -263,6 +262,10 @@ public class UserService implements UserDetailsService {
 
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoComum));
         aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
+
+        if (restricoesIds != null && !restricoesIds.isEmpty()) {
+            processarRestricoes(savedUser, restricoesIds);
+        }
 
         return savedUser;
     }

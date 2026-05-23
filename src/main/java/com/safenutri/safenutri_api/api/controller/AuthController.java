@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -32,9 +33,9 @@ public class AuthController {
 
     private final UserService userService;
     private final JwtService jwtService;
-    private final NutricionistaService nutricionistaService; // <-- INJETADO AQUI
+    private final NutricionistaService nutricionistaService;
 
-    @Value("${urlFrontend:http://localhost:4200}")
+    @Value("${urlFrontend}")
     private String urlFrontend;
 
     @PostMapping("/login")
@@ -117,28 +118,27 @@ public class AuthController {
             return ResponseEntity.status(302).header("Location", url).build();
 
         } catch (RuntimeException e) {
-            // SE FOR USUÁRIO NOVO: Redireciona para o Front abrir o Modal
             if ("USUARIO_NAO_ENCONTRADO_GOOGLE".equals(e.getMessage())) {
                 String url = urlFrontend + "/login?register_google=true&email=" + email + "&nome=" + nome;
                 return ResponseEntity.status(302).header("Location", url).build();
             }
 
-            // SE O EMAIL JÁ EXISTIR COM SENHA:
             String errorUrl = urlFrontend + "/login?error=email_exists_local";
             return ResponseEntity.status(302).header("Location", errorUrl).build();
         }
     }
 
-    // --- NOVOS ENDPOINTS QUE O MODAL DO FRONTEND VAI CHAMAR ---
-
     @PostMapping("/google/register-user")
     @Operation(summary = "Finaliza o cadastro Google como Usuário Comum")
-    public ResponseEntity<?> registerGoogleUser(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<?> registerGoogleUser(@RequestBody Map<String, Object> payload) {
         try {
-            String email = payload.get("email");
-            String nome = payload.get("nome");
+            String email = (String) payload.get("email");
+            String nome = (String) payload.get("nome");
 
-            User user = userService.cadastrarUsuarioComumGoogle(email, nome);
+            @SuppressWarnings("unchecked")
+            List<Long> restricoesIds = (List<Long>) payload.get("restricoes");
+
+            User user = userService.cadastrarUsuarioComumGoogle(email, nome, restricoesIds);
             String token = jwtService.gerarToken(user);
 
             return ResponseEntity.ok(new Token(user.getEmail(), token));

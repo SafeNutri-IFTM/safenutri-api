@@ -56,7 +56,6 @@ public class NutricionistaService {
     @Transactional
     public void cadastrarNutricionistaGoogle(String email, String nome, String crnEstado, String crnNumero) {
 
-        // CORRIGIDO: Retirado o parâmetro 'nome' da pesquisa
         Boolean crnValido = crnValidation.pesquisarCrn(crnEstado, crnNumero);
 
         if (crnValido == null) {
@@ -64,7 +63,6 @@ public class NutricionistaService {
         }
 
         if (Boolean.FALSE.equals(crnValido)) {
-            // Ajustada a mensagem já que não valida mais o nome
             throw new RuntimeException("CRN inválido ou inativo no conselho de nutrição.");
         }
 
@@ -72,7 +70,7 @@ public class NutricionistaService {
 
         User user = new User();
         user.setEmail(email);
-        user.setNome(nome); // O nome vindo do Google continua sendo salvo normalmente no seu banco aqui
+        user.setNome(nome);
         user.setRole(roleNutri);
         user.setActivated(true);
         user.setOnboardingCompleted(false);
