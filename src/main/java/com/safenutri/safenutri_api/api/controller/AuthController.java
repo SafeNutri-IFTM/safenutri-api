@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,6 +33,9 @@ public class AuthController {
 
     private final UserService userService;
     private final JwtService jwtService;
+
+    @Value("${urlFrontend:http://localhost:4200}")
+    private String urlFrontend;
 
     @PostMapping("/login")
     @Operation(summary = "Valida as credenciais do usuário para entrar no sistema")
@@ -104,23 +108,30 @@ public class AuthController {
     }
 
     @GetMapping("/oauth2/success")
+    @Operation(summary = "Lida com o redirecionamento de sucesso do Google OAuth2")
     public ResponseEntity<?> loginGoogle(Authentication authentication) {
 
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-
         OAuth2User userGoogle = oauthToken.getPrincipal();
 
         String email = userGoogle.getAttribute("email");
         String nome = userGoogle.getAttribute("name");
 
-        User user = userService.loginGoogle(email, nome);
+        try {
+            User user = userService.loginGoogle(email, nome);
+            String token = jwtService.gerarToken(user);
+            String url = urlFrontend + "/login-success?token=" + token;
 
-        String token = jwtService.gerarToken(user);
+            return ResponseEntity.status(302)
+                    .header("Location", url)
+                    .build();
 
-        String url = "http://localhost:4200/login-success?token=" + token;
+        } catch (RuntimeException e) {
+            String errorUrl = urlFrontend + "/login?error=email_exists_local";
 
-        return ResponseEntity.status(302)
-                .header("Location", url)
-                .build();
+            return ResponseEntity.status(302)
+                    .header("Location", errorUrl)
+                    .build();
+        }
     }
 }

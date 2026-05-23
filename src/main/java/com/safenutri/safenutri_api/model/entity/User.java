@@ -51,8 +51,8 @@ public class User extends DefaultEntity {
     @Column(name = "onboarding_completed", nullable = false)
     private Boolean onboardingCompleted = false;
 
-    @Column(name = "auth_provider", nullable = false)
-    private String authProvider;
+    @Column(name = "login_provider", nullable = false)
+    private String loginProvider;
 
     public User(Role role, Genero genero, String nome, String email, String senha, LocalDate dtNascimento) {
         this.role = role;
@@ -62,6 +62,6 @@ public class User extends DefaultEntity {
         this.senha = senha;
         this.dtNascimento = dtNascimento;
         this.onboardingCompleted = false;
-        this.authProvider = "LOCAL";
+        this.loginProvider = "LOCAL";
     }
 }

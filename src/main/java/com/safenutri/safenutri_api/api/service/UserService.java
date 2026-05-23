@@ -145,7 +145,14 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
 
-        if (!passwordEncoder.matches(password, user.getSenha())) {
+        if ("GOOGLE".equals(user.getLoginProvider()) && user.getSenha() == null) {
+            throw new RuntimeException(
+                    "Este e-mail está vinculado ao login do Google. Por favor, clique em 'Entrar com o Google'.");
+        }
+
+        if (user.getSenha() == null ||
+                !passwordEncoder.matches(password, user.getSenha())) {
+
             throw new SenhaInvalidaException();
         }
         return user;
@@ -164,7 +171,7 @@ public class UserService implements UserDetailsService {
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
-                .password(user.getSenha())
+                .password(user.getSenha() != null ? user.getSenha() : "")
                 .roles(roleNome)
                 .build();
     }
@@ -195,6 +202,11 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Email não cadastrado"));
 
+        if ("GOOGLE".equals(user.getLoginProvider())) {
+            throw new RuntimeException(
+                    "Esta conta utiliza o login do Google. Não é possível alterar a senha por aqui.");
+        }
+
         if (user.getRole().getId() != 3 && user.getRole().getId() != 2) {
             throw new RuntimeException("Email de usuário não permitido");
         }
@@ -208,15 +220,21 @@ public class UserService implements UserDetailsService {
     public User loginGoogle(String email, String nome) {
         return userRepository.findByEmail(email)
                 .map(user -> {
+                    if ("LOCAL".equals(user.getLoginProvider())) {
+                        throw new RuntimeException(
+                                "Este email já está cadastrado com login e senha.");
+                    }
+
+                    boolean alterado = false;
+
                     if (user.getNome() == null || user.getNome().isBlank()) {
                         user.setNome(nome);
+                        alterado = true;
                     }
-
-                    if (user.getAuthProvider() == null) {
-                        user.setAuthProvider("GOOGLE");
+                    if (alterado) {
+                        return userRepository.save(user);
                     }
-
-                    return userRepository.save(user);
+                    return user;
                 })
                 .orElseGet(() -> criarUsuarioGoogle(email, nome));
     }
@@ -231,10 +249,17 @@ public class UserService implements UserDetailsService {
         user.setRole(rolePadrao);
         user.setActivated(true);
         user.setOnboardingCompleted(false);
-        user.setAuthProvider("GOOGLE");
-
+        user.setLoginProvider("GOOGLE");
         user.setSenha(null);
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        DocumentosLegais termoComum = documentosService.buscarAtualPorTipo("TERMO_USO_COMUM");
+        DocumentosLegais politicaPriv = documentosService.buscarAtualPorTipo("POLITICA_PRIVACIDADE");
+
+        aceitoTermosRepository.save(new AceitoTermos(savedUser, termoComum));
+        aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
+
+        return savedUser;
     }
 }
