@@ -43,6 +43,8 @@ import com.safenutri.safenutri_api.repository.ReceitaFavoritaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRestricaoRepository;
 import com.safenutri.safenutri_api.repository.UserRepository;
+import com.safenutri.safenutri_api.repository.NutricionistaRepository;
+import com.safenutri.safenutri_api.model.entity.Nutricionista;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +66,7 @@ public class ReceitaService {
     private final UserRepository userRepository;
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
     private final ReceitaFavoritaRepository receitaFavoritaRepository;
+    private final NutricionistaRepository nutricionistaRepository;
 
     @Value("${filediretorioReceita}")
     private String directoryReceita;
@@ -371,6 +374,14 @@ public class ReceitaService {
                             map.put("nota", aval.getQntdEstrela());
                             map.put("comentario", aval.getDescricao());
                             map.put("avatar", null); 
+                            
+                            Nutricionista nutricionista = nutricionistaRepository.findByUserId(aval.getUser().getId());
+                            if (nutricionista != null) {
+                                map.put("nutricionistaId", nutricionista.getId());
+                            } else {
+                                map.put("nutricionistaId", 1L); // fallback seguro se o usuário não tiver nutricionista
+                            }
+                            
                             avaliacoesNutri.add(map);
                         }
                     } else {
