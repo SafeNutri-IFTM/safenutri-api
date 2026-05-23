@@ -15,11 +15,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 import com.safenutri.safenutri_api.api.service.JwtService;
 import com.safenutri.safenutri_api.api.service.UserService;
+import com.safenutri.safenutri_api.api.service.NutricionistaService;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.LoginInput;
@@ -33,6 +32,7 @@ public class AuthController {
 
     private final UserService userService;
     private final JwtService jwtService;
+    private final NutricionistaService nutricionistaService; // <-- INJETADO AQUI
 
     @Value("${urlFrontend:http://localhost:4200}")
     private String urlFrontend;
@@ -42,11 +42,8 @@ public class AuthController {
     public Token login(@RequestBody LoginInput loginInput) {
         try {
             User user = userService.autenticarPorEmail(loginInput.getEmail(), loginInput.getPassword());
-
             String token = jwtService.gerarToken(user);
-
             return new Token(user.getEmail(), token);
-
         } catch (SenhaInvalidaException | UsernameNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
@@ -99,7 +96,6 @@ public class AuthController {
                     .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado para este token."));
 
             userService.mudarSenha(user, novaSenha);
-
             return ResponseEntity.ok().body("{\"message\": \"Senha alterada com sucesso!\"}");
 
         } catch (Exception e) {
@@ -109,29 +105,67 @@ public class AuthController {
 
     @GetMapping("/oauth2/success")
     @Operation(summary = "Lida com o redirecionamento de sucesso do Google OAuth2")
-    public ResponseEntity<?> loginGoogle(Authentication authentication) {
-
-        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-        OAuth2User userGoogle = oauthToken.getPrincipal();
-
+    public ResponseEntity<?> loginGoogle(@RequestAttribute("userGoogle") OAuth2User userGoogle) {
         String email = userGoogle.getAttribute("email");
         String nome = userGoogle.getAttribute("name");
 
         try {
             User user = userService.loginGoogle(email, nome);
             String token = jwtService.gerarToken(user);
-            String url = urlFrontend + "/login-success?token=" + token;
+            String url = urlFrontend + "/login?token=" + token;
 
-            return ResponseEntity.status(302)
-                    .header("Location", url)
-                    .build();
+            return ResponseEntity.status(302).header("Location", url).build();
 
         } catch (RuntimeException e) {
-            String errorUrl = urlFrontend + "/login?error=email_exists_local";
+            // SE FOR USUÁRIO NOVO: Redireciona para o Front abrir o Modal
+            if ("USUARIO_NAO_ENCONTRADO_GOOGLE".equals(e.getMessage())) {
+                String url = urlFrontend + "/login?register_google=true&email=" + email + "&nome=" + nome;
+                return ResponseEntity.status(302).header("Location", url).build();
+            }
 
-            return ResponseEntity.status(302)
-                    .header("Location", errorUrl)
-                    .build();
+            // SE O EMAIL JÁ EXISTIR COM SENHA:
+            String errorUrl = urlFrontend + "/login?error=email_exists_local";
+            return ResponseEntity.status(302).header("Location", errorUrl).build();
+        }
+    }
+
+    // --- NOVOS ENDPOINTS QUE O MODAL DO FRONTEND VAI CHAMAR ---
+
+    @PostMapping("/google/register-user")
+    @Operation(summary = "Finaliza o cadastro Google como Usuário Comum")
+    public ResponseEntity<?> registerGoogleUser(@RequestBody Map<String, String> payload) {
+        try {
+            String email = payload.get("email");
+            String nome = payload.get("nome");
+
+            User user = userService.cadastrarUsuarioComumGoogle(email, nome);
+            String token = jwtService.gerarToken(user);
+
+            return ResponseEntity.ok(new Token(user.getEmail(), token));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/google/register-nutri")
+    @Operation(summary = "Finaliza o cadastro Google como Nutricionista, validando CRN")
+    public ResponseEntity<?> registerGoogleNutri(@RequestBody Map<String, String> payload) {
+        try {
+            String email = payload.get("email");
+            String nome = payload.get("nome");
+            String crnEstado = payload.get("crnEstado");
+            String crnNumero = payload.get("crnNumero");
+
+            nutricionistaService.cadastrarNutricionistaGoogle(email, nome, crnEstado, crnNumero);
+
+            User user = userService.findByExistEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Erro interno ao buscar usuário após cadastro."));
+
+            String token = jwtService.gerarToken(user);
+
+            return ResponseEntity.ok(new Token(user.getEmail(), token));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro: " + e.getMessage());
         }
     }
 }

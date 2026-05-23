@@ -215,31 +215,35 @@ public class UserService implements UserDetailsService {
         emailSenderService.sendEmail(emailOutput.getEmailUsuario(), emailOutput.getAssunto(),
                 emailOutput.getMensagem());
     }
-
+    
     @Transactional
     public User loginGoogle(String email, String nome) {
         return userRepository.findByEmail(email)
                 .map(user -> {
                     if ("LOCAL".equals(user.getLoginProvider())) {
-                        throw new RuntimeException(
-                                "Este email já está cadastrado com login e senha.");
+                        throw new RuntimeException("Este email já está cadastrado com login e senha.");
                     }
 
                     boolean alterado = false;
-
                     if (user.getNome() == null || user.getNome().isBlank()) {
                         user.setNome(nome);
                         alterado = true;
                     }
+
                     if (alterado) {
                         return userRepository.save(user);
                     }
                     return user;
                 })
-                .orElseGet(() -> criarUsuarioGoogle(email, nome));
+                // Se não achar o usuário, avisa o Controller para que o Front exiba o modal
+                .orElseThrow(() -> new RuntimeException("USUARIO_NAO_ENCONTRADO_GOOGLE"));
     }
 
-    private User criarUsuarioGoogle(String email, String nome) {
+    @Transactional
+    public User cadastrarUsuarioComumGoogle(String email, String nome) {
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("Email já cadastrado");
+        }
 
         Role rolePadrao = roleService.findById(RoleEnum.USER.getId());
 
@@ -261,5 +265,10 @@ public class UserService implements UserDetailsService {
         aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
 
         return savedUser;
+    }
+
+    @Transactional
+    public User saveGoogleUser(User user) {
+        return userRepository.save(user);
     }
 }

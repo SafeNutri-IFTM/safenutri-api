@@ -2,19 +2,16 @@ package com.safenutri.safenutri_api.core.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.stereotype.Component;
-
 import com.microsoft.playwright.*;
 
 @Component
 public class CrnValidation {
 
-    public Boolean pesquisarCrn(String name, String crn, String inscricao) {
+    public Boolean pesquisarCrn(String crn, String inscricao) {
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions().setHeadless(true)
-            );
+                    new BrowserType.LaunchOptions().setHeadless(false));
 
             Long crnValue = processarCrn(crn);
             if (crnValue == 0) {
@@ -24,7 +21,6 @@ public class CrnValidation {
             Page page = browser.newPage();
             page.navigate("https://cnn.cfn.org.br/application/index/consulta-nacional");
 
-            page.locator("input[name='nome']").fill(name);
             page.locator("input[name='registro']").fill(inscricao);
             page.locator("input.search").click();
             page.waitForSelector(String.format("div.item[data-value='%d']", crnValue));
@@ -102,10 +98,10 @@ public class CrnValidation {
     private Boolean validarCrn(List<CrnInfo> crnInfos) {
         if (crnInfos != null && !crnInfos.isEmpty()) {
             for (CrnInfo cr : crnInfos) {
-                if(cr.getSituacao().equals("ATIVO")) {
+                if (cr.getSituacao().equals("ATIVO")) {
                     return true;
                 }
-            }   
+            }
         }
         return false;
     }

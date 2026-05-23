@@ -1,13 +1,14 @@
 package com.safenutri.safenutri_api.core.config;
 
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -16,8 +17,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtAuthFilter jwtAuthFilter;
     private final CorsConfigurationSource corsConfigurationSource;
+
+    @Value("${urlFrontend}")
+    private String urlFrontend;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -37,11 +42,22 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/recuperarSenha/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/mudar-senha").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/oauth2/success").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/google/register-user", "/auth/google/register-nutri")
+                        .permitAll()
+
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler((request, response, authentication) -> {
-                            response.sendRedirect("http://localhost:4200/login-success");
+                            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                            request.setAttribute("userGoogle", oauthToken.getPrincipal());
+                            request.getRequestDispatcher("/auth/oauth2/success").forward(request, response);
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            String baseUrl = urlFrontend.endsWith("/")
+                                    ? urlFrontend.substring(0, urlFrontend.length() - 1)
+                                    : urlFrontend;
+                            response.sendRedirect(baseUrl + "/login?error=cancelado");
                         }))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
