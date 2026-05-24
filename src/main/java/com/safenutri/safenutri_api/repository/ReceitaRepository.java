@@ -205,4 +205,16 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
                                         "SELECT 1 FROM ReceitaAvaliacao rau WHERE rau.receita.id = r.id AND rau.user.id = :userId"
                                         +") AND (:termo = '' OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')))")                                                                                     
         Page<ReceitaCardOutput> findReceitasAvaliadasByUserId(@Param("userId") Long userId, @Param("termo") String termo, Pageable pageable);
+
+        @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
+                "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+                "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+                "false, r.activated) " +
+                "FROM Receita r " +
+                "JOIN r.tipoReceita tr " +
+                "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+                "WHERE r.user.id = :userId AND r.publicBoolean = TRUE AND r.activated = TRUE " +
+                "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated " +
+                "ORDER BY r.id DESC")
+        List<ReceitaCardOutput> findTop4PublicasByUserId(@Param("userId") Long userId, Pageable pageable);
 }

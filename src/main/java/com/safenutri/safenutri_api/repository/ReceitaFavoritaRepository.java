@@ -31,4 +31,7 @@ public interface ReceitaFavoritaRepository extends JpaRepository<ReceitaFavorita
             "ORDER BY rf.created DESC")
     Page<ReceitaCardOutput> findFavoritasByUserId(@Param("userId") Long userId, @Param("termo") String termo,
             Pageable pageable);
+
+    @Query("SELECT COUNT(rf) FROM ReceitaFavorita rf WHERE rf.receita.user.id = :userId")
+    Long countByReceitaUserId(@Param("userId") Long userId);
 }
