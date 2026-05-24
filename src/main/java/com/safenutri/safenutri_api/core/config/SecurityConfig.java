@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user").permitAll()
                         .requestMatchers(HttpMethod.POST, "/nutricionista").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
@@ -42,9 +43,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/recuperarSenha/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/mudar-senha").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/oauth2/success").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/google/register-user", "/auth/google/register-nutri")
-                        .permitAll()
-
+                        .requestMatchers(HttpMethod.POST, "/auth/google/register-user", "/auth/google/register-nutri").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/nutricionista/*/publico").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2

@@ -15,8 +15,20 @@ import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.NutricionistaInput;
 import com.safenutri.safenutri_api.model.input.UserInput;
-import com.safenutri.safenutri_api.repository.NutricionistaRepository;
+import com.safenutri.safenutri_api.model.output.EstatisticasNutricionistaOutput;
+import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput;
+import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
+import com.safenutri.safenutri_api.repository.NutricionistaRepository;
+import com.safenutri.safenutri_api.repository.PacienteRepository;
+import com.safenutri.safenutri_api.repository.ReceitaAvaliacaoRepository;
+import com.safenutri.safenutri_api.repository.ReceitaFavoritaRepository;
+import com.safenutri.safenutri_api.repository.ReceitaRepository;
+import org.springframework.data.domain.PageRequest;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +39,10 @@ public class NutricionistaService {
     private final CrnValidation crnValidation;
     private final DocumentosLegaisService documentosService;
     private final AceitoTermosRepository aceitoTermosRepository;
+    private final PacienteRepository pacienteRepository;
+    private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
+    private final ReceitaFavoritaRepository receitaFavoritaRepository;
+    private final ReceitaRepository receitaRepository;
 
     @Transactional
     public void save(NutricionistaInput nutricionistaInput) {
@@ -88,5 +104,40 @@ public class NutricionistaService {
         String crnCompleto = crnEstado + "/" + crnNumero;
         Nutricionista nutricionista = new Nutricionista(savedUser, crnCompleto);
         nutricionistaRepository.save(nutricionista);
+    }
+
+    public PerfilNutricionistaPublicoOutput getPerfilPublico(Long id) {
+        Nutricionista nutricionista = nutricionistaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Nutricionista não encontrado"));
+
+        Long userId = nutricionista.getUser().getId();
+
+        Long favoritadas = receitaFavoritaRepository.countByReceitaUserId(userId);
+        Long avaliadas = receitaAvaliacaoRepository.countByReceitaUserId(userId);
+        Long pacientes = pacienteRepository.countByNutricionistaId(id);
+
+        long diasNoApp = ChronoUnit.DAYS.between(
+                nutricionista.getUser().getCreated().toLocalDate(), LocalDate.now());
+
+        EstatisticasNutricionistaOutput estatisticas = new EstatisticasNutricionistaOutput(
+                favoritadas != null ? favoritadas : 0L,
+                avaliadas != null ? avaliadas : 0L,
+                pacientes != null ? pacientes : 0L,
+                diasNoApp);
+
+        List<ReceitaCardOutput> receitas = receitaRepository.findTop4PublicasByUserId(
+                userId, PageRequest.of(0, 4));
+
+        String nome = nutricionista.getUser().getNome();
+        String iniciais = nome != null && !nome.isEmpty() ? nome.substring(0, 1).toUpperCase() : "";
+
+        return new PerfilNutricionistaPublicoOutput(
+                nutricionista.getId(),
+                nome,
+                iniciais,
+                nutricionista.getCRN(),
+                nutricionista.getDescPerfil(),
+                estatisticas,
+                receitas);
     }
 }

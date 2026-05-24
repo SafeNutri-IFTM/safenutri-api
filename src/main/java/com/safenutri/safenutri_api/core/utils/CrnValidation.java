@@ -11,7 +11,7 @@ public class CrnValidation {
     public Boolean pesquisarCrn(String crn, String inscricao) {
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(
-                    new BrowserType.LaunchOptions().setHeadless(false));
+                    new BrowserType.LaunchOptions().setHeadless(true));
 
             Long crnValue = processarCrn(crn);
             if (crnValue == 0) {
