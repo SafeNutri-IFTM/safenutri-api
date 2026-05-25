@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor 
 public class UserInput {
-    private Long id; 
     private Long genero;
     private Long role;
     private String nome;

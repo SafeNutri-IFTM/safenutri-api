@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
@@ -381,9 +382,9 @@ public class ReceitaService {
                             map.put("comentario", aval.getDescricao());
                             map.put("avatar", null); 
                             
-                            Nutricionista nutricionista = nutricionistaRepository.findByUserId(aval.getUser().getId());
-                            if (nutricionista != null) {
-                                map.put("nutricionistaId", nutricionista.getId());
+                            Optional<Nutricionista> nutricionista = nutricionistaRepository.findByUserId(aval.getUser().getId());
+                            if (nutricionista.isPresent()) {
+                                map.put("nutricionistaId", nutricionista.get().getId());
                             } else {
                                 map.put("nutricionistaId", 1L); // fallback seguro se o usuário não tiver nutricionista
                             }

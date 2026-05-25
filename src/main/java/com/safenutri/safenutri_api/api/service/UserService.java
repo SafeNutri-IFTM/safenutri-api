@@ -26,6 +26,7 @@ import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
 import com.safenutri.safenutri_api.model.entity.AceitoTermos;
 import com.safenutri.safenutri_api.model.entity.DocumentosLegais;
 import com.safenutri.safenutri_api.model.entity.Genero;
+import com.safenutri.safenutri_api.model.entity.Nutricionista;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.Role;
 import com.safenutri.safenutri_api.model.entity.User;
@@ -86,7 +87,9 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User atualizarPerfil(UserInput userInput) {
-        User user = userRepository.findById(userInput.getId())
+        Long userId = jwtService.getIdUsuario();
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         user.setNome(userInput.getNome());
@@ -107,11 +110,11 @@ public class UserService implements UserDetailsService {
         }
 
         if ("NUTRICIONISTA".equals(user.getRole().getRole()) && userInput.getSobreMim() != null) {
-            com.safenutri.safenutri_api.model.entity.Nutricionista nutricionista = nutricionistaRepository
+            Optional<Nutricionista> nutricionista = nutricionistaRepository
                     .findByUserId(user.getId());
-            if (nutricionista != null) {
-                nutricionista.setDescPerfil(userInput.getSobreMim());
-                nutricionistaRepository.save(nutricionista);
+            if (nutricionista.isPresent()) {
+                nutricionista.get().setDescPerfil(userInput.getSobreMim());
+                nutricionistaRepository.save(nutricionista.get());
             }
         }
 
@@ -273,5 +276,16 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User saveGoogleUser(User user) {
         return userRepository.save(user);
+    }
+
+    public boolean deactivateAccount() {
+        Long userId = jwtService.getIdUsuario();
+        return userRepository.findById(userId).map(
+            user -> {
+                user.setActivated(false);
+                userRepository.save(user);
+                return true;
+            }
+        ).orElse(false);
     }
 }

@@ -32,4 +32,15 @@ public class NutricionistaController {
     public ResponseEntity<PerfilNutricionistaPublicoOutput> getPerfilPublico(@PathVariable Long id) {
         return ResponseEntity.ok(nutricionistaService.getPerfilPublico(id));
     }
+
+    @PatchMapping("/deactivate")
+    public ResponseEntity<Void> desativarConta() {
+        boolean deactivated = nutricionistaService.deactivateAccount();
+
+        if (deactivated) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }

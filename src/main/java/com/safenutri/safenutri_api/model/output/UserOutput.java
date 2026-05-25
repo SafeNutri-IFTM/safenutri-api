@@ -14,7 +14,7 @@ import lombok.Setter;
 public class UserOutput {
     private String nome;
     private String email;
-    private String genero;
+    private Long genero;
     private LocalDate dtNascimento;
     private LocalDateTime created;
     private Long qntdFavoritas;
@@ -24,8 +24,7 @@ public class UserOutput {
     private String crn;
     private String sobreMim;
 
-    //CONSTRUCTOR SEM O ATRIBUTO diasConta
-    public UserOutput(String nome, String email, String genero, LocalDate dtNascimento, LocalDateTime created,
+    public UserOutput(String nome, String email, Long genero, LocalDate dtNascimento, LocalDateTime created,
         Long qntdFavoritas, Long qntdAvaliadas, Long qntdMinhasReceitas, String crn, String sobreMim) {
             this.nome = nome;
             this.email = email;
