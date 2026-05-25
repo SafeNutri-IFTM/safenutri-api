@@ -86,7 +86,9 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User atualizarPerfil(UserInput userInput) {
-        User user = userRepository.findById(userInput.getId())
+        Long userId = jwtService.getIdUsuario();
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         user.setNome(userInput.getNome());
@@ -273,5 +275,16 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User saveGoogleUser(User user) {
         return userRepository.save(user);
+    }
+
+    public boolean deactivateAccount() {
+        Long userId = jwtService.getIdUsuario();
+        return userRepository.findById(userId).map(
+            user -> {
+                user.setActivated(false);
+                userRepository.save(user);
+                return true;
+            }
+        ).orElse(false);
     }
 }

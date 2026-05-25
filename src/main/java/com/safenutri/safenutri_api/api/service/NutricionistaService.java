@@ -1,5 +1,6 @@
 package com.safenutri.safenutri_api.api.service;
 
+import com.safenutri.safenutri_api.repository.UserRepository;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class NutricionistaService {
+    private final UserRepository userRepository;
     private final NutricionistaRepository nutricionistaRepository;
     private final UserService userService;
     private final RoleService roleService;
@@ -43,6 +45,7 @@ public class NutricionistaService {
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
     private final ReceitaFavoritaRepository receitaFavoritaRepository;
     private final ReceitaRepository receitaRepository;
+    private final JwtService jwtService;
 
     @Transactional
     public void save(NutricionistaInput nutricionistaInput) {
@@ -139,5 +142,21 @@ public class NutricionistaService {
                 nutricionista.getDescPerfil(),
                 estatisticas,
                 receitas);
+    }
+
+    public boolean deactivateAccount() {
+        Long userId = jwtService.getIdUsuario();
+        return nutricionistaRepository.findByUserId(userId).map(
+            nutri -> {
+                nutri.setActivated(false);
+                nutricionistaRepository.save(nutri);
+
+                User user = userService.findById(userId);
+                user.setActivated(false);
+                userRepository.save(user);
+
+                return true;
+            }
+        ).orElse(false);
     }
 }
