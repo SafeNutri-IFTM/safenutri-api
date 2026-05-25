@@ -1,13 +1,14 @@
 package com.safenutri.safenutri_api.model.output;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class PerfilNutricionistaPublicoOutput {
     private Long id;
     private String nome;

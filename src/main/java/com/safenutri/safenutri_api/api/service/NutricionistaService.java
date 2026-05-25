@@ -92,7 +92,6 @@ public class NutricionistaService {
         user.setNome(nome);
         user.setRole(roleNutri);
         user.setActivated(true);
-        user.setOnboardingCompleted(false);
         user.setLoginProvider("GOOGLE");
         user.setSenha(null);
 

@@ -59,7 +59,6 @@ CREATE TABLE public.user (
     senha VARCHAR(255),
     dt_nascimento DATE,
     activated BOOLEAN NOT NULL,
-    onboarding_completed BOOLEAN DEFAULT false,
     login_provider VARCHAR(20) NOT NULL DEFAULT 'LOCAL',
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

@@ -11,3 +11,4 @@ SELECT setval('public.id_seq_modo_preparo', (SELECT MAX(id) FROM public.modo_pre
 SELECT setval('public.id_seq_receita_restricao', (SELECT MAX(id) FROM public.receita_restricao));
 SELECT setval('public.id_seq_documentos_legais', (SELECT MAX(id) FROM public.documentos_legais));
 SELECT setval('public.id_seq_aceito_termos', (SELECT MAX(id) FROM public.aceito_termos));
+SELECT setval('public.id_seq_status_denuncia', (SELECT MAX(id) FROM public.status_denuncia));

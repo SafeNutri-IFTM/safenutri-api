@@ -255,10 +255,9 @@ public class UserService implements UserDetailsService {
         User user = new User(role, genero, nome, email, null, dataNascimento);
 
         user.setActivated(true);
-        user.setOnboardingCompleted(false);
         user.setLoginProvider("GOOGLE");
 
-        User savedUser = userRepository.save(user);
+        User savedUser = saveGoogleUser(user);
 
         DocumentosLegais termoComum = documentosService.buscarAtualPorTipo("TERMO_USO_COMUM");
         DocumentosLegais politicaPriv = documentosService.buscarAtualPorTipo("POLITICA_PRIVACIDADE");

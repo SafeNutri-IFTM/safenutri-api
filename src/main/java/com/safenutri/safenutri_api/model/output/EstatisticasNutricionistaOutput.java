@@ -1,12 +1,12 @@
 package com.safenutri.safenutri_api.model.output;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class EstatisticasNutricionistaOutput {
     private Long favoritadas;
     private Long avaliadas;
