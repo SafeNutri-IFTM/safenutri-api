@@ -23,10 +23,12 @@ import com.safenutri.safenutri_api.model.input.ReceitaInput;
 import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
 import com.safenutri.safenutri_api.model.input.AvaliacaoInput;
+import com.safenutri.safenutri_api.model.input.ReceitaDenunciaInput;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/receita")
+@CrossOrigin("*")
 public class ReceitaController {
     private final ReceitaService receitaService;
     private final UploadService uploadService;
@@ -209,5 +211,25 @@ public class ReceitaController {
             @RequestParam(required = false, defaultValue = "") String termo) {
         Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(page, size, termo);
         return ResponseEntity.ok(favoritas);
+    }
+
+    @PostMapping("/{id}/denunciar")
+    @Operation(summary = "Denuncia uma receita", description = "Cria uma denúncia/reporte para uma receita específica associada ao usuário autenticado")
+    public ResponseEntity<?> denunciarReceita(
+            @PathVariable Long id,
+            @RequestBody @Valid ReceitaDenunciaInput input,
+            java.security.Principal principal) {
+        try {
+            // principal.getName() captura o e-mail do usuário autenticado no token JWT
+            receitaService.denunciar(id, principal.getName(), input.getMotivo());
+            
+            // Retorna um JSON legível para o HttpClient do Angular não quebrar o parse
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("message", "Receita reportada com sucesso!"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Erro ao processar denúncia: " + e.getMessage()));
+        }
     }
 }

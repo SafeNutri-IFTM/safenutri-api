@@ -26,14 +26,8 @@ public class RestricaoPessoalService {
     public void salvar(RestricaoAlimentarInput restricaoAlimentaInput) {
         User user = userService.findById(jwtService.getIdUsuario());
 
-        Boolean isPublic = false;
-
-        if (jwtService.isNutricionista()) {
-            isPublic = true;
-        }
-
         RestricaoPessoal customRestricao = new RestricaoPessoal (user, restricaoAlimentaInput.getRestricao(),
-            restricaoAlimentaInput.getDescricao(), isPublic);
+            restricaoAlimentaInput.getDescricao());
 
         restricaoPessoalRepository.save(customRestricao);
     }

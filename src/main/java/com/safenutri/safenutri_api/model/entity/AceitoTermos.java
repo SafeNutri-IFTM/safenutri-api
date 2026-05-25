@@ -30,7 +30,7 @@ public class AceitoTermos {
     @JoinColumn(name = "documento_id")
     private DocumentosLegais documento;
 
-    @Column(name = "data_aceito_termos")
+    @Column(name = "created")
     private LocalDateTime dataAceitoTermos;
 
     public AceitoTermos(User user, DocumentosLegais documento) {

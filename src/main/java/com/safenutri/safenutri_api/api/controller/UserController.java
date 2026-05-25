@@ -43,8 +43,6 @@ public class UserController {
 
     @PutMapping("/me")
     public ResponseEntity<User> atualizarPerfil(@RequestBody @Valid UserInput input) {
-        Long userId = jwtService.getIdUsuario();
-        input.setId(userId);
         User userAtualizado = userService.atualizarPerfil(input);
         return ResponseEntity.ok(userAtualizado);
     }
@@ -70,12 +68,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
-        User user = userService.getReference(id);
-        return ResponseEntity.ok(user);
-    }
-
     @PostMapping
     @Operation(summary = "Cria um usuário", description = "Cria um novo usuário com base nas informações fornecidas")
     public ResponseEntity<Void> save(@RequestBody @Valid UserInput input) {
@@ -87,5 +79,16 @@ public class UserController {
     public ResponseEntity<List<AtividadeRecenteOutput>> buscarAtividadesRecentes() {
         List<AtividadeRecenteOutput> atividades =  atividadeRecenteService.buscarRecentes();
         return ResponseEntity.ok(atividades);
+    }
+
+    @PatchMapping("/me/deactivate")
+    public ResponseEntity<Void> desativarConta() {
+        boolean deactivated = userService.deactivateAccount();
+
+        if (deactivated) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }
