@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.repository;
 
 import java.util.List;
 
+import com.safenutri.safenutri_api.model.output.ReceitaOutput;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,13 @@ import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
 
 @Repository
 public interface ReceitaRepository extends JpaRepository<Receita, Long> {
+
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaOutput (r.id, r.titulo, r.descricao, " +
+            "r.tipoReceita.id, r.tipoReceita.tipoReceita, r.porcao, r.tempoPreparo, r.ingredientes, r.calorias) " +
+            "FROM Receita r " +
+            "WHERE r.id = :receitaId " +
+            "AND r.activated = TRUE")
+    ReceitaOutput findReceita(@Param("receitaId") Long receitaId);
 
     //SQL PARA RECEITAS QUANDO O USUÁRIO NÃO TEM RESTRIÇÕES
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
@@ -147,18 +155,24 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
     Page<ReceitaCardOutput> findByTituloPaginado(@Param("termo") String termo, @Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
-        "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
-        "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
-        "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
-        "FROM Receita r " +
-        "JOIN r.tipoReceita tr " + 
-        "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " + 
-        "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
-        "WHERE r.user.id = :userId AND LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) " +
-        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
-        "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC, r.id ASC"
+            "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+            "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+            "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
+            "FROM Receita r " +
+            "JOIN r.tipoReceita tr " +
+            "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+            "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
+            "WHERE r.user.id = :userId " +
+            "AND r.activated = :activated " +
+            "AND (:tipoReceitaId IS NULL OR r.tipoReceita.id = :tipoReceitaId) " +
+            "AND (:termo IS NULL OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
+            "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
+            "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC, r.id ASC"
     )
-    Page<ReceitaCardOutput> getMinhasReceitas(@Param("termo") String termo, @Param("userId") Long userId, Pageable pageable);
+    Page<ReceitaCardOutput> getMinhasReceitas(@Param("termo") String termo, @Param("tipoReceitaId") Long tipoReceitaId,
+                                              @Param("activated") Boolean activated, @Param("userId") Long userId,
+                                              Pageable pageable
+    );
         // SQL PARA RETORNAR A QNTD DE RECEITAS QUE UM NUTRICIONISTA TEM CADASTRADA,
         // AGRUPADAS POR TIPO DE RESTRICAO
         @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput(rr.restricao.restricao , COUNT(r.id) AS total) "
@@ -199,4 +213,16 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
                                         "SELECT 1 FROM ReceitaAvaliacao rau WHERE rau.receita.id = r.id AND rau.user.id = :userId"
                                         +") AND (:termo = '' OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')))")                                                                                     
         Page<ReceitaCardOutput> findReceitasAvaliadasByUserId(@Param("userId") Long userId, @Param("termo") String termo, Pageable pageable);
+
+        @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
+                "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+                "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+                "false, r.activated) " +
+                "FROM Receita r " +
+                "JOIN r.tipoReceita tr " +
+                "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+                "WHERE r.user.id = :userId AND r.publicBoolean = TRUE AND r.activated = TRUE " +
+                "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated " +
+                "ORDER BY r.id DESC")
+        List<ReceitaCardOutput> findTop4PublicasByUserId(@Param("userId") Long userId, Pageable pageable);
 }

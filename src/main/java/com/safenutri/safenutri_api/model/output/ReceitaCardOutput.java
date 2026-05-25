@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+@AllArgsConstructor
 @Data
 @Getter
 @Setter
-@AllArgsConstructor
 public class ReceitaCardOutput {
     private Long id;
     private String tipoReceita;

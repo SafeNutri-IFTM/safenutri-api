@@ -1,5 +1,7 @@
 package com.safenutri.safenutri_api.api.controller;
 
+import com.safenutri.safenutri_api.api.service.AtividadeRecenteService;
+import com.safenutri.safenutri_api.model.output.AtividadeRecenteOutput;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +32,7 @@ public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
     private final UserRestricaoService userRestricaoService;
+    private final AtividadeRecenteService atividadeRecenteService;
 
     // Rota EXATA que o Angular está chamando: GET /user/me
     @GetMapping("/me")
@@ -65,16 +68,27 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
-        User user = userService.getReference(id);
-        return ResponseEntity.ok(user);
-    }
-
     @PostMapping
     @Operation(summary = "Cria um usuário", description = "Cria um novo usuário com base nas informações fornecidas")
     public ResponseEntity<Void> save(@RequestBody @Valid UserInput input) {
         userService.save(input);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/atividades-recentes")
+    public ResponseEntity<List<AtividadeRecenteOutput>> buscarAtividadesRecentes() {
+        List<AtividadeRecenteOutput> atividades =  atividadeRecenteService.buscarRecentes();
+        return ResponseEntity.ok(atividades);
+    }
+
+    @PatchMapping("/me/deactivate")
+    public ResponseEntity<Void> desativarConta() {
+        boolean deactivated = userService.deactivateAccount();
+
+        if (deactivated) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }

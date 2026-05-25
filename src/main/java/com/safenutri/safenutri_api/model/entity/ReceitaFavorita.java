@@ -14,7 +14,6 @@ import lombok.Setter;
 @Setter 
 @NoArgsConstructor
 public class ReceitaFavorita {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "favorita_generator")
     @SequenceGenerator(
@@ -35,6 +34,11 @@ public class ReceitaFavorita {
 
     @Column(name = "created", insertable = false, updatable = false)
     private LocalDateTime created;
+
+    @PrePersist
+    public void onCreate() {
+        this.created = LocalDateTime.now();
+    }
 
     public ReceitaFavorita(User user, Receita receita) {
         this.user = user;

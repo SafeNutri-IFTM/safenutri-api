@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.safenutri.safenutri_api.model.output.*;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -24,25 +26,26 @@ import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.model.entity.ModoPreparo;
 import com.safenutri.safenutri_api.model.entity.Receita;
 import com.safenutri.safenutri_api.model.entity.ReceitaAvaliacao;
+import com.safenutri.safenutri_api.model.entity.ReceitaDenuncia;
 import com.safenutri.safenutri_api.model.entity.ReceitaFavorita;
 import com.safenutri.safenutri_api.model.entity.ReceitaRestricao;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
+import com.safenutri.safenutri_api.model.entity.StatusDenuncia;
 import com.safenutri.safenutri_api.model.entity.TipoReceita;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.ModoPreparoInput;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
-import com.safenutri.safenutri_api.model.output.ModoPreparoOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaDetalheOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaRestricaoOutput;
 
 import com.safenutri.safenutri_api.repository.ModoPreparoRepository;
 import com.safenutri.safenutri_api.repository.ReceitaAvaliacaoRepository;
+import com.safenutri.safenutri_api.repository.ReceitaDenunciaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaFavoritaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRestricaoRepository;
 import com.safenutri.safenutri_api.repository.UserRepository;
+import com.safenutri.safenutri_api.repository.NutricionistaRepository;
+import com.safenutri.safenutri_api.repository.StatusDenunciaRepository;
+import com.safenutri.safenutri_api.model.entity.Nutricionista;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +53,7 @@ public class ReceitaService {
     private final ReceitaRepository receitaRepository;
     private final ModoPreparoRepository modoPreparoRepository;
     private final ReceitaRestricaoRepository receitaRestricaoRepository;
+    private final ReceitaDenunciaRepository receitaDenunciaRepository;
     private final UploadService uploadService;
     private final TipoReceitaService tipoReceitaService;
     private final UserService userService;
@@ -64,6 +68,8 @@ public class ReceitaService {
     private final UserRepository userRepository;
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
     private final ReceitaFavoritaRepository receitaFavoritaRepository;
+    private final NutricionistaRepository nutricionistaRepository;
+    private final StatusDenunciaRepository statusDenunciaRepository;
 
     @Value("${filediretorioReceita}")
     private String directoryReceita;
@@ -214,16 +220,17 @@ public class ReceitaService {
         }
     }
 
-    public void desativar(Long id) {
+    public void alternarStatus(Long id) {
         Receita receita = findById(id);
-        receita.setActivated(false);
+        receita.setActivated(!receita.getActivated());
         receitaRepository.save(receita);
     }
 
-    public Page<ReceitaCardOutput> getMinhasReceitas(String termo, int page, int size) {
+    public Page<ReceitaCardOutput> getMinhasReceitas(String termo, Long tipoReceitaId, Boolean activated, int page, int size) {
         Long userId = jwtService.getIdUsuario();
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, userId, pageable);
+
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, tipoReceitaId, activated, userId, pageable);
 
         return rcoPage.map(r -> {
             String tempoFormato = formatarTempo(r.getTempo());
@@ -309,8 +316,7 @@ public class ReceitaService {
     }
 
     public ReceitaDetalheOutput findDetalheById(Long id) {
-        Receita receita = receitaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        ReceitaOutput receita = receitaRepository.findReceita(id);
         List<ModoPreparoOutput> passos = modoPreparoService.findByReceitaId(id);
         List<ReceitaRestricaoOutput> restricoes = receitaRestricaoService.findByReceitaId(id);
 
@@ -370,6 +376,14 @@ public class ReceitaService {
                             map.put("nota", aval.getQntdEstrela());
                             map.put("comentario", aval.getDescricao());
                             map.put("avatar", null); 
+                            
+                            Optional<Nutricionista> nutricionista = nutricionistaRepository.findByUserId(aval.getUser().getId());
+                            if (nutricionista.isPresent()) {
+                                map.put("nutricionistaId", nutricionista.get().getId());
+                            } else {
+                                map.put("nutricionistaId", 1L); // fallback seguro se o usuário não tiver nutricionista
+                            }
+                            
                             avaliacoesNutri.add(map);
                         }
                     } else {
@@ -469,5 +483,37 @@ public class ReceitaService {
         }
 
         receitaFavoritaRepository.deleteByUserIdAndReceitaId(userId, receitaId);
+    }
+
+    public void denunciar(Long receitaId, String emailUsuario, String motivo) {
+        // 1. Busca o utilizador logado que disparou a denúncia
+        User user = userRepository.findByEmail(emailUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuário logado não encontrado."));
+
+        // 2. Busca a receita que está a ser denunciada
+        Receita receita = receitaRepository.findById(receitaId)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada."));
+
+        // 3. Cria e popula a entidade de denúncia
+        ReceitaDenuncia denuncia = new ReceitaDenuncia();
+        denuncia.setReceita(receita);
+        denuncia.setUser(user);
+        
+        // AQUI ESTÁ A CORREÇÃO DO ERRO NO VS CODE
+        denuncia.setDescricao(motivo); 
+
+        // Tenta buscar o status 1. Se não existir, ele cria, salva no banco e depois usa.
+        StatusDenuncia statusPendente = statusDenunciaRepository.findById(1L)
+                .orElseGet(() -> {
+                    StatusDenuncia novoStatus = new StatusDenuncia();
+                    // novoStatus.setId(1L); // Descomente se o ID não for auto-incremento
+                    novoStatus.setStatus("PENDENTE");
+                    return statusDenunciaRepository.save(novoStatus);
+                });
+        
+        denuncia.setStatus(statusPendente);
+
+        // 4. Salva na base de dados
+        receitaDenunciaRepository.save(denuncia);
     }
 }
