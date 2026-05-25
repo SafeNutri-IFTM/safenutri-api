@@ -12,6 +12,6 @@ import com.safenutri.safenutri_api.model.entity.RestricaoPessoal;
 @Repository
 public interface RestricaoPessoalRepository extends JpaRepository<RestricaoPessoal, Long> {
 
-    @Query("SELECT rp FROM RestricaoPessoal rp WHERE rp.user.id = :userId AND rp.activated = TRUE")
+    @Query("SELECT rp FROM RestricaoPessoal rp WHERE rp.user.id = :userId")
     List<RestricaoPessoal> findByActivated(@Param("userId") Long userId);
 }
