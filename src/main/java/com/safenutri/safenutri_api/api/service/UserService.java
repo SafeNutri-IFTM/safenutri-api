@@ -26,6 +26,7 @@ import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
 import com.safenutri.safenutri_api.model.entity.AceitoTermos;
 import com.safenutri.safenutri_api.model.entity.DocumentosLegais;
 import com.safenutri.safenutri_api.model.entity.Genero;
+import com.safenutri.safenutri_api.model.entity.Nutricionista;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.entity.Role;
 import com.safenutri.safenutri_api.model.entity.User;
@@ -109,11 +110,11 @@ public class UserService implements UserDetailsService {
         }
 
         if ("NUTRICIONISTA".equals(user.getRole().getRole()) && userInput.getSobreMim() != null) {
-            com.safenutri.safenutri_api.model.entity.Nutricionista nutricionista = nutricionistaRepository
+            Optional<Nutricionista> nutricionista = nutricionistaRepository
                     .findByUserId(user.getId());
-            if (nutricionista != null) {
-                nutricionista.setDescPerfil(userInput.getSobreMim());
-                nutricionistaRepository.save(nutricionista);
+            if (nutricionista.isPresent()) {
+                nutricionista.get().setDescPerfil(userInput.getSobreMim());
+                nutricionistaRepository.save(nutricionista.get());
             }
         }
 
