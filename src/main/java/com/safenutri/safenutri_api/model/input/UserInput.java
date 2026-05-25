@@ -20,8 +20,6 @@ public class UserInput {
     @Positive
     private Long genero;
 
-    @NotNull
-    @Positive
     private Long role;
 
     @NotBlank
@@ -31,14 +29,11 @@ public class UserInput {
     @Email
     private String email;
 
-    @NotBlank
     private String senha;
 
-    @NotNull
     private LocalDate dtNascimento;
 
-    @NotNull
-    private List<@Positive Long> restricoes;
+    private List<Long> restricoes;
 
     private String sobreMim;
 }
