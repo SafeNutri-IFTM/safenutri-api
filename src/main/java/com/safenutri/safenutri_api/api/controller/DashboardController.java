@@ -2,6 +2,8 @@ package com.safenutri.safenutri_api.api.controller;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -12,8 +14,6 @@ import com.safenutri.safenutri_api.api.service.DashboardService;
 import com.safenutri.safenutri_api.api.service.JwtService;
 import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
-
-import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequiredArgsConstructor

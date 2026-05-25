@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import com.safenutri.safenutri_api.exception.EmailAlreadyExistsException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
+
 import com.safenutri.safenutri_api.model.entity.AceitoTermos;
 import com.safenutri.safenutri_api.model.entity.DocumentosLegais;
 import com.safenutri.safenutri_api.model.entity.Genero;
@@ -35,6 +36,7 @@ import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EmailOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
+
 import com.safenutri.safenutri_api.repository.UserRepository;
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 import com.safenutri.safenutri_api.repository.NutricionistaRepository;

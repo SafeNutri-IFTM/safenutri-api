@@ -1,10 +1,14 @@
 package com.safenutri.safenutri_api.api.service;
 
-import com.safenutri.safenutri_api.repository.UserRepository;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.core.utils.CrnValidation;
@@ -19,17 +23,14 @@ import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EstatisticasNutricionistaOutput;
 import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
+
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 import com.safenutri.safenutri_api.repository.NutricionistaRepository;
 import com.safenutri.safenutri_api.repository.PacienteRepository;
 import com.safenutri.safenutri_api.repository.ReceitaAvaliacaoRepository;
 import com.safenutri.safenutri_api.repository.ReceitaFavoritaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
-import org.springframework.data.domain.PageRequest;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
+import com.safenutri.safenutri_api.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor

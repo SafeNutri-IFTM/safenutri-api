@@ -1,10 +1,12 @@
 package com.safenutri.safenutri_api.api.controller;
 
 import java.security.Principal;
-import java.util.Map; // Importação necessária
+import java.util.Map;
 
 import jakarta.validation.Valid;
+
 import io.swagger.v3.oas.annotations.Operation;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;

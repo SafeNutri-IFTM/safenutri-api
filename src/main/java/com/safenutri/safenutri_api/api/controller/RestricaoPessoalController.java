@@ -2,7 +2,6 @@ package com.safenutri.safenutri_api.api.controller;
 
 import java.util.List;
 
-import com.safenutri.safenutri_api.model.entity.RestricaoPessoal;
 import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
@@ -12,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.api.service.RestricaoPessoalService;
+import com.safenutri.safenutri_api.model.entity.RestricaoPessoal;
 import com.safenutri.safenutri_api.model.input.RestricaoAlimentarInput;
 
 @RestController

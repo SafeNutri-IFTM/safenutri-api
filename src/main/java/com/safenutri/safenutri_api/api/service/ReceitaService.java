@@ -7,9 +7,7 @@ import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import com.safenutri.safenutri_api.model.output.*;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +33,7 @@ import com.safenutri.safenutri_api.model.entity.TipoReceita;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.ModoPreparoInput;
 import com.safenutri.safenutri_api.model.input.ReceitaInput;
+import com.safenutri.safenutri_api.model.output.*;
 
 import com.safenutri.safenutri_api.repository.ModoPreparoRepository;
 import com.safenutri.safenutri_api.repository.ReceitaAvaliacaoRepository;

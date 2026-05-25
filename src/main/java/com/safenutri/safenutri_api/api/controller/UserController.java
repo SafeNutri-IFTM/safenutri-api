@@ -1,15 +1,12 @@
 package com.safenutri.safenutri_api.api.controller;
 
-import com.safenutri.safenutri_api.api.service.AtividadeRecenteService;
-import com.safenutri.safenutri_api.model.output.AtividadeRecenteOutput;
+import java.util.List;
+
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
-
-import java.security.Principal;
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
-import com.safenutri.safenutri_api.model.entity.User;
-import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
+import com.safenutri.safenutri_api.model.output.AtividadeRecenteOutput;
+
+import com.safenutri.safenutri_api.api.service.AtividadeRecenteService;
 import com.safenutri.safenutri_api.api.service.JwtService;
 import com.safenutri.safenutri_api.api.service.UserRestricaoService;
 import com.safenutri.safenutri_api.api.service.UserService;
