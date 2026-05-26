@@ -20,17 +20,17 @@ import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput
 public class NutricionistaController {
     private final NutricionistaService nutricionistaService;
 
+    @GetMapping("/{id}/publico")
+    @Operation(summary = "Busca perfil público", description = "Retorna os dados públicos do perfil do nutricionista")
+    public ResponseEntity<PerfilNutricionistaPublicoOutput> getPerfilPublico(@PathVariable Long id) {
+        return ResponseEntity.ok(nutricionistaService.getPerfilPublico(id));
+    }
+
     @PostMapping
     @Operation(summary = "Cria um nutricionista", description = "Cria um novo nutricionista com base nas informações fornecidas")
     public ResponseEntity<Void> save(@Valid @RequestBody NutricionistaInput nutricionistaInput) {
         nutricionistaService.save(nutricionistaInput);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @GetMapping("/{id}/publico")
-    @Operation(summary = "Busca perfil público", description = "Retorna os dados públicos do perfil do nutricionista")
-    public ResponseEntity<PerfilNutricionistaPublicoOutput> getPerfilPublico(@PathVariable Long id) {
-        return ResponseEntity.ok(nutricionistaService.getPerfilPublico(id));
     }
 
     @PatchMapping("/deactivate")

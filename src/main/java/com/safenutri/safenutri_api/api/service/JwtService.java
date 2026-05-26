@@ -26,13 +26,13 @@ import com.safenutri.safenutri_api.model.enums.RoleEnum;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
+    private final HttpServletRequest request;
+
     @Value("${security.jwt.expiration}")
     private String expiration;
 
     @Value("${security.jwt.key}")
     private String key;
-
-    private final HttpServletRequest request;
 
     // Converte a chave Base64 em Key segura
     private Key getKey() {

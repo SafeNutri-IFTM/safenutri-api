@@ -27,16 +27,49 @@ import com.safenutri.safenutri_api.model.output.Token;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 @RequestMapping("/auth")
 public class AuthController {
-
-    private final UserService userService;
     private final JwtService jwtService;
     private final NutricionistaService nutricionistaService;
+    private final UserService userService;
 
     @Value("${urlFrontend}")
     private String urlFrontend;
+
+    @GetMapping("/claims")
+    @Operation(summary = "Retornar claims usados para criar o token")
+    public ResponseEntity<Claims> obterClaims() {
+        try {
+            String token = jwtService.recuperarTokenDoHeader();
+            return ResponseEntity.ok(jwtService.obterClaims(token));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @GetMapping("/oauth2/success")
+    @Operation(summary = "Lida com o redirecionamento de sucesso do Google OAuth2")
+    public ResponseEntity<?> loginGoogle(@RequestAttribute("userGoogle") OAuth2User userGoogle) {
+        String email = userGoogle.getAttribute("email");
+        String nome = userGoogle.getAttribute("name");
+
+        try {
+            User user = userService.loginGoogle(email, nome);
+            String token = jwtService.gerarToken(user);
+            String url = urlFrontend + "/login?token=" + token;
+
+            return ResponseEntity.status(302).header("Location", url).build();
+
+        } catch (RuntimeException e) {
+            if ("USUARIO_NAO_ENCONTRADO_GOOGLE".equals(e.getMessage())) {
+                String url = urlFrontend + "/login?register_google=true&email=" + email + "&nome=" + nome;
+                return ResponseEntity.status(302).header("Location", url).build();
+            }
+
+            String errorUrl = urlFrontend + "/login?error=email_exists_local";
+            return ResponseEntity.status(302).header("Location", errorUrl).build();
+        }
+    }
 
     @PostMapping("/login")
     @Operation(summary = "Valida as credenciais do usuário para entrar no sistema")
@@ -55,17 +88,6 @@ public class AuthController {
     public boolean verifyToken() {
         String tokenLimpo = jwtService.recuperarTokenDoHeader();
         return jwtService.tokenValido(tokenLimpo);
-    }
-
-    @GetMapping("/claims")
-    @Operation(summary = "Retornar claims usados para criar o token")
-    public ResponseEntity<Claims> obterClaims() {
-        try {
-            String token = jwtService.recuperarTokenDoHeader();
-            return ResponseEntity.ok(jwtService.obterClaims(token));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido ou ausente");
-        }
     }
 
     @PostMapping("/recuperarSenha/{email}")
@@ -101,30 +123,6 @@ public class AuthController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/oauth2/success")
-    @Operation(summary = "Lida com o redirecionamento de sucesso do Google OAuth2")
-    public ResponseEntity<?> loginGoogle(@RequestAttribute("userGoogle") OAuth2User userGoogle) {
-        String email = userGoogle.getAttribute("email");
-        String nome = userGoogle.getAttribute("name");
-
-        try {
-            User user = userService.loginGoogle(email, nome);
-            String token = jwtService.gerarToken(user);
-            String url = urlFrontend + "/login?token=" + token;
-
-            return ResponseEntity.status(302).header("Location", url).build();
-
-        } catch (RuntimeException e) {
-            if ("USUARIO_NAO_ENCONTRADO_GOOGLE".equals(e.getMessage())) {
-                String url = urlFrontend + "/login?register_google=true&email=" + email + "&nome=" + nome;
-                return ResponseEntity.status(302).header("Location", url).build();
-            }
-
-            String errorUrl = urlFrontend + "/login?error=email_exists_local";
-            return ResponseEntity.status(302).header("Location", errorUrl).build();
         }
     }
 

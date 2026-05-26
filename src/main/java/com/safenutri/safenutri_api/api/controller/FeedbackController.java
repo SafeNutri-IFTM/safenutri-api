@@ -19,9 +19,7 @@ import com.safenutri.safenutri_api.model.input.FeedbackInput;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/feedback")
-@CrossOrigin("*")
 public class FeedbackController {
-
     private final FeedbackService feedbackService;
 
     @PostMapping
@@ -30,7 +28,7 @@ public class FeedbackController {
         try {
             // O principal.getName() trará o e-mail do usuário autenticado no Spring Security
             feedbackService.salvar(input.getDescricao(), principal.getName());
-            
+
             // Retornamos um JSON explícito. Isso evita o erro de "Unexpected end of JSON" no Angular
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Feedback enviado com sucesso!"));
         } catch (Exception e) {

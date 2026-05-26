@@ -29,43 +29,9 @@ import com.safenutri.safenutri_api.model.input.ReceitaDenunciaInput;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/receita")
-@CrossOrigin("*")
 public class ReceitaController {
     private final ReceitaService receitaService;
     private final UploadService uploadService;
-
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    @Operation(summary = "Cria uma receita", description = "Cria uma nova receita com base nas informações fornecidas")
-    public ResponseEntity<?> save(@RequestPart("receita") @Valid ReceitaInput receitaInput,
-            @RequestPart(value = "imagem", required = false) MultipartFile imagem) {
-
-        try {
-            receitaInput.setImagem(imagem);
-            receitaService.save(receitaInput);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"Erro ao salvar Receita: " + e.getMessage() + "\"}");
-        }
-    }
-
-    @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    @Operation(summary = "Atualiza uma receita", description = "Atualiza uma receita com base nas informações fornecidas")
-    public ResponseEntity<?> update(@RequestPart("receita") @Valid ReceitaInput receitaInput,
-            @RequestPart(value = "imagem", required = false) MultipartFile imagem,
-            @PathVariable Long id) {
-
-        try {
-            receitaInput.setImagem(imagem);
-            receitaService.update(receitaInput, id);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"Erro ao salvar Receita: " + e.getMessage() + "\"}");
-        }
-    }
 
     @GetMapping("/minhas-receitas")
     public ResponseEntity<Page<ReceitaCardOutput>> getMinhasReceitas(
@@ -87,18 +53,6 @@ public class ReceitaController {
             return ResponseEntity.ok(receita);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @DeleteMapping("/{id}/status")
-    @Operation(summary = "Alterna o status de uma receita", description = "Realiza a desativação e ativação na lógica da receita")
-    public ResponseEntity<?> alternarStatus(@PathVariable Long id) {
-        try {
-            receitaService.alternarStatus(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"Erro ao desativar receita: " + e.getMessage() + "\"}");
         }
     }
 
@@ -129,9 +83,6 @@ public class ReceitaController {
         }
     }
 
-    // ==========================================
-    // ENDPOINTS DE AVALIAÇÃO (NOSSOS)
-    // ==========================================
     @GetMapping("/receita-completa/{id}")
     @Operation(summary = "Busca os detalhes completos de uma receita pelo ID (Receita, Passos e Restrições)")
     public ResponseEntity<?> getReceitaById(@PathVariable Long id) {
@@ -140,24 +91,7 @@ public class ReceitaController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("{\"error\": \"Receita não encontrada: " + e.getMessage() + "\"}");
-        }
-    }
-
-    @PostMapping("/{id}/avaliar")
-    @Operation(summary = "Adiciona ou atualiza a avaliação do usuário logado para uma receita")
-    public ResponseEntity<?> avaliarReceita(
-            @PathVariable Long id, 
-            @RequestBody AvaliacaoInput input, 
-            java.security.Principal principal) {
-        
-        try {
-            String emailLogado = principal.getName();
-            receitaService.avaliar(id, emailLogado, input.getNota(), input.getComentario());
-            
-            return ResponseEntity.ok().body("{\"message\": \"Avaliação salva com sucesso!\"}");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
+                    .body("{\"error\": \"Receita não encontrada: " + e.getMessage() + "\"}");
         }
     }
 
@@ -166,7 +100,7 @@ public class ReceitaController {
     public ResponseEntity<?> getMinhaAvaliacao(@PathVariable Long id, java.security.Principal principal) {
         try {
             Map<String, Object> avaliacao = receitaService.getMinhaAvaliacao(id, principal.getName());
-            
+
             if (avaliacao != null) {
                 return ResponseEntity.ok(avaliacao);
             }
@@ -176,9 +110,49 @@ public class ReceitaController {
         }
     }
 
-    // ==========================================
-    // ENDPOINTS DE FAVORITOS (BRANCH DEV)
-    // ==========================================
+    @GetMapping("/favoritas")
+    @Operation(summary = "Lista receitas favoritas", description = "Retorna a página de receitas que o usuário logado favoritou")
+    public ResponseEntity<Page<ReceitaCardOutput>> getFavoritas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "") String termo) {
+        Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(page, size, termo);
+        return ResponseEntity.ok(favoritas);
+    }
+
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @Operation(summary = "Cria uma receita", description = "Cria uma nova receita com base nas informações fornecidas")
+    public ResponseEntity<?> save(@RequestPart("receita") @Valid ReceitaInput receitaInput,
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem) {
+
+        try {
+            receitaInput.setImagem(imagem);
+            receitaService.save(receitaInput);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"Erro ao salvar Receita: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @PostMapping("/{id}/avaliar")
+    @Operation(summary = "Adiciona ou atualiza a avaliação do usuário logado para uma receita")
+    public ResponseEntity<?> avaliarReceita(
+            @PathVariable Long id,
+            @RequestBody AvaliacaoInput input,
+            java.security.Principal principal) {
+
+        try {
+            String emailLogado = principal.getName();
+            receitaService.avaliar(id, emailLogado, input.getNota(), input.getComentario());
+
+            return ResponseEntity.ok().body("{\"message\": \"Avaliação salva com sucesso!\"}");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
     @PostMapping("/{id}/favoritar")
     @Operation(summary = "Favorita uma receita", description = "Adiciona a receita a lista de receitas favoritas do usuário logado")
     public ResponseEntity<?> favoritar(@PathVariable Long id) {
@@ -188,6 +162,55 @@ public class ReceitaController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"error\": \"Erro ao favoritar receita: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @PostMapping("/{id}/denunciar")
+    @Operation(summary = "Denuncia uma receita", description = "Cria uma denúncia/reporte para uma receita específica associada ao usuário autenticado")
+    public ResponseEntity<?> denunciarReceita(
+            @PathVariable Long id,
+            @RequestBody @Valid ReceitaDenunciaInput input,
+            java.security.Principal principal) {
+        try {
+            // principal.getName() captura o e-mail do usuário autenticado no token JWT
+            receitaService.denunciar(id, principal.getName(), input.getMotivo());
+
+            // Retorna um JSON legível para o HttpClient do Angular não quebrar o parse
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("message", "Receita reportada com sucesso!"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Erro ao processar denúncia: " + e.getMessage()));
+        }
+    }
+
+    @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @Operation(summary = "Atualiza uma receita", description = "Atualiza uma receita com base nas informações fornecidas")
+    public ResponseEntity<?> update(@RequestPart("receita") @Valid ReceitaInput receitaInput,
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem,
+            @PathVariable Long id) {
+
+        try {
+            receitaInput.setImagem(imagem);
+            receitaService.update(receitaInput, id);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"Erro ao salvar Receita: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @DeleteMapping("/{id}/status")
+    @Operation(summary = "Alterna o status de uma receita", description = "Realiza a desativação e ativação na lógica da receita")
+    public ResponseEntity<?> alternarStatus(@PathVariable Long id) {
+        try {
+            receitaService.alternarStatus(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"Erro ao desativar receita: " + e.getMessage() + "\"}");
         }
     }
 
@@ -204,33 +227,4 @@ public class ReceitaController {
         }
     }
 
-    @GetMapping("/favoritas")
-    @Operation(summary = "Lista receitas favoritas", description = "Retorna a página de receitas que o usuário logado favoritou")
-    public ResponseEntity<Page<ReceitaCardOutput>> getFavoritas(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false, defaultValue = "") String termo) {
-        Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(page, size, termo);
-        return ResponseEntity.ok(favoritas);
-    }
-
-    @PostMapping("/{id}/denunciar")
-    @Operation(summary = "Denuncia uma receita", description = "Cria uma denúncia/reporte para uma receita específica associada ao usuário autenticado")
-    public ResponseEntity<?> denunciarReceita(
-            @PathVariable Long id,
-            @RequestBody @Valid ReceitaDenunciaInput input,
-            java.security.Principal principal) {
-        try {
-            // principal.getName() captura o e-mail do usuário autenticado no token JWT
-            receitaService.denunciar(id, principal.getName(), input.getMotivo());
-            
-            // Retorna um JSON legível para o HttpClient do Angular não quebrar o parse
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("message", "Receita reportada com sucesso!"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Erro ao processar denúncia: " + e.getMessage()));
-        }
-    }
 }

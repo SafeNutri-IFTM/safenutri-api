@@ -32,38 +32,23 @@ public class UserController {
     private final UserRestricaoService userRestricaoService;
     private final AtividadeRecenteService atividadeRecenteService;
 
-    // Rota EXATA que o Angular está chamando: GET /user/me
-    @GetMapping("/me")
-    public ResponseEntity<UserOutput> getProfile() {
+    @GetMapping("/perfil")
+    public ResponseEntity<UserOutput> getUserPerfil() {
         UserOutput userOutput = userService.getProfileInfos();
         return ResponseEntity.ok(userOutput);
     }
 
-    @PutMapping("/me")
-    public ResponseEntity<User> atualizarPerfil(@RequestBody @Valid UserInput input) {
-        User userAtualizado = userService.atualizarPerfil(input);
-        return ResponseEntity.ok(userAtualizado);
-    }
-
-    @GetMapping("/me/restricoes")
-    public ResponseEntity<List<RestricaoAlimentar>> getRestricoes() {
-
+    @GetMapping("/restricoes")
+    public ResponseEntity<List<RestricaoAlimentar>> listaUserRestricoes() {
         Long userId = jwtService.getIdUsuario();
-
         List<RestricaoAlimentar> restricoes = userRestricaoService.findRestricoesByUserId(userId);
-
         return ResponseEntity.ok(restricoes);
     }
 
-    @PutMapping("/me/remover-restricoes")
-    public ResponseEntity<Void> atualizarRestricoes(@RequestBody List<Long> restricoesIdList) {
-        Long userId = jwtService.getIdUsuario();
-
-        User user = userService.findById(userId);
-
-        userService.processarRestricoes(user, restricoesIdList);
-
-        return ResponseEntity.noContent().build();
+    @GetMapping("/atividades-recentes")
+    public ResponseEntity<List<AtividadeRecenteOutput>> listaUserAtividadesRecentes() {
+        List<AtividadeRecenteOutput> atividades =  atividadeRecenteService.buscarRecentes();
+        return ResponseEntity.ok(atividades);
     }
 
     @PostMapping
@@ -73,13 +58,21 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/atividades-recentes")
-    public ResponseEntity<List<AtividadeRecenteOutput>> buscarAtividadesRecentes() {
-        List<AtividadeRecenteOutput> atividades =  atividadeRecenteService.buscarRecentes();
-        return ResponseEntity.ok(atividades);
+    @PutMapping
+    public ResponseEntity<User> atualizarPerfil(@RequestBody @Valid UserInput input) {
+        User userAtualizado = userService.atualizarPerfil(input);
+        return ResponseEntity.ok(userAtualizado);
     }
 
-    @PatchMapping("/me/deactivate")
+    @PutMapping("/atualizar-restricoes")
+    public ResponseEntity<Void> atualizarRestricoes(@RequestBody List<Long> restricoesIdList) {
+        Long userId = jwtService.getIdUsuario();
+        User user = userService.findById(userId);
+        userService.processarRestricoes(user, restricoesIdList);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping
     public ResponseEntity<Void> desativarConta() {
         boolean deactivated = userService.deactivateAccount();
 
