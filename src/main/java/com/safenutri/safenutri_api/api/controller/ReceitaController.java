@@ -34,6 +34,7 @@ public class ReceitaController {
     private final UploadService uploadService;
 
     @GetMapping("/minhas-receitas")
+    @Operation(summary = "Busca as receitas cadastradas pelo usuário autenticado")
     public ResponseEntity<Page<ReceitaCardOutput>> getMinhasReceitas(
             @RequestParam(required = false) String termo,
             @RequestParam(required = false) Long tipoReceitaId,
@@ -46,7 +47,7 @@ public class ReceitaController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Busca detalhes de uma receita", description = "Retorna as informações completas de uma receita pelo ID")
+    @Operation(summary = "Busca as informações de uma receita pelo ID")
     public ResponseEntity<ReceitaDetalheOutput> buscarPorId(@PathVariable Long id) {
         try {
             ReceitaDetalheOutput receita = receitaService.findDetalheById(id);
@@ -57,7 +58,7 @@ public class ReceitaController {
     }
 
     @GetMapping("/download-image/{id}")
-    @Operation(summary = "Busca a imagem pelo ID da receita")
+    @Operation(summary = "Busca a imagem da receita pelo ID")
     public ResponseEntity<?> getImage(@PathVariable Long id) {
         try {
             Receita receita = receitaService.findById(id);

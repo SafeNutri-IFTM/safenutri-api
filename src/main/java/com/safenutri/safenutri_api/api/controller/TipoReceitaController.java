@@ -19,7 +19,7 @@ public class TipoReceitaController {
     private final TipoReceitaService tipoReceitaService;
 
     @GetMapping
-    @Operation(summary = "Busca todos os tipos de receitas", description = "Busca todos os tipos de receitas cadastrados")
+    @Operation(summary = "Busca todos os tipos de receitas cadastrados no sistema")
     public ResponseEntity<List<TipoReceita>> getAll() {
         List<TipoReceita> tiposReceitas = tipoReceitaService.getAll();
         return ResponseEntity.ok(tiposReceitas);

@@ -16,19 +16,19 @@ import com.safenutri.safenutri_api.model.input.RestricaoAlimentarInput;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/custom-restricao")
+@RequestMapping("/restricao-pessoal")
 public class RestricaoPessoalController {
     private final RestricaoPessoalService restricaoPessoalService;
 
     @GetMapping
-    @Operation(summary = "Busca todas as restrições ativas que foram aprovadas", description = "Busca todas as restrições alimentares que estão ativas e foram aprovadas")
+    @Operation(summary = "Busca todas as restrições pessoais do usuário autenticado")
     public ResponseEntity<List<RestricaoPessoal>> getAllActivated() {
         List<RestricaoPessoal> restricoes = restricaoPessoalService.getAllActivated();
         return ResponseEntity.ok(restricoes);
     }
 
     @PostMapping
-    @Operation(summary = "Cria uma nova restrição", description = "Cria uma nova restrição alimentar no banco de dados")
+    @Operation(summary = "Cria uma nova restrição que será visível apenas para o usuário logado")
     public ResponseEntity<Void> saveRestricaoAlimentar(@RequestBody RestricaoAlimentarInput restricaoAlimentarInput) {
         restricaoPessoalService.salvar(restricaoAlimentarInput);
         return ResponseEntity.status(HttpStatus.CREATED).build();

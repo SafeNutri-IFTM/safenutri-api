@@ -17,7 +17,6 @@ import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.model.output.AtividadeRecenteOutput;
-
 import com.safenutri.safenutri_api.api.service.AtividadeRecenteService;
 import com.safenutri.safenutri_api.api.service.JwtService;
 import com.safenutri.safenutri_api.api.service.UserRestricaoService;
@@ -32,13 +31,15 @@ public class UserController {
     private final UserRestricaoService userRestricaoService;
     private final AtividadeRecenteService atividadeRecenteService;
 
-    @GetMapping("/perfil")
+    @GetMapping
+    @Operation(summary = "Busca os dados do perfil do usuário autenticado")
     public ResponseEntity<UserOutput> getUserPerfil() {
         UserOutput userOutput = userService.getProfileInfos();
         return ResponseEntity.ok(userOutput);
     }
 
     @GetMapping("/restricoes")
+    @Operation(summary = "Busca as restrições alimentares do usuário autenticado")
     public ResponseEntity<List<RestricaoAlimentar>> listaUserRestricoes() {
         Long userId = jwtService.getIdUsuario();
         List<RestricaoAlimentar> restricoes = userRestricaoService.findRestricoesByUserId(userId);
@@ -46,25 +47,28 @@ public class UserController {
     }
 
     @GetMapping("/atividades-recentes")
+    @Operation(summary = "Busca as atividades recentes do usuário autenticado")
     public ResponseEntity<List<AtividadeRecenteOutput>> listaUserAtividadesRecentes() {
         List<AtividadeRecenteOutput> atividades =  atividadeRecenteService.buscarRecentes();
         return ResponseEntity.ok(atividades);
     }
 
     @PostMapping
-    @Operation(summary = "Cria um usuário", description = "Cria um novo usuário com base nas informações fornecidas")
+    @Operation(summary = "Cria um novo usuário")
     public ResponseEntity<Void> save(@RequestBody @Valid UserInput input) {
         userService.save(input);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping
+    @Operation(summary = "Atualiza os dados do perfil do usuário autenticado")
     public ResponseEntity<User> atualizarPerfil(@RequestBody @Valid UserInput input) {
         User userAtualizado = userService.atualizarPerfil(input);
         return ResponseEntity.ok(userAtualizado);
     }
 
     @PutMapping("/atualizar-restricoes")
+    @Operation(summary = "Atualiza as restrições alimentares do usuário autenticado")
     public ResponseEntity<Void> atualizarRestricoes(@RequestBody List<Long> restricoesIdList) {
         Long userId = jwtService.getIdUsuario();
         User user = userService.findById(userId);
@@ -72,7 +76,8 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping
+    @PatchMapping("/deactivate")
+    @Operation(summary = "Desativa a conta do usuário autenticado")
     public ResponseEntity<Void> desativarConta() {
         boolean deactivated = userService.deactivateAccount();
 
@@ -82,4 +87,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+//    @PatchMapping("/activate")
+//    @Operation(summary = "Ativa a conta do usuário autenticado")
+//    public ResponseEntity<Void> ativarConta() {
+//    }
+
 }
