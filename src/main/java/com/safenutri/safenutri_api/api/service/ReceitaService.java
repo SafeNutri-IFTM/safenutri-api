@@ -268,7 +268,15 @@ public class ReceitaService {
     public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size, String termo) {
         Pageable pageable = PageRequest.of(page, size);
         String termoBusca = (termo != null) ? termo : "";
-        return receitaRepository.findReceitasAvaliadasByUserId(userId, termoBusca, pageable);
+        Page<ReceitaCardOutput> rcoPage;
+
+        rcoPage = receitaRepository.findReceitasAvaliadasByUserId(userId, termoBusca, pageable);
+
+        return rcoPage.map(r -> {
+            String tempoFormato = formatarTempo(r.getTempo());
+            r.setTempoFormatado(tempoFormato);
+            return r;
+        });
     }
 
     public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
