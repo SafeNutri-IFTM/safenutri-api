@@ -252,7 +252,7 @@ public class ReceitaService {
         } else {
 
             if (!nutricionistaIds.isEmpty()) {
-                rcoPage = receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, qntd, nutricionistaIds, userId, pageable);
+                rcoPage = receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, nutricionistaIds, userId, pageable);
             } else {
                 rcoPage = receitaRepository.findByRestricoesId(restricoesIds, qntd, userId, pageable);
             }
@@ -279,15 +279,14 @@ public class ReceitaService {
         });
     }
 
-    public List<ReceitaCardOutput> findTop3Filtrado(Long userId) {
+    public List<ReceitaCardOutput> getTop3Filtrado(Long userId) {
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
-        Long qntd = (long) restricoesIds.size();
         List<ReceitaCardOutput> rcoList;
 
         if (restricoesIds.isEmpty()) {
             rcoList = receitaRepository.findTop3ReceitasForUserWithNoRestrictions(userId, PageRequest.of(0, 3));
         } else {
-            rcoList = receitaRepository.findTop3ByRestricoesIds(restricoesIds, qntd, userId, PageRequest.of(0, 3));
+            rcoList = receitaRepository.findTop3ByRestricoesIds(restricoesIds, userId, PageRequest.of(0, 3));
         }
 
         return rcoList.stream()
@@ -307,7 +306,7 @@ public class ReceitaService {
         return receitaRepository.countByNutricionistaIdAndGroupByRestricoes(nutricionistaId);
     }
 
-    public List<ReceitaCardOutput> findTop3() {
+    public List<ReceitaCardOutput> getTop3() {
         Long userId = jwtService.getIdUsuario();
         List<ReceitaCardOutput> rcoList;
 

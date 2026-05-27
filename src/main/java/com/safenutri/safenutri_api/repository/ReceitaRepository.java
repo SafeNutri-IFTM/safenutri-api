@@ -56,28 +56,28 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
         "HAVING COUNT(DISTINCT rr.restricao.id) = :qntdRestricoes " +
         "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
     )
-    Page<ReceitaCardOutput> findByRestricoesId(@Param("restricoesIds") List<Long> restricoesIds, 
+    Page<ReceitaCardOutput> findByRestricoesId(@Param("restricoesIds") List<Long> restricoesIds,
         @Param("qntdRestricoes") Long qntdRestricoes, @Param("userId") Long userId, Pageable pageable);
 
     //SQL PARA RECEITAS QUE ATENDEM AS RESTRIÇÕES DO USER LEVANDO EM CONSIDEDRAÇÃO QUE ELE É UM PACIENTE
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(r.id, tr.tipoReceita, "+
-        "r.titulo, r.descricao, r.tempoPreparo, r.calorias, COALESCE(AVG(ra.qntdEstrela), 0.0), " +
-        "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
-        "FROM Receita r " +
-        "JOIN Nutricionista n ON n.user.id = r.user.id " +
-        "JOIN r.tipoReceita tr " + 
-        "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
-        "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
-        "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
-        "WHERE rr.restricao.id IN :restricoesIds AND r.publicBoolean = TRUE AND r.activated = TRUE " +
-        "GROUP BY r.id, r.user.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
-        "HAVING COUNT(DISTINCT rr.restricao.id) = :qntdRestricoes " +
-        "ORDER BY (CASE WHEN r.user.id IN :nutriIds THEN 0 ELSE 1 END) ASC, " +
-        "COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
+            "r.titulo, r.descricao, r.tempoPreparo, r.calorias, COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+            "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
+            "FROM Receita r " +
+            "JOIN Nutricionista n ON n.user.id = r.user.id " +
+            "JOIN r.tipoReceita tr " +
+            "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+            "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
+            "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
+            "WHERE rr.restricao.id IN :restricoesIds " +
+            "AND r.publicBoolean = TRUE " +
+            "AND r.activated = TRUE " +
+            "GROUP BY r.id, r.user.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
+            "ORDER BY (CASE WHEN r.user.id IN :nutriIds THEN 0 ELSE 1 END) ASC, " +
+            "COALESCE(AVG(ra.qntdEstrela), 0.0) DESC"
     )
     Page<ReceitaCardOutput> findByRestricoesIdAndNutricionistaId(
-        @Param("restricoesIds") List<Long> restricoesIds, 
-        @Param("qntdRestricoes") Long qntdRestricoes, 
+        @Param("restricoesIds") List<Long> restricoesIds,
         @Param("nutriIds") List<Long> nutriIds, 
         @Param("userId") Long userId, 
         Pageable pageable);
@@ -109,12 +109,10 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
         "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
         "WHERE rr.restricao.id IN :restricoesIds AND r.publicBoolean = TRUE AND r.activated = TRUE " +
         "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
-        "HAVING COUNT(DISTINCT rr.restricao.id) = :qntdRestricoes " + 
         "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC "
     )
     List<ReceitaCardOutput> findTop3ByRestricoesIds(
-        @Param("restricoesIds") List<Long> restricoesIds, 
-        @Param("qntdRestricoes") Long qntdRestricoes,
+        @Param("restricoesIds") List<Long> restricoesIds,
         @Param("userId") Long userId,
         Pageable pageable
     );
