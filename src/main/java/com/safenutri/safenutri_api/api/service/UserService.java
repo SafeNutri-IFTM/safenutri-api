@@ -20,10 +20,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.safenutri.safenutri_api.core.security.JwtService;
+import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.exception.UserNotFoundException;
 import com.safenutri.safenutri_api.exception.EmailAlreadyExistsException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
-
 import com.safenutri.safenutri_api.model.entity.AceitoTermos;
 import com.safenutri.safenutri_api.model.entity.DocumentosLegais;
 import com.safenutri.safenutri_api.model.entity.Genero;
@@ -36,7 +38,6 @@ import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EmailOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
-
 import com.safenutri.safenutri_api.repository.UserRepository;
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 import com.safenutri.safenutri_api.repository.NutricionistaRepository;
@@ -57,7 +58,7 @@ public class UserService implements UserDetailsService {
     private final JwtService jwtService;
 
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
     }
 
     @Transactional
@@ -172,13 +173,15 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Usuário desativado.");
         }
 
-        String roleNome = user.getRole().getRole();
+//        String roleNome = user.getRole().getRole();
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getSenha() != null ? user.getSenha() : "")
-                .roles(roleNome)
-                .build();
+        return new UserPrincipal(user);
+
+//        return org.springframework.security.core.userdetails.User.builder()
+//                .username(user.getEmail())
+//                .password(user.getSenha() != null ? user.getSenha() : "")
+//                .roles(roleNome)
+//                .build();
     }
 
     public User getReference(Long id) {

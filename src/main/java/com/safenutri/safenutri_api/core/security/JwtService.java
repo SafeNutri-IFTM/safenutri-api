@@ -1,4 +1,4 @@
-package com.safenutri.safenutri_api.api.service;
+package com.safenutri.safenutri_api.core.security;
 
 import java.security.Key;
 import java.time.LocalDateTime;

@@ -18,7 +18,7 @@ import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.model.output.AtividadeRecenteOutput;
 import com.safenutri.safenutri_api.api.service.AtividadeRecenteService;
-import com.safenutri.safenutri_api.api.service.JwtService;
+import com.safenutri.safenutri_api.core.security.JwtService;
 import com.safenutri.safenutri_api.api.service.UserRestricaoService;
 import com.safenutri.safenutri_api.api.service.UserService;
 

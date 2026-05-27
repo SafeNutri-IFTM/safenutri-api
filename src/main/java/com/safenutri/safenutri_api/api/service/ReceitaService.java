@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.safenutri.safenutri_api.core.security.JwtService;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -241,7 +242,6 @@ public class ReceitaService {
     public Page<ReceitaCardOutput> findReceitasByRestricoesId(Long userId, int page, int size) {
         User user = userService.findById(userId);
         List<Long> restricoesIds = userRestricaoService.findAllByUserId(userId);
-        Long qntd = (long) restricoesIds.size();
         Pageable pageable = PageRequest.of(page, size);
 
         List<Long> nutricionistaIds = pacienteService.findNutricionistaIdByUserId(user.getId());
@@ -254,7 +254,7 @@ public class ReceitaService {
             if (!nutricionistaIds.isEmpty()) {
                 rcoPage = receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, nutricionistaIds, userId, pageable);
             } else {
-                rcoPage = receitaRepository.findByRestricoesId(restricoesIds, qntd, userId, pageable);
+                rcoPage = receitaRepository.findByRestricoesId(restricoesIds, userId, pageable);
             }
         }
 

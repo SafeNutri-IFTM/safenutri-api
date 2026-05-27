@@ -29,7 +29,7 @@ public class DashboardService {
     }
 
     public List<ReceitaCardOutput> getTop3ReceitasFiltradas(Long userId) {
-        return receitaService.findTop3Filtrado(userId);
+        return receitaService.getTop3Filtrado(userId);
     }
 
     public Long countPacientes(Long nutricionistaId) {
@@ -45,6 +45,6 @@ public class DashboardService {
     }
 
     public List<ReceitaCardOutput> getTop3GeralReceitas() {
-        return receitaService.findTop3();
+        return receitaService.getTop3();
     }
 }

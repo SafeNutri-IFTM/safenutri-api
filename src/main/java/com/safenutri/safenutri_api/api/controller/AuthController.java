@@ -7,7 +7,6 @@ import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.safenutri.safenutri_api.api.service.JwtService;
+import com.safenutri.safenutri_api.core.security.JwtService;
 import com.safenutri.safenutri_api.api.service.UserService;
 import com.safenutri.safenutri_api.api.service.NutricionistaService;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;

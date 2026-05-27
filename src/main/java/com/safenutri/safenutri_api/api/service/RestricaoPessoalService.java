@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.api.service;
 
 import java.util.List;
 
+import com.safenutri.safenutri_api.core.security.JwtService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
