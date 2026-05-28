@@ -14,9 +14,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.safenutri.safenutri_api.core.security.UserPrincipal;
 import com.safenutri.safenutri_api.api.service.ReceitaService;
 import com.safenutri.safenutri_api.api.service.UploadService;
 import com.safenutri.safenutri_api.model.entity.Receita;
@@ -36,13 +38,14 @@ public class ReceitaController {
     @GetMapping("/minhas-receitas")
     @Operation(summary = "Busca as receitas cadastradas pelo usuário autenticado")
     public ResponseEntity<Page<ReceitaCardOutput>> getMinhasReceitas(
+            @AuthenticationPrincipal UserPrincipal user,
             @RequestParam(required = false) String termo,
             @RequestParam(required = false) Long tipoReceitaId,
             @RequestParam(required = false, defaultValue = "true") Boolean activated,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<ReceitaCardOutput> receita = receitaService.getMinhasReceitas(termo, tipoReceitaId, activated, page, size);
+        Page<ReceitaCardOutput> receita = receitaService.getMinhasReceitas(user.getId(), termo, tipoReceitaId, activated, page, size);
         return ResponseEntity.ok(receita);
     }
 
@@ -98,9 +101,12 @@ public class ReceitaController {
 
     @GetMapping("/{id}/minha-avaliacao")
     @Operation(summary = "Busca a avaliação do usuário logado para uma receita específica")
-    public ResponseEntity<?> getMinhaAvaliacao(@PathVariable Long id, java.security.Principal principal) {
+    public ResponseEntity<?> getMinhaAvaliacao(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id
+    ) {
         try {
-            Map<String, Object> avaliacao = receitaService.getMinhaAvaliacao(id, principal.getName());
+            Map<String, Object> avaliacao = receitaService.getMinhaAvaliacao(id, user.getId());
 
             if (avaliacao != null) {
                 return ResponseEntity.ok(avaliacao);
@@ -114,23 +120,27 @@ public class ReceitaController {
     @GetMapping("/favoritas")
     @Operation(summary = "Lista receitas favoritas", description = "Retorna a página de receitas que o usuário logado favoritou")
     public ResponseEntity<Page<ReceitaCardOutput>> getFavoritas(
+            @AuthenticationPrincipal UserPrincipal user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false, defaultValue = "") String termo) {
-        Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(page, size, termo);
+            @RequestParam(required = false, defaultValue = "") String termo
+    ) {
+        Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(user.getId(), page, size, termo);
         return ResponseEntity.ok(favoritas);
     }
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @Operation(summary = "Cria uma receita", description = "Cria uma nova receita com base nas informações fornecidas")
-    public ResponseEntity<?> save(@RequestPart("receita") @Valid ReceitaInput receitaInput,
-            @RequestPart(value = "imagem", required = false) MultipartFile imagem) {
-
+    public ResponseEntity<?> save(
+            @AuthenticationPrincipal UserPrincipal user,
+            @RequestPart("receita") @Valid ReceitaInput receitaInput,
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem
+    ) {
         try {
             receitaInput.setImagem(imagem);
-            receitaService.save(receitaInput);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            receitaService.save(user.getId(), receitaInput);
 
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\": \"Erro ao salvar Receita: " + e.getMessage() + "\"}");
@@ -140,13 +150,13 @@ public class ReceitaController {
     @PostMapping("/{id}/avaliar")
     @Operation(summary = "Adiciona ou atualiza a avaliação do usuário logado para uma receita")
     public ResponseEntity<?> avaliarReceita(
+            @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id,
-            @RequestBody AvaliacaoInput input,
-            java.security.Principal principal) {
+            @RequestBody AvaliacaoInput input
+    ) {
 
         try {
-            String emailLogado = principal.getName();
-            receitaService.avaliar(id, emailLogado, input.getNota(), input.getComentario());
+            receitaService.avaliar(user.getId(), id, input.getNota(), input.getComentario());
 
             return ResponseEntity.ok().body("{\"message\": \"Avaliação salva com sucesso!\"}");
         } catch (Exception e) {
@@ -156,9 +166,12 @@ public class ReceitaController {
 
     @PostMapping("/{id}/favoritar")
     @Operation(summary = "Favorita uma receita", description = "Adiciona a receita a lista de receitas favoritas do usuário logado")
-    public ResponseEntity<?> favoritar(@PathVariable Long id) {
+    public ResponseEntity<?> favoritar(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id
+    ) {
         try {
-            receitaService.favoritar(id);
+            receitaService.favoritar(user.getId(), id);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -169,32 +182,34 @@ public class ReceitaController {
     @PostMapping("/{id}/denunciar")
     @Operation(summary = "Denuncia uma receita", description = "Cria uma denúncia/reporte para uma receita específica associada ao usuário autenticado")
     public ResponseEntity<?> denunciarReceita(
+            @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id,
-            @RequestBody @Valid ReceitaDenunciaInput input,
-            java.security.Principal principal) {
+            @RequestBody @Valid ReceitaDenunciaInput input
+    ) {
         try {
-            // principal.getName() captura o e-mail do usuário autenticado no token JWT
-            receitaService.denunciar(id, principal.getName(), input.getMotivo());
+            receitaService.denunciar(id, user.getId(), input.getMotivo());
 
-            // Retorna um JSON legível para o HttpClient do Angular não quebrar o parse
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("message", "Receita reportada com sucesso!"));
+
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Erro ao processar denúncia: " + e.getMessage()));
+                    .body(Map.of("error", "Erro ao processar denúncia"));
         }
     }
 
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @Operation(summary = "Atualiza uma receita", description = "Atualiza uma receita com base nas informações fornecidas")
-    public ResponseEntity<?> update(@RequestPart("receita") @Valid ReceitaInput receitaInput,
+    public ResponseEntity<?> update(
+            @AuthenticationPrincipal UserPrincipal user,
+            @RequestPart("receita") @Valid ReceitaInput receitaInput,
             @RequestPart(value = "imagem", required = false) MultipartFile imagem,
-            @PathVariable Long id) {
+            @PathVariable Long id
+    ) {
 
         try {
             receitaInput.setImagem(imagem);
-            receitaService.update(receitaInput, id);
+            receitaService.update(user.getId(), receitaInput, id);
             return ResponseEntity.status(HttpStatus.CREATED).build();
 
         } catch (Exception e) {
@@ -203,23 +218,34 @@ public class ReceitaController {
         }
     }
 
-    @DeleteMapping("/{id}/status")
-    @Operation(summary = "Alterna o status de uma receita", description = "Realiza a desativação e ativação na lógica da receita")
-    public ResponseEntity<?> alternarStatus(@PathVariable Long id) {
-        try {
-            receitaService.alternarStatus(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"Erro ao desativar receita: " + e.getMessage() + "\"}");
-        }
+    @PatchMapping("/{id}/deactivate")
+    @Operation(summary = "Desativa uma receita do usuário autenticado")
+    public ResponseEntity<Void> desativarReceita(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id
+    ) {
+        receitaService.desativarReceita(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PatchMapping("/{id}/activate")
+    @Operation(summary = "Ativa uma receita do usuário autenticado")
+    public ResponseEntity<Void> ativarReceita(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id
+    ) {
+        receitaService.ativarReceita(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping("/{id}/desfavoritar")
-    @Operation(summary = "Desfavorita uma receita", description = "Remove a receita da lista de receitas favoritas do usuário logado")
-    public ResponseEntity<?> desfavoritar(@PathVariable Long id) {
+    @Operation(summary = "Desfavorita uma receita")
+    public ResponseEntity<?> desfavoritar(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id
+    ) {
         try {
-            receitaService.desfavoritar(id);
+            receitaService.desfavoritar(user.getId(), id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

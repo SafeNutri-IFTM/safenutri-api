@@ -55,13 +55,9 @@ public class UserService implements UserDetailsService {
     private final AceitoTermosRepository aceitoTermosRepository;
     private final EmailSenderService emailSenderService;
 
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
-    }
-
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+    @Transactional(readOnly = true)
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
     }
 
     @Transactional

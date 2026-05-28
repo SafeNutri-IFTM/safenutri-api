@@ -2,7 +2,6 @@ package com.safenutri.safenutri_api.api.controller;
 
 import java.util.List;
 
-import com.safenutri.safenutri_api.model.output.RestricaoOutput;
 import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.api.service.RestricaoAlimentarService;
-import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.input.RestricaoAlimentarInput;
+import com.safenutri.safenutri_api.model.output.RestricaoOutput;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +29,9 @@ public class RestricaoAlimentarController {
 
     @PostMapping
     @Operation(summary = "Cria uma nova restrição alimentar que será visível para todos os usuários")
-    public ResponseEntity<Void> saveRestricaoAlimentar(@RequestBody RestricaoAlimentarInput restricaoAlimentarInput) {
+    public ResponseEntity<Void> saveRestricaoAlimentar(
+            @RequestBody RestricaoAlimentarInput restricaoAlimentarInput
+    ) {
         restricaoAlimentarService.salvar(restricaoAlimentarInput);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
