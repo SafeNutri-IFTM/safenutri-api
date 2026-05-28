@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.api.controller;
 
 import java.util.List;
 
+import com.safenutri.safenutri_api.model.output.RestricaoOutput;
 import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,8 @@ public class RestricaoAlimentarController {
 
     @GetMapping
     @Operation(summary = "Busca todas as restrições alimentares ativas cadastradas no sistema")
-    public ResponseEntity<List<RestricaoAlimentar>> getAllActivated() {
-        List<RestricaoAlimentar> restricoes = restricaoAlimentarService.getAllActivated();
+    public ResponseEntity<List<RestricaoOutput>> getAllActivated() {
+        List<RestricaoOutput> restricoes = restricaoAlimentarService.getAllActivated();
         return ResponseEntity.ok(restricoes);
     }
 

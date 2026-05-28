@@ -1,5 +1,7 @@
 package com.safenutri.safenutri_api.api.controller;
 
+import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.model.output.UserOutput;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.api.service.NutricionistaService;
@@ -19,6 +22,16 @@ import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput
 @RequestMapping("/nutricionista")
 public class NutricionistaController {
     private final NutricionistaService nutricionistaService;
+
+    //pegar o perfil nutricionista
+//    @GetMapping
+//    @Operation(summary = "Busca os dados do perfil do usuário autenticado")
+//    public ResponseEntity<UserOutput> getUserPerfil(
+//            @AuthenticationPrincipal UserPrincipal user
+//    ) {
+//        UserOutput userOutput = userService.getProfileInfos(user.getId());
+//        return ResponseEntity.ok(userOutput);
+//    }
 
     @GetMapping("/{id}/publico")
     @Operation(summary = "Busca perfil público", description = "Retorna os dados públicos do perfil do nutricionista")

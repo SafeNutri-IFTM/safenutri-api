@@ -5,7 +5,7 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class ReceitaRestricaoOutput {
+public class RestricaoOutput {
     private Long id;
     private String restricao;
 }

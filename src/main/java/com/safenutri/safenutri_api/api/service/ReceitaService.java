@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.safenutri.safenutri_api.core.security.JwtService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -324,7 +324,7 @@ public class ReceitaService {
     public ReceitaDetalheOutput findDetalheById(Long id) {
         ReceitaOutput receita = receitaRepository.findReceita(id);
         List<ModoPreparoOutput> passos = modoPreparoService.findByReceitaId(id);
-        List<ReceitaRestricaoOutput> restricoes = receitaRestricaoService.findByReceitaId(id);
+        List<RestricaoOutput> restricoes = receitaRestricaoService.findByReceitaId(id);
 
         return new ReceitaDetalheOutput(receita, passos, restricoes);
     }
@@ -355,7 +355,7 @@ public class ReceitaService {
             .orElseThrow(() -> new RuntimeException("Receita não encontrada com ID: " + id));
 
         List<ModoPreparoOutput> passos = modoPreparoRepository.findByReceitaId(id);
-        List<ReceitaRestricaoOutput> receitaRestricoes = receitaRestricaoRepository.findByReceitaId(id);
+        List<RestricaoOutput> receitaRestricoes = receitaRestricaoRepository.findByReceitaId(id);
         
         List<ReceitaAvaliacao> avaliacoes = receitaAvaliacaoRepository.findByReceitaIdOrderByIdDesc(id);
         List<Map<String, Object>> avaliacoesNutri = new ArrayList<>();
