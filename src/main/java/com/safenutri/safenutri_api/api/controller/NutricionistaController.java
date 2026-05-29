@@ -23,37 +23,44 @@ import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput
 public class NutricionistaController {
     private final NutricionistaService nutricionistaService;
 
-    //pegar o perfil nutricionista
 //    @GetMapping
-//    @Operation(summary = "Busca os dados do perfil do usuário autenticado")
-//    public ResponseEntity<UserOutput> getUserPerfil(
+//    @Operation(summary = "Busca os dados do perfil do nutricionista autenticado")
+//    public ResponseEntity<UserOutput> getNutricionistaPerfil(
 //            @AuthenticationPrincipal UserPrincipal user
 //    ) {
-//        UserOutput userOutput = userService.getProfileInfos(user.getId());
+//        UserOutput userOutput = nutricionistaService.getProfileInfos(user.getId());
 //        return ResponseEntity.ok(userOutput);
 //    }
 
     @GetMapping("/{id}/publico")
-    @Operation(summary = "Busca perfil público", description = "Retorna os dados públicos do perfil do nutricionista")
+    @Operation(summary = "Busca os dados do perfil público do nutricionista autenticado")
     public ResponseEntity<PerfilNutricionistaPublicoOutput> getPerfilPublico(@PathVariable Long id) {
         return ResponseEntity.ok(nutricionistaService.getPerfilPublico(id));
     }
 
     @PostMapping
-    @Operation(summary = "Cria um nutricionista", description = "Cria um novo nutricionista com base nas informações fornecidas")
+    @Operation(summary = "Cria um novo nutricionista")
     public ResponseEntity<Void> save(@Valid @RequestBody NutricionistaInput nutricionistaInput) {
         nutricionistaService.save(nutricionistaInput);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PatchMapping("/deactivate")
-    public ResponseEntity<Void> desativarConta() {
-        boolean deactivated = nutricionistaService.deactivateAccount();
-
-        if (deactivated) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    @Operation(summary = "Desativa a conta do nutricionista autenticado")
+    public ResponseEntity<Void> desativarConta(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        nutricionistaService.deactivateAccount(user.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PatchMapping("/activate")
+    @Operation(summary = "Ativa a conta do nutricionista autenticado")
+    public ResponseEntity<Void> ativarConta(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        nutricionistaService.activateAccount(user.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }

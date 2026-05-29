@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.safenutri.safenutri_api.core.security.JwtService;
+import com.safenutri.safenutri_api.exception.UserNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,12 @@ public class NutricionistaService {
     private final ReceitaFavoritaRepository receitaFavoritaRepository;
     private final ReceitaRepository receitaRepository;
     private final JwtService jwtService;
+
+    @Transactional(readOnly = true)
+    public Nutricionista findByUserId(Long userId) {
+        return nutricionistaRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+    }
 
     @Transactional
     public void save(NutricionistaInput nutricionistaInput) {
@@ -145,19 +152,15 @@ public class NutricionistaService {
                 receitas);
     }
 
-    public boolean deactivateAccount() {
-        Long userId = jwtService.getIdUsuario();
-        return nutricionistaRepository.findByUserId(userId).map(
-            nutri -> {
-                nutri.setActivated(false);
-                nutricionistaRepository.save(nutri);
+    @Transactional
+    public void deactivateAccount(Long userId) {
+        Nutricionista nutri =  findByUserId(userId);
+        nutri.setActivated(false);
+    }
 
-                User user = userService.findById(userId);
-                user.setActivated(false);
-                userRepository.save(user);
-
-                return true;
-            }
-        ).orElse(false);
+    @Transactional
+    public void activateAccount(Long userId) {
+        Nutricionista nutri =  findByUserId(userId);
+        nutri.setActivated(true);
     }
 }

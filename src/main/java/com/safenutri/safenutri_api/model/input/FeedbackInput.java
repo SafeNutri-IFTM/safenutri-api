@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Setter
 @NoArgsConstructor
 public class FeedbackInput {
-    
     @NotBlank(message = "A descrição do feedback não pode ser vazia")
     private String descricao;
 
