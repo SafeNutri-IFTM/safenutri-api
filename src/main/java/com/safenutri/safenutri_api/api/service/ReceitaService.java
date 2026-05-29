@@ -96,7 +96,7 @@ public class ReceitaService {
 
         Receita receita = new Receita(user, tipoReceita, receitaInput.getTitulo(), receitaInput.getDescricao(),
                 receitaInput.getIngredientes(), tempoPreparo, receitaInput.getPorcao(), receitaInput.getCalorias(),
-                caminhoFoto, isPublic); // <-- CORRIGIDO AQUI
+                caminhoFoto, isPublic);
 
         Receita savedReceita = receitaRepository.save(receita);
 

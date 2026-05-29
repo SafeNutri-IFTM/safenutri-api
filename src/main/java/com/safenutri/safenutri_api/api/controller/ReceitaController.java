@@ -35,6 +35,29 @@ public class ReceitaController {
     private final ReceitaService receitaService;
     private final UploadService uploadService;
 
+    @GetMapping("/avaliadas")
+    @Operation(summary = "Lista as receitas avaliadas pelo usuário autenticado")
+    public ResponseEntity<Page<ReceitaCardOutput>> getReceitasAvaliadas(
+            @AuthenticationPrincipal UserPrincipal user,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "") String termo
+    ) {
+        Page<ReceitaCardOutput> receitas = receitaService.getReceitasAvaliadas(user.getId(), page, size, termo);
+        return ResponseEntity.ok(receitas);
+    }
+
+    @GetMapping("/busca")
+    @Operation(summary = "Busca receitas pelo título (termo) com paginação")
+    public ResponseEntity<Page<ReceitaCardOutput>> buscarReceitasFeed(
+            @RequestParam(required = false, defaultValue = "") String termo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ReceitaCardOutput> receitas = receitaService.buscarReceitasPaginadas(termo, page, size);
+        return ResponseEntity.ok(receitas);
+    }
+
     @GetMapping("/minhas-receitas")
     @Operation(summary = "Busca as receitas cadastradas pelo usuário autenticado")
     public ResponseEntity<Page<ReceitaCardOutput>> getMinhasReceitas(

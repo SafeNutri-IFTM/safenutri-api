@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.safenutri.safenutri_api.core.security.JwtService;
 import com.safenutri.safenutri_api.exception.UserNotFoundException;
+import com.safenutri.safenutri_api.model.output.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,6 @@ import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.NutricionistaInput;
 import com.safenutri.safenutri_api.model.input.UserInput;
-import com.safenutri.safenutri_api.model.output.EstatisticasNutricionistaOutput;
-import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 import com.safenutri.safenutri_api.repository.NutricionistaRepository;
@@ -37,7 +35,6 @@ import com.safenutri.safenutri_api.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class NutricionistaService {
-    private final UserRepository userRepository;
     private final NutricionistaRepository nutricionistaRepository;
     private final UserService userService;
     private final RoleService roleService;
@@ -48,7 +45,15 @@ public class NutricionistaService {
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
     private final ReceitaFavoritaRepository receitaFavoritaRepository;
     private final ReceitaRepository receitaRepository;
-    private final JwtService jwtService;
+
+    @Transactional(readOnly = true)
+    public NutricionistaOutput getProfileInfos(Long userId) {
+        NutricionistaOutput nutri = nutricionistaRepository.getProfileInfos(userId);
+        Long diasConta = ChronoUnit.DAYS.between(nutri.getCreated().toLocalDate(), LocalDate.now());
+        nutri.setDiasConta(diasConta);
+
+        return nutri;
+    }
 
     @Transactional(readOnly = true)
     public Nutricionista findByUserId(Long userId) {

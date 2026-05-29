@@ -1,6 +1,7 @@
 package com.safenutri.safenutri_api.api.controller;
 
 import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.model.output.NutricionistaOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
 import jakarta.validation.Valid;
 
@@ -23,14 +24,14 @@ import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput
 public class NutricionistaController {
     private final NutricionistaService nutricionistaService;
 
-//    @GetMapping
-//    @Operation(summary = "Busca os dados do perfil do nutricionista autenticado")
-//    public ResponseEntity<UserOutput> getNutricionistaPerfil(
-//            @AuthenticationPrincipal UserPrincipal user
-//    ) {
-//        UserOutput userOutput = nutricionistaService.getProfileInfos(user.getId());
-//        return ResponseEntity.ok(userOutput);
-//    }
+    @GetMapping
+    @Operation(summary = "Busca os dados do perfil do nutricionista autenticado")
+    public ResponseEntity<NutricionistaOutput> getNutricionistaPerfil(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        NutricionistaOutput nutri = nutricionistaService.getProfileInfos(user.getId());
+        return ResponseEntity.ok(nutri);
+    }
 
     @GetMapping("/{id}/publico")
     @Operation(summary = "Busca os dados do perfil público do nutricionista autenticado")

@@ -71,28 +71,4 @@ public class DashboardController {
         return ResponseEntity.ok(receitas);
     }
 
-    //MUDAR ESSES CONTROLLERS DE LUGAR
-    @GetMapping("/avaliadas")
-    @Operation(summary = "Lista as receitas avaliadas pelo usuário autenticado")
-    public ResponseEntity<Page<ReceitaCardOutput>> getReceitasAvaliadas(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false, defaultValue = "") String termo // Adicionado aqui
-    ) {
-        Long userId = jwtService.getIdUsuario();
-        Page<ReceitaCardOutput> receitas = dashboardService.getReceitasAvaliadas(userId, page, size, termo);
-        return ResponseEntity.ok(receitas);
-    }
-
-    @GetMapping("/busca")
-    @Operation(summary = "Busca receitas pelo título (termo) com paginação")
-    public ResponseEntity<Page<ReceitaCardOutput>> buscarReceitasFeed(
-            @RequestParam(required = false, defaultValue = "") String termo,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Page<ReceitaCardOutput> receitas = dashboardService.buscarReceitasPaginadas(termo, page, size);
-        return ResponseEntity.ok(receitas);
-    }
-
 }
