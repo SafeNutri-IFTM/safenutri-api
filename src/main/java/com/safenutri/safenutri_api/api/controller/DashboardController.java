@@ -37,9 +37,10 @@ public class DashboardController {
 
     @GetMapping("/top")
     @Operation(summary = "Busca o top 3 receitas mais bem avaliadas com base na restrição do usuário")
-    public ResponseEntity<List<ReceitaCardOutput>> getTop3ReceitasAvaliadas() {
-        Long userId = jwtService.getIdUsuario();
-        List<ReceitaCardOutput> receitas = dashboardService.getTop3ReceitasFiltradas(userId);
+    public ResponseEntity<List<ReceitaCardOutput>> getTop3ReceitasAvaliadas(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        List<ReceitaCardOutput> receitas = dashboardService.getTop3ReceitasFiltradas(user.getId());
         return ResponseEntity.ok(receitas);
     }
 
@@ -51,23 +52,26 @@ public class DashboardController {
     }
 
     @GetMapping("/qntd-pacientes")
-    public ResponseEntity<Long> countQntdPacientes() {
-        Long userId = jwtService.getIdUsuario();
-        Long qntd = dashboardService.countPacientes(userId);
+    public ResponseEntity<Long> countQntdPacientes(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        Long qntd = dashboardService.countPacientes(user.getId());
         return ResponseEntity.ok(qntd);
     }
 
     @GetMapping("/qntd-receitas")
-    public ResponseEntity<Long> countQntdReceitas() {
-        Long userId = jwtService.getIdUsuario();
-        Long qntd = dashboardService.countReceitas(userId);
+    public ResponseEntity<Long> countQntdReceitas(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        Long qntd = dashboardService.countReceitas(user.getId());
         return ResponseEntity.ok(qntd);
     }
 
     @GetMapping("/receitas-restricao")
-    public ResponseEntity<List<ReceitaPieChartOutput>> countGroupByRestricao() {
-        Long userId = jwtService.getIdUsuario();
-        List<ReceitaPieChartOutput> receitas = dashboardService.countGroupByRestricoes(userId);
+    public ResponseEntity<List<ReceitaPieChartOutput>> countGroupByRestricao(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        List<ReceitaPieChartOutput> receitas = dashboardService.countGroupByRestricoes(user.getId());
         return ResponseEntity.ok(receitas);
     }
 
