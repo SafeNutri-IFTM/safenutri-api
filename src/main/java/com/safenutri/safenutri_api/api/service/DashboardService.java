@@ -1,8 +1,8 @@
 package com.safenutri.safenutri_api.api.service;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -20,16 +20,8 @@ public class DashboardService {
         return receitaService.findReceitasByRestricoesId(userId, page, size);
     }
 
-    public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size, String termo) {
-        return receitaService.getReceitasAvaliadas(userId, page, size, termo);
-    }
-
-    public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
-        return receitaService.buscarReceitasPaginadas(termo, page, size);
-    }
-
     public List<ReceitaCardOutput> getTop3ReceitasFiltradas(Long userId) {
-        return receitaService.findTop3Filtrado(userId);
+        return receitaService.getTop3Filtrado(userId);
     }
 
     public Long countPacientes(Long nutricionistaId) {
@@ -45,6 +37,6 @@ public class DashboardService {
     }
 
     public List<ReceitaCardOutput> getTop3GeralReceitas() {
-        return receitaService.findTop3();
+        return receitaService.getTop3();
     }
 }

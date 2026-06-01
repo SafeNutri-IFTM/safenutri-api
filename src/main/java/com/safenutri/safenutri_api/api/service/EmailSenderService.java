@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.safenutri.safenutri_api.core.security.JwtService;
 import jakarta.mail.MessagingException;
 
 import lombok.RequiredArgsConstructor;

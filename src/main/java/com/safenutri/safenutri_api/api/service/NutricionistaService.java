@@ -1,10 +1,17 @@
 package com.safenutri.safenutri_api.api.service;
 
-import com.safenutri.safenutri_api.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+import com.safenutri.safenutri_api.core.security.JwtService;
+import com.safenutri.safenutri_api.exception.UserNotFoundException;
+import com.safenutri.safenutri_api.model.output.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.safenutri.safenutri_api.core.utils.CrnValidation;
@@ -16,25 +23,18 @@ import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.NutricionistaInput;
 import com.safenutri.safenutri_api.model.input.UserInput;
-import com.safenutri.safenutri_api.model.output.EstatisticasNutricionistaOutput;
-import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput;
-import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
+
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 import com.safenutri.safenutri_api.repository.NutricionistaRepository;
 import com.safenutri.safenutri_api.repository.PacienteRepository;
 import com.safenutri.safenutri_api.repository.ReceitaAvaliacaoRepository;
 import com.safenutri.safenutri_api.repository.ReceitaFavoritaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
-import org.springframework.data.domain.PageRequest;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
+import com.safenutri.safenutri_api.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class NutricionistaService {
-    private final UserRepository userRepository;
     private final NutricionistaRepository nutricionistaRepository;
     private final UserService userService;
     private final RoleService roleService;
@@ -45,7 +45,21 @@ public class NutricionistaService {
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
     private final ReceitaFavoritaRepository receitaFavoritaRepository;
     private final ReceitaRepository receitaRepository;
-    private final JwtService jwtService;
+
+    @Transactional(readOnly = true)
+    public NutricionistaOutput getProfileInfos(Long userId) {
+        NutricionistaOutput nutri = nutricionistaRepository.getProfileInfos(userId);
+        Long diasConta = ChronoUnit.DAYS.between(nutri.getCreated().toLocalDate(), LocalDate.now());
+        nutri.setDiasConta(diasConta);
+
+        return nutri;
+    }
+
+    @Transactional(readOnly = true)
+    public Nutricionista findByUserId(Long userId) {
+        return nutricionistaRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+    }
 
     @Transactional
     public void save(NutricionistaInput nutricionistaInput) {
@@ -143,19 +157,15 @@ public class NutricionistaService {
                 receitas);
     }
 
-    public boolean deactivateAccount() {
-        Long userId = jwtService.getIdUsuario();
-        return nutricionistaRepository.findByUserId(userId).map(
-            nutri -> {
-                nutri.setActivated(false);
-                nutricionistaRepository.save(nutri);
+    @Transactional
+    public void deactivateAccount(Long userId) {
+        Nutricionista nutri =  findByUserId(userId);
+        nutri.setActivated(false);
+    }
 
-                User user = userService.findById(userId);
-                user.setActivated(false);
-                userRepository.save(user);
-
-                return true;
-            }
-        ).orElse(false);
+    @Transactional
+    public void activateAccount(Long userId) {
+        Nutricionista nutri =  findByUserId(userId);
+        nutri.setActivated(true);
     }
 }

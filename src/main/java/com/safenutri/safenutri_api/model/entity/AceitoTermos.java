@@ -3,7 +3,6 @@ package com.safenutri.safenutri_api.model.entity;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,12 +19,10 @@ public class AceitoTermos {
     @SequenceGenerator(name = "id_seq_aceito_termos", sequenceName = "id_seq_aceito_termos", allocationSize = 1)
     private Long id;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "documento_id")
     private DocumentosLegais documento;

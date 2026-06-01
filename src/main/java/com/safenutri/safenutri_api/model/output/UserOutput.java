@@ -22,11 +22,9 @@ public class UserOutput {
     private Long qntdAvaliadas;
     private Long qntdMinhasReceitas;
     private Long diasConta;
-    private String crn;
-    private String sobreMim;
 
     public UserOutput(String nome, String email, Long genero, LocalDate dtNascimento, LocalDateTime created,
-        Long qntdFavoritas, Long qntdAvaliadas, Long qntdMinhasReceitas, String crn, String sobreMim) {
+        Long qntdFavoritas, Long qntdAvaliadas, Long qntdMinhasReceitas) {
             this.nome = nome;
             this.email = email;
             this.genero = genero;
@@ -35,7 +33,5 @@ public class UserOutput {
             this.qntdFavoritas = qntdFavoritas;
             this.qntdAvaliadas = qntdAvaliadas;
             this.qntdMinhasReceitas = qntdMinhasReceitas;
-            this.crn = crn;
-            this.sobreMim = sobreMim;
     }
 }

@@ -1,7 +1,6 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,13 +19,12 @@ public class DocumentosLegais extends DefaultEntity {
     @SequenceGenerator(name = "id_seq_documentos_legais", sequenceName = "id_seq_documentos_legais", allocationSize = 1)
     private Long id;
 
-    @NotNull
-    private String tipo; // "TERMO_USO", "POLITICA_PRIVACIDADE", "TERMO_NUTRICIONISTA"
+    @Column(name = "tipo")
+    private String tipo;
 
-    @NotNull
+    @Column(name = "versao")
     private String versao;
 
-    @NotNull
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "texto")
     private String texto;
 }

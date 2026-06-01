@@ -1,11 +1,12 @@
 package com.safenutri.safenutri_api.model.entity;
 
-import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
 import jakarta.persistence.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
 
 @Entity
 @Getter

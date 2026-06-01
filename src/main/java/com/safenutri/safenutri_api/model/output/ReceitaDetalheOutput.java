@@ -10,5 +10,5 @@ import lombok.Data;
 public class ReceitaDetalheOutput {
     private ReceitaOutput receita;
     private List<ModoPreparoOutput> passos;
-    private List<ReceitaRestricaoOutput> restricoes;
+    private List<RestricaoOutput> restricoes;
 }

@@ -17,7 +17,6 @@ import com.safenutri.safenutri_api.model.output.EmailOutput;
 @RequestMapping("/emails")
 @RequiredArgsConstructor
 public class EmailController {
-
     private final EmailSenderService emailSenderService;
 
     @PostMapping("/enviar")

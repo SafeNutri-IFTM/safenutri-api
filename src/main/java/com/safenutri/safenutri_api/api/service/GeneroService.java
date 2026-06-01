@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.api.service;
 
 import java.util.List;
 
+import com.safenutri.safenutri_api.model.output.GeneroOutput;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class GeneroService {
         return generoRepository.findById(id).orElseThrow(() -> new RuntimeException("Genero não encontrado"));
     }
 
-    public List<Genero> getAll() {
-        return generoRepository.findAll();
+    public List<GeneroOutput> getAll() {
+        return generoRepository.findAllGeneros();
     }
 }

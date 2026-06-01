@@ -1,8 +1,6 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +17,6 @@ public class Role {
     @SequenceGenerator(sequenceName = "id_seq_role", allocationSize = 1, name = "id_seq_role")
     private Long id;
 
-    @NotNull
-    @Size(max = 50)
     @Column(name = "role", nullable = false)
     private String role;
 }

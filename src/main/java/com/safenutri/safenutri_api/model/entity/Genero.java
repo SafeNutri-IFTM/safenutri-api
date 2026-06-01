@@ -1,8 +1,6 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +17,7 @@ public class Genero {
     @SequenceGenerator(sequenceName = "id_seq_genero", allocationSize = 1, name = "id_seq_genero")
     private Long id;
 
-    @NotNull
-    @Size(max = 50)
+
     @Column(name = "genero", nullable = false)
     private String genero;
 }

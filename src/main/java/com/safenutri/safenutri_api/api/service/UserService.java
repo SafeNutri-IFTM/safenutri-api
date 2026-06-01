@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +18,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.exception.UserNotFoundException;
 import com.safenutri.safenutri_api.exception.EmailAlreadyExistsException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
@@ -52,10 +54,11 @@ public class UserService implements UserDetailsService {
     private final DocumentosLegaisService documentosService;
     private final AceitoTermosRepository aceitoTermosRepository;
     private final EmailSenderService emailSenderService;
-    private final JwtService jwtService;
 
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    @Transactional(readOnly = true)
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
     }
 
     @Transactional
@@ -86,9 +89,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User atualizarPerfil(UserInput userInput) {
-        Long userId = jwtService.getIdUsuario();
-
+    public User atualizarPerfil(Long userId, UserInput userInput) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
@@ -170,21 +171,15 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Usuário desativado.");
         }
 
-        String roleNome = user.getRole().getRole();
-
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getSenha() != null ? user.getSenha() : "")
-                .roles(roleNome)
-                .build();
+        return new UserPrincipal(user);
     }
 
     public User getReference(Long id) {
         return userRepository.getReferenceById(id);
     }
 
-    public UserOutput getProfileInfos() {
-        Long userId = jwtService.getIdUsuario();
+    @Transactional(readOnly = true)
+    public UserOutput getProfileInfos(Long userId) {
         UserOutput userOutput = userRepository.getProfileInfos(userId);
         Long diasConta = ChronoUnit.DAYS.between(userOutput.getCreated().toLocalDate(), LocalDate.now());
         userOutput.setDiasConta(diasConta);
@@ -277,14 +272,16 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public boolean deactivateAccount() {
-        Long userId = jwtService.getIdUsuario();
-        return userRepository.findById(userId).map(
-            user -> {
-                user.setActivated(false);
-                userRepository.save(user);
-                return true;
-            }
-        ).orElse(false);
+    @Transactional
+    public void deactivateAccount(Long userId) {
+        User user = findById(userId);
+        user.setActivated(false);
     }
+
+    @Transactional
+    public void activateAccount(Long userId) {
+        User user = findById(userId);
+        user.setActivated(true);
+    }
+
 }
