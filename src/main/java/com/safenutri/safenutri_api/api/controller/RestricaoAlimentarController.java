@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.api.service.RestricaoAlimentarService;
-import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.input.RestricaoAlimentarInput;
+import com.safenutri.safenutri_api.model.output.RestricaoOutput;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,15 +21,17 @@ public class RestricaoAlimentarController {
     private final RestricaoAlimentarService restricaoAlimentarService;
 
     @GetMapping
-    @Operation(summary = "Busca todas as restrições ativas que foram aprovadas", description = "Busca todas as restrições alimentares que estão ativas e foram aprovadas")
-    public ResponseEntity<List<RestricaoAlimentar>> getAllActivated() {
-        List<RestricaoAlimentar> restricoes = restricaoAlimentarService.getAllActivated();
+    @Operation(summary = "Busca todas as restrições alimentares ativas cadastradas no sistema")
+    public ResponseEntity<List<RestricaoOutput>> getAllActivated() {
+        List<RestricaoOutput> restricoes = restricaoAlimentarService.getAllActivated();
         return ResponseEntity.ok(restricoes);
     }
 
     @PostMapping
-    @Operation(summary = "Cria uma nova restrição", description = "Cria uma nova restrição alimentar no banco de dados")
-    public ResponseEntity<Void> saveRestricaoAlimentar(@RequestBody RestricaoAlimentarInput restricaoAlimentarInput) {
+    @Operation(summary = "Cria uma nova restrição alimentar que será visível para todos os usuários")
+    public ResponseEntity<Void> saveRestricaoAlimentar(
+            @RequestBody RestricaoAlimentarInput restricaoAlimentarInput
+    ) {
         restricaoAlimentarService.salvar(restricaoAlimentarInput);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

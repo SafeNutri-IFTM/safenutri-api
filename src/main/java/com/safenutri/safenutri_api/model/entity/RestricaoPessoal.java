@@ -1,7 +1,7 @@
 package com.safenutri.safenutri_api.model.entity;
 
 import java.time.LocalDateTime;
-import com.safenutri.safenutri_api.model.defaults.DefaultEntity;
+
 import jakarta.persistence.*;
 
 import lombok.Getter;

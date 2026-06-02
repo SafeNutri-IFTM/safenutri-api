@@ -1,28 +1,24 @@
 package com.safenutri.safenutri_api.api.service;
 
-import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.safenutri.safenutri_api.repository.FeedbackRepository;
-import com.safenutri.safenutri_api.repository.UserRepository;
 import com.safenutri.safenutri_api.model.entity.Feedback;
 import com.safenutri.safenutri_api.model.entity.User;
 
 @Service
 @RequiredArgsConstructor
 public class FeedbackService {
-
     private final FeedbackRepository feedbackRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public void salvar(String descricao, String emailUsuario) {
-        // Busca o usuário logado pelo e-mail (extraído do token JWT via Principal)
-        User user = userRepository.findByEmail(emailUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
-
-        // Cria a entidade Feedback usando o construtor que você já tem definido
+    @Transactional
+    public void salvar(String descricao, Long userId) {
+        User user = userService.findById(userId);
         Feedback feedback = new Feedback(user, descricao);
-        
         feedbackRepository.save(feedback);
     }
 }

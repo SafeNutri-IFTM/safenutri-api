@@ -17,7 +17,6 @@ import com.safenutri.safenutri_api.model.entity.DocumentosLegais;
 @RequestMapping("/documentos-legais")
 @RequiredArgsConstructor
 public class DocumentosLegaisController {
-
     private final DocumentosLegaisService service;
 
     @GetMapping("/atual")
