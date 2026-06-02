@@ -65,7 +65,8 @@ VALUES
     (1, 1, 2, 'Isaac Araujo', 'isaac@gmail.com', '$2a$10$mrIKbki4FVwyeRgP/6XBeuutVAPi6OFRcdpYzlLwPDyMshy/DRBeC', '2000-01-01', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (2, 1, 2, 'Thiago Pimenta', 'thiago@gmail.com', '$2a$10$mrIKbki4FVwyeRgP/6XBeuutVAPi6OFRcdpYzlLwPDyMshy/DRBeC', '2000-01-01', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (3, 1, 3, 'Yuri Oliveira', 'yuri@gmail.com', '$2a$10$mrIKbki4FVwyeRgP/6XBeuutVAPi6OFRcdpYzlLwPDyMshy/DRBeC', '2000-01-01', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (4, 1, 3, 'Alberto Domingos', 'alberto@gmail.com', '$2a$10$mrIKbki4FVwyeRgP/6XBeuutVAPi6OFRcdpYzlLwPDyMshy/DRBeC', '2000-01-01', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+    (4, 1, 3, 'Alberto Domingos', 'alberto@gmail.com', '$2a$10$mrIKbki4FVwyeRgP/6XBeuutVAPi6OFRcdpYzlLwPDyMshy/DRBeC', '2000-01-01', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    (5, 1, 1, 'Root', 'root@safenutri.com.br', '$2a$10$mrIKbki4FVwyeRgP/6XBeuutVAPi6OFRcdpYzlLwPDyMshy/DRBeC', '2000-01-01', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -----------------------------------------------------------------------------------------------------------
 INSERT INTO public.user_restricao(id, user_id, restricao_id, created)
