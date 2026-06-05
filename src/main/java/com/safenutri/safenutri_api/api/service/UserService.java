@@ -75,8 +75,8 @@ public class UserService implements UserDetailsService {
 
         User savedUser = userRepository.save(user);
 
-        DocumentosLegais termoComum = documentosService.buscarAtualPorTipo("TERMO_USO_COMUM");
-        DocumentosLegais politicaPriv = documentosService.buscarAtualPorTipo("POLITICA_PRIVACIDADE");
+        DocumentosLegais termoComum = documentosService.buscarEntidadeAtualPorTipo("TERMO_USO_COMUM");
+        DocumentosLegais politicaPriv = documentosService.buscarEntidadeAtualPorTipo("POLITICA_PRIVACIDADE");
 
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoComum));
         aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
@@ -254,8 +254,8 @@ public class UserService implements UserDetailsService {
 
         User savedUser = saveGoogleUser(user);
 
-        DocumentosLegais termoComum = documentosService.buscarAtualPorTipo("TERMO_USO_COMUM");
-        DocumentosLegais politicaPriv = documentosService.buscarAtualPorTipo("POLITICA_PRIVACIDADE");
+        DocumentosLegais termoComum = documentosService.buscarEntidadeAtualPorTipo("TERMO_USO_COMUM");
+        DocumentosLegais politicaPriv = documentosService.buscarEntidadeAtualPorTipo("POLITICA_PRIVACIDADE");
 
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoComum));
         aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
