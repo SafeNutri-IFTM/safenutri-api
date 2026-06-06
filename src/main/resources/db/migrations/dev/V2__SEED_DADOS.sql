@@ -404,7 +404,7 @@ O usuário poderá solicitar a adição de novas restrições alimentares ao ban
 ),
 
     (3,
-'TERMO_NUTRI',
+'TERMO_COMPROMISSO',
 '1.0',
 '**1. Aceitação e Identificação**
 Ao marcar a caixa de seleção, o profissional concorda com este termo e declara, sob as penas da lei, que todas as informações fornecidas no cadastro são verdadeiras.

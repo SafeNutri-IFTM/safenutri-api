@@ -77,7 +77,7 @@ public class NutricionistaService {
             throw new RuntimeException("CRN inválido");
         }
 
-        DocumentosLegais termoNutri = documentosService.buscarEntidadeAtualPorTipo("TERMO_NUTRI");
+        DocumentosLegais termoNutri = documentosService.buscarEntidadeAtualPorTipo("TERMO_COMPROMISSO");
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoNutri));
 
         String crn = "" + nutricionistaInput.getCRN() + "/" + nutricionistaInput.getInscricao();
@@ -111,7 +111,7 @@ public class NutricionistaService {
 
         User savedUser = userService.saveGoogleUser(user);
 
-        DocumentosLegais termoNutri = documentosService.buscarEntidadeAtualPorTipo("TERMO_NUTRI");
+        DocumentosLegais termoNutri = documentosService.buscarEntidadeAtualPorTipo("TERMO_COMPROMISSO");
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoNutri));
 
         DocumentosLegais politicaPriv = documentosService.buscarEntidadeAtualPorTipo("POLITICA_PRIVACIDADE");

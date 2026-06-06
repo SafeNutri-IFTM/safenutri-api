@@ -23,6 +23,7 @@ import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.LoginInput;
 import com.safenutri.safenutri_api.model.output.Token;
+import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final NutricionistaService nutricionistaService;
     private final UserService userService;
+    private final AceitoTermosRepository aceitoTermosRepository;
 
     @Value("${urlFrontend}")
     private String urlFrontend;
@@ -54,9 +56,11 @@ public class AuthController {
 
         try {
             User user = userService.loginGoogle(email, nome);
-            String token = jwtService.gerarToken(user);
-            String url = urlFrontend + "/login?token=" + token;
 
+            boolean pendente = aceitoTermosRepository.possuiTermosPendentes(user.getId(), user.getRole().getRole());
+            String token = jwtService.gerarToken(user, pendente);
+
+            String url = urlFrontend + "/login?token=" + token + "&termosPendentes=" + pendente;
             return ResponseEntity.status(302).header("Location", url).build();
 
         } catch (RuntimeException e) {
@@ -75,8 +79,11 @@ public class AuthController {
     public Token login(@RequestBody LoginInput loginInput) {
         try {
             User user = userService.autenticarPorEmail(loginInput.getEmail(), loginInput.getPassword());
-            String token = jwtService.gerarToken(user);
-            return new Token(user.getEmail(), token);
+
+            boolean pendente = aceitoTermosRepository.possuiTermosPendentes(user.getId(), user.getRole().getRole());
+            String token = jwtService.gerarToken(user, pendente);
+
+            return new Token(user.getEmail(), token, pendente);
         } catch (SenhaInvalidaException | UsernameNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
@@ -136,9 +143,10 @@ public class AuthController {
             List<Long> restricoesIds = (List<Long>) payload.get("restricoes");
 
             User user = userService.cadastrarUsuarioComumGoogle(email, nome, restricoesIds);
-            String token = jwtService.gerarToken(user);
 
-            return ResponseEntity.ok(new Token(user.getEmail(), token));
+            String token = jwtService.gerarToken(user, false);
+
+            return ResponseEntity.ok(new Token(user.getEmail(), token, false));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -158,9 +166,9 @@ public class AuthController {
             User user = userService.findByExistEmail(email)
                     .orElseThrow(() -> new RuntimeException("Erro interno ao buscar usuário após cadastro."));
 
-            String token = jwtService.gerarToken(user);
+            String token = jwtService.gerarToken(user, false);
 
-            return ResponseEntity.ok(new Token(user.getEmail(), token));
+            return ResponseEntity.ok(new Token(user.getEmail(), token, false));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro: " + e.getMessage());
         }

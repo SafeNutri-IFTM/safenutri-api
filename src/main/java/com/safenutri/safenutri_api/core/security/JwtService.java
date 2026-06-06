@@ -34,7 +34,6 @@ public class JwtService {
     @Value("${security.jwt.key}")
     private String key;
 
-    // Converte a chave Base64 em Key segura
     private Key getKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
     }
@@ -63,13 +62,13 @@ public class JwtService {
         }
     }
 
-    public String gerarToken(User user) {
+    public String gerarToken(User user, boolean termosPendentes) {
         long exp = Long.parseLong(expiration);
 
         LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(exp);
         Date data = Date.from(dataHoraExpiracao
-            .atZone(ZoneId.systemDefault())
-            .toInstant());
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
 
         HashMap<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
@@ -78,12 +77,14 @@ public class JwtService {
         claims.put("role", user.getRole().getRole());
         claims.put("idRole", user.getRole().getId());
 
+        claims.put("termosPendentes", termosPendentes);
+
         return Jwts.builder()
-            .setSubject(user.getEmail())
-            .setExpiration(data)
-            .addClaims(claims)
-            .signWith(getKey(), SignatureAlgorithm.HS256)
-            .compact();
+                .setSubject(user.getEmail())
+                .setExpiration(data)
+                .addClaims(claims)
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String gerarTokenEmail(User user) {
@@ -91,18 +92,18 @@ public class JwtService {
 
         LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(exp);
         Date data = Date.from(dataHoraExpiracao
-            .atZone(ZoneId.systemDefault())
-            .toInstant());
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
 
         HashMap<String, Object> claims = new HashMap<>();
         claims.put("email", user.getEmail());
 
         return Jwts.builder()
-            .setSubject(user.getEmail())
-            .setExpiration(data)
-            .addClaims(claims)
-            .signWith(getKey(), SignatureAlgorithm.HS256)
-            .compact();
+                .setSubject(user.getEmail())
+                .setExpiration(data)
+                .addClaims(claims)
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private Claims getClaims() {
@@ -122,10 +123,10 @@ public class JwtService {
 
     public Claims obterClaims(String token) throws ExpiredJwtException {
         return Jwts.parserBuilder()
-            .setSigningKey(getKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public String obterLoginUsuario(String token) throws ExpiredJwtException {
