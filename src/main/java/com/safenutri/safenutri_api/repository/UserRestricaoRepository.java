@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.repository;
 
 import java.util.List;
 
+import com.safenutri.safenutri_api.model.output.RestricaoOutput;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,8 +20,8 @@ public interface UserRestricaoRepository extends JpaRepository<UserRestricao, Lo
     void deleteByUserId(@Param("userId") Long userId);
 
     @Query("SELECT ur.restricao.id FROM UserRestricao ur WHERE ur.user.id = :userId")
-    List<Long> findAllByUserId(Long userId);
+    List<Long> findAllByUserId(@Param("userId")Long userId);
 
-    @Query("SELECT ur.restricao FROM UserRestricao ur WHERE ur.user.id = :userId")
-    List<RestricaoAlimentar> findRestricoesByUserId(Long userId);
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.RestricaoOutput(ur.restricao.id, ur.restricao.restricao) FROM UserRestricao ur WHERE ur.user.id = :userId")
+    List<RestricaoOutput> findRestricoesByUserId(@Param("userId") Long userId);
 }

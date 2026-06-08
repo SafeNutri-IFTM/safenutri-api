@@ -1,35 +1,30 @@
 package com.safenutri.safenutri_api.api.service;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-
+import com.safenutri.safenutri_api.model.output.QtdUserByMesOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaCardOutput;
 import com.safenutri.safenutri_api.model.output.ReceitaPieChartOutput;
+import com.safenutri.safenutri_api.model.output.UserPieChartOutput;
 
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
     private final ReceitaService receitaService;
     private final PacienteService pacienteService;
+    private final RestricaoAlimentarService restricaoAlimentarService;
+    private final UserService userService;
 
     public Page<ReceitaCardOutput> getReceitas(Long userId, int page, int size) {
         return receitaService.findReceitasByRestricoesId(userId, page, size);
     }
 
-    public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size, String termo) {
-        return receitaService.getReceitasAvaliadas(userId, page, size, termo);
-    }
-
-    public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
-        return receitaService.buscarReceitasPaginadas(termo, page, size);
-    }
-
     public List<ReceitaCardOutput> getTop3ReceitasFiltradas(Long userId) {
-        return receitaService.findTop3Filtrado(userId);
+        return receitaService.getTop3Filtrado(userId);
     }
 
     public Long countPacientes(Long nutricionistaId) {
@@ -45,6 +40,26 @@ public class DashboardService {
     }
 
     public List<ReceitaCardOutput> getTop3GeralReceitas() {
-        return receitaService.findTop3();
+        return receitaService.getTop3();
+    }
+
+    public Long countAllReceitas() {
+        return receitaService.countAll();
+    }
+
+    public Long countAllRestricoes() {
+        return restricaoAlimentarService.countAll();
+    }
+
+    public Long countAllUsers() {
+        return userService.countAll();
+    }
+
+    public List<UserPieChartOutput> countUserGroupByRestricao() {
+        return userService.countUserGroupByRestricao();
+    }
+
+    public List<QtdUserByMesOutput> countUserByMes() {
+        return userService.getQuantidadeUsuariosByMes();
     }
 }

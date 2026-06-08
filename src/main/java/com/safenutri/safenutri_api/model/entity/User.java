@@ -3,8 +3,6 @@ package com.safenutri.safenutri_api.model.entity;
 import java.time.LocalDate;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,18 +25,13 @@ public class User extends DefaultEntity {
     @JoinColumn(name = "genero_id")
     private Genero genero;
 
-    @NotNull
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @NotNull
-    @Size(max = 255)
     @Column(name = "nome", nullable = false)
     private String nome;
 
-    @NotNull
-    @Size(max = 50)
     @Column(name = "email", nullable = false)
     private String email;
 

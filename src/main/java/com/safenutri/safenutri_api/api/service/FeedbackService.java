@@ -1,28 +1,41 @@
 package com.safenutri.safenutri_api.api.service;
 
-import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
-
-import com.safenutri.safenutri_api.repository.FeedbackRepository;
-import com.safenutri.safenutri_api.repository.UserRepository;
 import com.safenutri.safenutri_api.model.entity.Feedback;
 import com.safenutri.safenutri_api.model.entity.User;
+import com.safenutri.safenutri_api.model.output.FeedbackOutput;
+import com.safenutri.safenutri_api.repository.FeedbackRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
-    private final UserRepository userRepository;
+    private final UserService userService; // Necessário para salvar o feedback do usuário
 
-    public void salvar(String descricao, String emailUsuario) {
-        // Busca o usuário logado pelo e-mail (extraído do token JWT via Principal)
-        User user = userRepository.findByEmail(emailUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+    public FeedbackService(FeedbackRepository feedbackRepository, UserService userService) {
+        this.feedbackRepository = feedbackRepository;
+        this.userService = userService;
+    }
 
-        // Cria a entidade Feedback usando o construtor que você já tem definido
+    // --- Método do Usuário (Restaurado) ---
+    @Transactional
+    public void salvar(String descricao, Long userId) {
+        User user = userService.findById(userId);
         Feedback feedback = new Feedback(user, descricao);
-        
         feedbackRepository.save(feedback);
+    }
+
+    // --- Métodos do Administrador (Novos) ---
+    @Transactional(readOnly = true)
+    public Page<FeedbackOutput> listarTodosPaginado(int page, int size) {
+        return feedbackRepository.findAllFeedbacksPaginado(PageRequest.of(page, size));
+    }
+
+    @Transactional(readOnly = true)
+    public FeedbackOutput buscarDetalhePorId(Long id) {
+        return feedbackRepository.findDetalheById(id);
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.api.service.GeneroService;
-import com.safenutri.safenutri_api.model.entity.Genero;
+import com.safenutri.safenutri_api.model.output.GeneroOutput;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,8 +20,8 @@ public class GeneroController {
 
     @GetMapping
     @Operation(summary = "Busca os generos", description = "Busca todos os generos")
-    public ResponseEntity<List<Genero>> getAll() {
-        List<Genero> generos = generoService.getAll();
+    public ResponseEntity<List<GeneroOutput>> getAll() {
+        List<GeneroOutput> generos = generoService.getAll();
         return ResponseEntity.ok(generos);
     }
 }

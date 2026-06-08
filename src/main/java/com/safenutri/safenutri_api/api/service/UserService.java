@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.api.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,7 +11,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +19,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.exception.UserNotFoundException;
 import com.safenutri.safenutri_api.exception.EmailAlreadyExistsException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;
@@ -34,7 +37,9 @@ import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EmailOutput;
+import com.safenutri.safenutri_api.model.output.QtdUserByMesOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
+import com.safenutri.safenutri_api.model.output.UserPieChartOutput;
 import com.safenutri.safenutri_api.repository.UserRepository;
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 import com.safenutri.safenutri_api.repository.NutricionistaRepository;
@@ -52,10 +57,11 @@ public class UserService implements UserDetailsService {
     private final DocumentosLegaisService documentosService;
     private final AceitoTermosRepository aceitoTermosRepository;
     private final EmailSenderService emailSenderService;
-    private final JwtService jwtService;
 
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    @Transactional(readOnly = true)
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
     }
 
     @Transactional
@@ -72,8 +78,8 @@ public class UserService implements UserDetailsService {
 
         User savedUser = userRepository.save(user);
 
-        DocumentosLegais termoComum = documentosService.buscarAtualPorTipo("TERMO_USO_COMUM");
-        DocumentosLegais politicaPriv = documentosService.buscarAtualPorTipo("POLITICA_PRIVACIDADE");
+        DocumentosLegais termoComum = documentosService.buscarEntidadeAtualPorTipo("TERMO_USO_COMUM");
+        DocumentosLegais politicaPriv = documentosService.buscarEntidadeAtualPorTipo("POLITICA_PRIVACIDADE");
 
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoComum));
         aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
@@ -86,9 +92,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User atualizarPerfil(UserInput userInput) {
-        Long userId = jwtService.getIdUsuario();
-
+    public User atualizarPerfil(Long userId, UserInput userInput) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
@@ -170,21 +174,15 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Usuário desativado.");
         }
 
-        String roleNome = user.getRole().getRole();
-
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getSenha() != null ? user.getSenha() : "")
-                .roles(roleNome)
-                .build();
+        return new UserPrincipal(user);
     }
 
     public User getReference(Long id) {
         return userRepository.getReferenceById(id);
     }
 
-    public UserOutput getProfileInfos() {
-        Long userId = jwtService.getIdUsuario();
+    @Transactional(readOnly = true)
+    public UserOutput getProfileInfos(Long userId) {
         UserOutput userOutput = userRepository.getProfileInfos(userId);
         Long diasConta = ChronoUnit.DAYS.between(userOutput.getCreated().toLocalDate(), LocalDate.now());
         userOutput.setDiasConta(diasConta);
@@ -259,8 +257,8 @@ public class UserService implements UserDetailsService {
 
         User savedUser = saveGoogleUser(user);
 
-        DocumentosLegais termoComum = documentosService.buscarAtualPorTipo("TERMO_USO_COMUM");
-        DocumentosLegais politicaPriv = documentosService.buscarAtualPorTipo("POLITICA_PRIVACIDADE");
+        DocumentosLegais termoComum = documentosService.buscarEntidadeAtualPorTipo("TERMO_USO_COMUM");
+        DocumentosLegais politicaPriv = documentosService.buscarEntidadeAtualPorTipo("POLITICA_PRIVACIDADE");
 
         aceitoTermosRepository.save(new AceitoTermos(savedUser, termoComum));
         aceitoTermosRepository.save(new AceitoTermos(savedUser, politicaPriv));
@@ -277,14 +275,37 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public boolean deactivateAccount() {
-        Long userId = jwtService.getIdUsuario();
-        return userRepository.findById(userId).map(
-            user -> {
-                user.setActivated(false);
-                userRepository.save(user);
-                return true;
-            }
-        ).orElse(false);
+    @Transactional
+    public void deactivateAccount(Long userId) {
+        User user = findById(userId);
+        user.setActivated(false);
     }
+
+    @Transactional
+    public void activateAccount(Long userId) {
+        User user = findById(userId);
+        user.setActivated(true);
+    }
+
+    public Long countAll() {
+        return userRepository.countAll();
+    }
+
+    public List<UserPieChartOutput> countUserGroupByRestricao(){
+        return userRepository.countUserGroupByRestricao();
+    }
+
+    public List<QtdUserByMesOutput> getQuantidadeUsuariosByMes() {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+
+        return userRepository.getQuantidadeUsuariosByMes()
+                .stream()
+                .map(p -> new QtdUserByMesOutput(
+                        p.getMes().format(formatter),
+                        p.getQntd()
+                ))
+                .toList();
+    }
+
 }
