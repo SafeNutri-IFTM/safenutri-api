@@ -10,4 +10,13 @@ import lombok.NoArgsConstructor;
 public class Token {
     private String email;
     private String token;
+    private boolean termosPendentes;
+
+    // Construtor auxiliar para facilitar o uso onde não há termos pendentes (ex:
+    // cadastros novos)
+    public Token(String email, String token) {
+        this.email = email;
+        this.token = token;
+        this.termosPendentes = false;
+    }
 }
