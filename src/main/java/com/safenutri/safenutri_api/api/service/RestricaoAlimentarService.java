@@ -35,4 +35,8 @@ public class RestricaoAlimentarService {
             
         restricaoAlimentarRepository.save(restricaoAlimentar);
     }
+
+    public Long countAll() {
+        return restricaoAlimentarRepository.countAll();
+    }
 }

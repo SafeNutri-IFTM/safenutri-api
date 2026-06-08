@@ -506,4 +506,8 @@ public class ReceitaService {
 
         receitaDenunciaRepository.save(denuncia);
     }
+
+    public Long countAll() {
+        return receitaRepository.countAll();
+    }
 }
