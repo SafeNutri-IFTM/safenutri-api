@@ -225,4 +225,7 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
                 "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated " +
                 "ORDER BY r.id DESC")
         List<ReceitaCardOutput> findTop4PublicasByUserId(@Param("userId") Long userId, Pageable pageable);
+
+        @Query("SELECT COUNT(*) AS total FROM Receita r")
+        Long countAll();
 }

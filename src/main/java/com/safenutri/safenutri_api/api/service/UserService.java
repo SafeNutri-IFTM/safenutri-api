@@ -2,6 +2,7 @@ package com.safenutri.safenutri_api.api.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,7 +37,9 @@ import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EmailOutput;
+import com.safenutri.safenutri_api.model.output.QtdUserByMesOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
+import com.safenutri.safenutri_api.model.output.UserPieChartOutput;
 import com.safenutri.safenutri_api.repository.UserRepository;
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 import com.safenutri.safenutri_api.repository.NutricionistaRepository;
@@ -282,6 +285,27 @@ public class UserService implements UserDetailsService {
     public void activateAccount(Long userId) {
         User user = findById(userId);
         user.setActivated(true);
+    }
+
+    public Long countAll() {
+        return userRepository.countAll();
+    }
+
+    public List<UserPieChartOutput> countUserGroupByRestricao(){
+        return userRepository.countUserGroupByRestricao();
+    }
+
+    public List<QtdUserByMesOutput> getQuantidadeUsuariosByMes() {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+
+        return userRepository.getQuantidadeUsuariosByMes()
+                .stream()
+                .map(p -> new QtdUserByMesOutput(
+                        p.getMes().format(formatter),
+                        p.getQntd()
+                ))
+                .toList();
     }
 
 }

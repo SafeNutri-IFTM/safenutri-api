@@ -15,4 +15,7 @@ public interface RestricaoAlimentarRepository extends JpaRepository<RestricaoAli
     @Query("SELECT new com.safenutri.safenutri_api.model.output.RestricaoOutput(r.id, r.restricao) " +
             "FROM RestricaoAlimentar r WHERE r.activated = TRUE ")
     List<RestricaoOutput> findByActivated();
+
+    @Query("SELECT COUNT(*) AS total FROM RestricaoAlimentar r")
+    Long countAll();
 }
