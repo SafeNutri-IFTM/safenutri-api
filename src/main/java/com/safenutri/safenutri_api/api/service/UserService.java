@@ -14,12 +14,14 @@ import jakarta.mail.MessagingException;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
 
 import com.safenutri.safenutri_api.core.security.UserPrincipal;
 import com.safenutri.safenutri_api.exception.UserNotFoundException;
@@ -37,6 +39,7 @@ import com.safenutri.safenutri_api.model.entity.UserRestricao;
 import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EmailOutput;
+import com.safenutri.safenutri_api.model.output.FeedbackOutput;
 import com.safenutri.safenutri_api.model.output.QtdUserByMesOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.model.output.UserPieChartOutput;
@@ -291,7 +294,7 @@ public class UserService implements UserDetailsService {
         return userRepository.countAll();
     }
 
-    public List<UserPieChartOutput> countUserGroupByRestricao(){
+    public List<UserPieChartOutput> countUserGroupByRestricao() {
         return userRepository.countUserGroupByRestricao();
     }
 
@@ -303,9 +306,13 @@ public class UserService implements UserDetailsService {
                 .stream()
                 .map(p -> new QtdUserByMesOutput(
                         p.getMes().format(formatter),
-                        p.getQntd()
-                ))
+                        p.getQntd()))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserOutput> listarTodosUsuariosPaginado(int page, int size) {
+        return userRepository.findAllUserPaginado(PageRequest.of(page, size));
     }
 
 }
