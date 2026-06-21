@@ -41,6 +41,7 @@ import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.EmailOutput;
 import com.safenutri.safenutri_api.model.output.FeedbackOutput;
 import com.safenutri.safenutri_api.model.output.QtdUserByMesOutput;
+import com.safenutri.safenutri_api.model.output.UserListOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.model.output.UserPieChartOutput;
 import com.safenutri.safenutri_api.repository.UserRepository;
@@ -311,8 +312,8 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserOutput> listarTodosUsuariosPaginado(int page, int size) {
-        return userRepository.findAllUserPaginado(PageRequest.of(page, size));
+    public Page<UserListOutput> listarTodosUsuariosPaginado(int page, int size, boolean ativo) {
+        return userRepository.findAllUserPaginado(PageRequest.of(page, size), ativo);
     }
 
 }

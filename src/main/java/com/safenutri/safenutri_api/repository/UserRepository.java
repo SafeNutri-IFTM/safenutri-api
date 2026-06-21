@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.output.FeedbackOutput;
+import com.safenutri.safenutri_api.model.output.UserListOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.model.output.UserPieChartOutput;
 import com.safenutri.safenutri_api.model.projection.QtdUserByMesProjection;
@@ -56,7 +57,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """, nativeQuery = true)
     List<QtdUserByMesProjection> getQuantidadeUsuariosByMes();
 
-    @Query("SELECT new com.safenutri.safenutri_api.model.output.UserOutput(u.nome, u.email, u.genero.id, u.dtNascimento, u.created, 0L, 0L, 0L) FROM User u")
-    Page<UserOutput> findAllUserPaginado(Pageable pageable);
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.UserListOutput(u.id, u.nome, u.email, u.dtNascimento, u.created) FROM User u WHERE u.activated = :ativo")
+        Page<UserListOutput> findAllUserPaginado(Pageable pageable, @Param("ativo") boolean ativo);
 
 }
