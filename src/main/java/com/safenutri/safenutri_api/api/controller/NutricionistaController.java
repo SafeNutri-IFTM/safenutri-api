@@ -13,7 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.api.service.NutricionistaService;
-import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
 import com.safenutri.safenutri_api.model.entity.Nutricionista;
 import com.safenutri.safenutri_api.model.input.NutricionistaInput;
 import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput;

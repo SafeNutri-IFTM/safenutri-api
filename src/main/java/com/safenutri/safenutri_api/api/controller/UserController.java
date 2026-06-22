@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.safenutri.safenutri_api.api.service.AtividadeRecenteService;
 import com.safenutri.safenutri_api.api.service.UserRestricaoService;
 import com.safenutri.safenutri_api.api.service.UserService;
-import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.AtividadeRecenteOutput;

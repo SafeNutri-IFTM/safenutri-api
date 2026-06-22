@@ -1,6 +1,5 @@
-package com.safenutri.safenutri_api.core.config;
+package com.safenutri.safenutri_api.core.security;
 
-import com.safenutri.safenutri_api.core.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +14,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.safenutri.safenutri_api.core.security.jwt.JwtAuthFilter;
+import com.safenutri.safenutri_api.core.security.rateLimit.RateLimitingFilter;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+    private final RateLimitingFilter rateLimitingFilter;
     private final JwtAuthFilter jwtAuthFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
@@ -62,7 +64,8 @@ public class SecurityConfig {
                                     : urlFrontend;
                             response.sendRedirect(baseUrl + "/login?error=cancelado");
                         }))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
