@@ -27,4 +27,9 @@ public class Paciente extends DefaultEntity {
     @JoinColumn(name = "nutricionista_id", nullable = false)
     private User nutricionista;
 
+    public Paciente(User user, User nutricionista) {
+        this.user = user;
+        this.nutricionista = nutricionista;
+    }
+
 }

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.safenutri.safenutri_api.core.security.JwtService;
+import com.safenutri.safenutri_api.core.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;

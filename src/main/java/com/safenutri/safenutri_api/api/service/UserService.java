@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 
-import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
 import com.safenutri.safenutri_api.exception.UserNotFoundException;
 import com.safenutri.safenutri_api.exception.EmailAlreadyExistsException;
 import com.safenutri.safenutri_api.exception.RestricaoNotFoundException;

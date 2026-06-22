@@ -1,12 +1,13 @@
 package com.safenutri.safenutri_api.api.controller;
 
 import com.safenutri.safenutri_api.api.service.ReportReceitaService;
+import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
 import com.safenutri.safenutri_api.model.output.ReportReceitaOutput;
 import com.safenutri.safenutri_api.model.output.ReportReceitaDetalheOutput;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import com.safenutri.safenutri_api.core.security.UserPrincipal;
+
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin("*")

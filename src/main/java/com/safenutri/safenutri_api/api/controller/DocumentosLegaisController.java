@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
-import com.safenutri.safenutri_api.core.security.JwtService;
-import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.core.security.jwt.JwtService;
+import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
 import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.output.Token;
 import com.safenutri.safenutri_api.api.service.DocumentosLegaisService;

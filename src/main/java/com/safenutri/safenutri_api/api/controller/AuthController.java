@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.safenutri.safenutri_api.core.security.JwtService;
+import com.safenutri.safenutri_api.core.security.jwt.JwtService;
 import com.safenutri.safenutri_api.api.service.UserService;
 import com.safenutri.safenutri_api.api.service.NutricionistaService;
 import com.safenutri.safenutri_api.exception.SenhaInvalidaException;

@@ -18,7 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
 import com.safenutri.safenutri_api.api.service.ReceitaService;
 import com.safenutri.safenutri_api.api.service.UploadService;
 import com.safenutri.safenutri_api.model.entity.Receita;
