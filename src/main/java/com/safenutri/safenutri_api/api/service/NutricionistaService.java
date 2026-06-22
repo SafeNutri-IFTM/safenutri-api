@@ -4,17 +4,16 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import com.safenutri.safenutri_api.core.security.JwtService;
-import com.safenutri.safenutri_api.exception.UserNotFoundException;
-import com.safenutri.safenutri_api.model.output.*;
-import org.springframework.transaction.annotation.Transactional;
-
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.safenutri.safenutri_api.core.utils.CrnValidation;
+
+import com.safenutri.safenutri_api.exception.UserNotFoundException;
+
 import com.safenutri.safenutri_api.model.entity.AceitoTermos;
 import com.safenutri.safenutri_api.model.entity.DocumentosLegais;
 import com.safenutri.safenutri_api.model.entity.Nutricionista;
@@ -23,6 +22,7 @@ import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.NutricionistaInput;
 import com.safenutri.safenutri_api.model.input.UserInput;
+import com.safenutri.safenutri_api.model.output.*;
 
 import com.safenutri.safenutri_api.repository.AceitoTermosRepository;
 import com.safenutri.safenutri_api.repository.NutricionistaRepository;
@@ -30,7 +30,6 @@ import com.safenutri.safenutri_api.repository.PacienteRepository;
 import com.safenutri.safenutri_api.repository.ReceitaAvaliacaoRepository;
 import com.safenutri.safenutri_api.repository.ReceitaFavoritaRepository;
 import com.safenutri.safenutri_api.repository.ReceitaRepository;
-import com.safenutri.safenutri_api.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor

@@ -1,22 +1,24 @@
 package com.safenutri.safenutri_api.api.controller;
 
-import com.safenutri.safenutri_api.core.security.UserPrincipal;
-import com.safenutri.safenutri_api.model.output.NutricionistaOutput;
-import com.safenutri.safenutri_api.model.output.UserOutput;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
-
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.safenutri.safenutri_api.api.service.NutricionistaService;
+import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.model.entity.Nutricionista;
 import com.safenutri.safenutri_api.model.input.NutricionistaInput;
 import com.safenutri.safenutri_api.model.output.PerfilNutricionistaPublicoOutput;
+import com.safenutri.safenutri_api.model.output.NutricionistaOutput;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +40,15 @@ public class NutricionistaController {
     public ResponseEntity<PerfilNutricionistaPublicoOutput> getPerfilPublico(@PathVariable Long id) {
         return ResponseEntity.ok(nutricionistaService.getPerfilPublico(id));
     }
+
+    @GetMapping("/link")
+    public ResponseEntity<Map<String, String>> obterLinkConvite(@AuthenticationPrincipal UserPrincipal user) {
+        Nutricionista nutri = nutricionistaService.findByUserId(user.getId());
+        Map<String, String> response = new HashMap<>();
+        response.put("tokenConvite", nutri.getTokenConvite().toString());
+        return ResponseEntity.ok(response);
+    }
+    
 
     @PostMapping
     @Operation(summary = "Cria um novo nutricionista")
