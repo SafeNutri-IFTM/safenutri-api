@@ -29,6 +29,12 @@ public class RestricaoAlimentarController {
         return ResponseEntity.ok(restricoes);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<RestricaoListOutput> buscarPorId(@PathVariable Long id) {
+        RestricaoListOutput dto = restricaoAlimentarService.buscarPorId(id);
+        return ResponseEntity.ok(dto);
+    }
+
     @GetMapping("/todas")
     @Operation(summary = "Busca todas as restrições alimentares ativas cadastradas no sistema com descrição")
     public ResponseEntity<Page<RestricaoListOutput>> getAllActivatedComDesc(
@@ -45,5 +51,19 @@ public class RestricaoAlimentarController {
             @RequestBody RestricaoAlimentarInput restricaoAlimentarInput) {
         restricaoAlimentarService.salvar(restricaoAlimentarInput);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/{id}/inativar")
+    @Operation(summary = "Inativa uma restrição alimentar pelo ID")
+    public ResponseEntity<Void> inativar(@PathVariable Long id) {
+        restricaoAlimentarService.inativar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/ativar")
+    @Operation(summary = "Inativa uma restrição alimentar pelo ID")
+    public ResponseEntity<Void> ativar(@PathVariable Long id) {
+        restricaoAlimentarService.ativar(id);
+        return ResponseEntity.noContent().build();
     }
 }

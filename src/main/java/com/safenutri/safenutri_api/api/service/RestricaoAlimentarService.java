@@ -16,6 +16,8 @@ import com.safenutri.safenutri_api.model.entity.RestricaoAlimentar;
 import com.safenutri.safenutri_api.model.input.RestricaoAlimentarInput;
 import com.safenutri.safenutri_api.repository.RestricaoAlimentarRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 @RequiredArgsConstructor
 public class RestricaoAlimentarService {
@@ -24,6 +26,13 @@ public class RestricaoAlimentarService {
     @Transactional(readOnly = true)
     public List<RestricaoAlimentar> findAllById(Set<Long> restricoesIdSet) {
         return restricaoAlimentarRepository.findAllById(restricoesIdSet);
+    }
+
+    @Transactional(readOnly = true)
+    public RestricaoListOutput buscarPorId(Long id) {
+        RestricaoAlimentar restricao = restricaoAlimentarRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Restrição não encontrada"));
+        return new RestricaoListOutput(restricao.getId(), restricao.getRestricao(), restricao.getDescricao());
     }
 
     @Transactional(readOnly = true)
@@ -39,12 +48,28 @@ public class RestricaoAlimentarService {
     @Transactional
     public void salvar(RestricaoAlimentarInput restricaoAlimentaInput) {
         RestricaoAlimentar restricaoAlimentar = new RestricaoAlimentar(restricaoAlimentaInput.getRestricao(),
-            restricaoAlimentaInput.getDescricao());
-            
+                restricaoAlimentaInput.getDescricao());
+
         restricaoAlimentarRepository.save(restricaoAlimentar);
     }
 
     public Long countAll() {
         return restricaoAlimentarRepository.countAll();
+    }
+
+    @Transactional
+    public void inativar(Long id) {
+        RestricaoAlimentar restricao = restricaoAlimentarRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Restrição não encontrada"));
+        restricao.setActivated(false);
+        restricaoAlimentarRepository.save(restricao);
+    }
+
+    @Transactional
+    public void ativar(Long id) {
+        RestricaoAlimentar restricao = restricaoAlimentarRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Restrição não encontrada"));
+        restricao.setActivated(true);
+        restricaoAlimentarRepository.save(restricao);
     }
 }
