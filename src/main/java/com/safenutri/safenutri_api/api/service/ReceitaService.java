@@ -170,6 +170,21 @@ public class ReceitaService {
         if (modoPreparoInputList != null && !modoPreparoInputList.isEmpty()) {
             processarModoPreparo(savedReceita, modoPreparoInputList);
         }
+
+        // Vamos buscar o status de "EM ANÁLISE" no banco (assumindo que o ID seja 3, por exemplo, ou buscar por nome)
+        StatusDenuncia statusEmAnalise = statusDenunciaRepository.findByStatus("EM ANÁLISE")
+                .orElseThrow(() -> new RuntimeException("Status EM ANÁLISE não cadastrado no BD"));
+
+        // Buscar todas as denúncias desta receita que estão SUSPENSAS
+        List<ReceitaDenuncia> denunciasSuspensas = receitaDenunciaRepository.findAllByReceitaIdAndStatus_Status(id, "SUSPENSA");
+        
+        // Mudar o status de todas elas para "EM ANÁLISE"
+        if (!denunciasSuspensas.isEmpty()) {
+            for (ReceitaDenuncia denuncia : denunciasSuspensas) {
+                denuncia.setStatus(statusEmAnalise);
+            }
+            receitaDenunciaRepository.saveAll(denunciasSuspensas);
+        }
     }
 
     private void processarRestricoes(Receita receita, List<Long> restricoesIdList) {
@@ -220,15 +235,19 @@ public class ReceitaService {
     }
 
     @Transactional
-    public void desativarReceita(Long receitaId) {
-        Receita receita = findById(receitaId);
+    public void desativarReceita(Long id) {
+        Receita receita = receitaRepository.findById(id)
+                .orElseThrow(() -> new ReceitaNotFoundException("Receita não encontrada"));
         receita.setActivated(false);
+        receitaRepository.save(receita);
     }
 
     @Transactional
-    public void ativarReceita(Long receitaId) {
-        Receita receita = findById(receitaId);
+    public void ativarReceita(Long id) {
+        Receita receita = receitaRepository.findById(id)
+                .orElseThrow(() -> new ReceitaNotFoundException("Receita não encontrada"));
         receita.setActivated(true);
+        receitaRepository.save(receita);
     }
 
     @Transactional(readOnly = true)
@@ -239,6 +258,92 @@ public class ReceitaService {
         return rcoPage.map(r -> {
             String tempoFormato = formatarTempo(r.getTempo());
             r.setTempoFormatado(tempoFormato);
+
+            // --- INÍCIO DA INTEGRAÇÃO COM O FIGMA ---
+            Receita receita = receitaRepository.findById(r.getId()).orElse(null);
+            
+            if (receita != null) {
+                // Envia a imagem para o ecrã
+                r.setFoto(receita.getImagem());
+                
+                // Define os macros
+                r.setCarboidratos(0.0); 
+                r.setProteinas(0.0);
+
+                // Se a receita estiver INATIVA, vamos ver qual é o status dos Reports
+                if (r.getActivated() != null && !r.getActivated()) {
+                    List<ReceitaDenuncia> denuncias = receitaDenunciaRepository.findByReceitaId(r.getId());
+                    
+                    if (denuncias != null && !denuncias.isEmpty()) {
+                        String statusPrioritario = null;
+                        int prioridadeMaxima = 99; // Quanto menor o número, maior a gravidade
+                        
+                        // =====================================================================
+                        // 1º PASSO: Descobre qual é o status principal da receita (O Badge)
+                        // =====================================================================
+                        for (ReceitaDenuncia d : denuncias) {
+                            if (d.getStatus() != null) {
+                                String statusAtual = d.getStatus().getStatus().toUpperCase();
+                                int prioridadeAtual = 99;
+                                
+                                if (statusAtual.equals("SUSPENSA") || statusAtual.equals("EM CORREÇÃO")) {
+                                    prioridadeAtual = 1;
+                                } else if (statusAtual.equals("EM ANÁLISE") || statusAtual.equals("EM ANALISE")) {
+                                    prioridadeAtual = 2;
+                                } else if (statusAtual.equals("PENDENTE") || statusAtual.equals("AGUARDANDO")) {
+                                    prioridadeAtual = 3;
+                                }
+
+                                if (prioridadeAtual < prioridadeMaxima) {
+                                    prioridadeMaxima = prioridadeAtual;
+                                    statusPrioritario = statusAtual;
+                                }
+                            }
+                        }
+
+                        // =====================================================================
+                        // 2º PASSO: Junta APENAS os motivos que batem com o status principal!
+                        // =====================================================================
+                        StringBuilder motivosAgrupados = new StringBuilder();
+                        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+                        for (ReceitaDenuncia d : denuncias) {
+                            if (d.getStatus() != null && statusPrioritario != null) {
+                                String statusAtual = d.getStatus().getStatus().toUpperCase();
+                                
+                                // FILTRO MÁGICO 2.0: Se a receita está Suspensa, mostra Suspensos. 
+                                // Se a receita está Em Análise, mostra Em Análise!
+                                if (statusAtual.equals(statusPrioritario)) {
+                                    if (d.getDescricao() != null && !d.getDescricao().trim().isEmpty()) {
+                                        String dataFormatada = "";
+                                        
+                                        if (d.getCreated() != null) {
+                                            try {
+                                                dataFormatada = d.getCreated().format(formatter) + " - ";
+                                            } catch (Exception e) {
+                                                dataFormatada = d.getCreated().toString() + " - ";
+                                            }
+                                        }
+                                        
+                                        motivosAgrupados.append("• ")
+                                                        .append(dataFormatada)
+                                                        .append(d.getDescricao())
+                                                        .append("\n\n");
+                                    }
+                                }
+                            }
+                        }
+
+                        // Envia para o Angular o status mais grave e os motivos perfeitamente filtrados!
+                        if (statusPrioritario != null) {
+                            r.setStatusDenuncia(statusPrioritario);
+                            r.setMotivoDenuncia(motivosAgrupados.toString().trim()); 
+                        }
+                    }
+                }
+            }
+            // --- FIM DA INTEGRAÇÃO COM O FIGMA ---
+
             return r;
         });
     }

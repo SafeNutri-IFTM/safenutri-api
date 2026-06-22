@@ -19,7 +19,6 @@ public class ReportReceitaService {
 
     @Transactional(readOnly = true)
     public Page<ReportReceitaOutput> listarTodosPaginado(int page, int size, boolean ativo) {
-        // Passando a variável 'ativo' para o repository filtrar os dados corretos
         return denunciaRepository.findAllReports(PageRequest.of(page, size), ativo);
     }
 
@@ -35,10 +34,33 @@ public class ReportReceitaService {
 
     @Transactional
     public void inativarReceitaPorReport(Long idReport) {
-        // 1. Muda a coluna activated para false na tabela receita
+        denunciaRepository.inativarReceitaPorReport(idReport);
+        // Suspende TODOS os relatórios vinculados à receita
+        denunciaRepository.atualizarTodosStatusReportParaSuspensa(idReport);
+    }
+
+    @Transactional
+    public void aprovarReport(Long idReport) {
+        denunciaRepository.atualizarStatusReportParaConcluido(idReport);
+        
+        long restantes = denunciaRepository.countReportsNaoConcluidosPorReportId(idReport);
+        
+        if (restantes == 0) {
+            denunciaRepository.ativarReceitaPorReport(idReport);
+        }
+    }
+
+    @Transactional
+    public void recusarReport(Long idReport) {
+        // 1. SOLUÇÃO DO BUG: Força explicitamente a receita a ficar INATIVA (activated = false)
         denunciaRepository.inativarReceitaPorReport(idReport);
         
-        // 2. Muda a coluna do status da denúncia para id = 4 (Corrigindo)
-        denunciaRepository.atualizarStatusReportParaCorrigindo(idReport);
+        // 2. SOLUÇÃO DO BUG: Atualiza individualmente APENAS o report recusado para o status Suspensa
+        denunciaRepository.atualizarStatusReportParaSuspensaIndividual(idReport);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReportReceitaOutput> listarMeusReportsPaginado(Long userId, int page, int size, boolean ativo) {
+        return denunciaRepository.findMeusReports(PageRequest.of(page, size), ativo, userId);
     }
 }
