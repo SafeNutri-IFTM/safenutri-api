@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/auth/oauth2/success").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/google/register-user", "/auth/google/register-nutri").permitAll()
                         .requestMatchers(HttpMethod.GET, "/nutricionista/*/publico").permitAll()
+                        .requestMatchers("/ws/**", "/ws-chat/**", "/error").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
