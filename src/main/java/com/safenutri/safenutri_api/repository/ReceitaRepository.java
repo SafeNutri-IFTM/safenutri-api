@@ -20,8 +20,7 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
     @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaOutput (r.id, r.titulo, r.descricao, " +
             "r.tipoReceita.id, r.tipoReceita.tipoReceita, r.porcao, r.tempoPreparo, r.ingredientes, r.calorias) " +
             "FROM Receita r " +
-            "WHERE r.id = :receitaId " +
-            "AND r.activated = TRUE")
+            "WHERE r.id = :receitaId")
     ReceitaOutput findReceita(@Param("receitaId") Long receitaId);
 
     //SQL PARA RECEITAS QUANDO O USUÁRIO NÃO TEM RESTRIÇÕES
