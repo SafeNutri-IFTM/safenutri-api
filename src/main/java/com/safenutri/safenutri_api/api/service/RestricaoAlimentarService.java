@@ -3,9 +3,12 @@ package com.safenutri.safenutri_api.api.service;
 import java.util.List;
 import java.util.Set;
 
+import com.safenutri.safenutri_api.model.output.RestricaoListOutput;
 import com.safenutri.safenutri_api.model.output.RestricaoOutput;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,11 @@ public class RestricaoAlimentarService {
     @Transactional(readOnly = true)
     public List<RestricaoOutput> getAllActivated() {
         return restricaoAlimentarRepository.findByActivated();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RestricaoListOutput> getAllActivatedComDesc(int page, int size, boolean ativo) {
+        return restricaoAlimentarRepository.findByActivatedComDesc(PageRequest.of(page, size), ativo);
     }
 
     @Transactional
