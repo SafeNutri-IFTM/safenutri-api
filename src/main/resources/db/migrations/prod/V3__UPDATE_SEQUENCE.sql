@@ -1,0 +1,14 @@
+SELECT setval('public.id_seq_genero', (SELECT MAX(id) FROM public.genero));
+SELECT setval('public.id_seq_role', (SELECT MAX(id) FROM public.role));
+SELECT setval('public.id_seq_restricao_alimentar', (SELECT MAX(id) FROM public.restricao_alimentar));
+SELECT setval('public.id_seq_tipo_receita', (SELECT MAX(id) FROM public.tipo_receita));
+SELECT setval('public.id_seq_user', (SELECT MAX(id) FROM public.user));
+SELECT setval('public.id_seq_user_restricao', (SELECT MAX(id) FROM public.user_restricao));
+SELECT setval('public.id_seq_nutricionista', (SELECT MAX(id) FROM public.nutricionista));
+SELECT setval('public.id_seq_paciente', (SELECT MAX(id) FROM public.paciente));
+SELECT setval('public.id_seq_receita', (SELECT MAX(id) FROM public.receita));
+SELECT setval('public.id_seq_modo_preparo', (SELECT MAX(id) FROM public.modo_preparo));
+SELECT setval('public.id_seq_receita_restricao', (SELECT MAX(id) FROM public.receita_restricao));
+SELECT setval('public.id_seq_documentos_legais', (SELECT MAX(id) FROM public.documentos_legais));
+SELECT setval('public.id_seq_aceito_termos', (SELECT MAX(id) FROM public.aceito_termos));
+SELECT setval('public.id_seq_status_denuncia', (SELECT MAX(id) FROM public.status_denuncia));
