@@ -19,7 +19,7 @@ public class GeneroController {
     private final GeneroService generoService;
 
     @GetMapping
-    @Operation(summary = "Busca os generos", description = "Busca todos os generos")
+    @Operation(summary = "Busca todos os generos cadastrados no sistema")
     public ResponseEntity<List<GeneroOutput>> getAll() {
         List<GeneroOutput> generos = generoService.getAll();
         return ResponseEntity.ok(generos);
