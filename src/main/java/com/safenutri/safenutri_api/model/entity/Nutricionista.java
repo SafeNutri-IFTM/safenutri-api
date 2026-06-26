@@ -1,5 +1,7 @@
 package com.safenutri.safenutri_api.model.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -31,6 +33,9 @@ public class Nutricionista extends DefaultEntity {
 
     @Column(name = "imagem_perfil")
     private String imagem;
+
+    @Column(name = "token_convite")
+    private UUID tokenConvite;
 
     public Nutricionista(User user, String CRN) {
         this.user = user;

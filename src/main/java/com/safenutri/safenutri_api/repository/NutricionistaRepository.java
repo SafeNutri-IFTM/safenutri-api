@@ -1,5 +1,6 @@
 package com.safenutri.safenutri_api.repository;
 
+import java.util.UUID;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,8 @@ import com.safenutri.safenutri_api.model.output.NutricionistaOutput;
 public interface NutricionistaRepository extends JpaRepository<Nutricionista, Long>{
 
     Optional<Nutricionista> findByUserId(Long userId);
+
+    Optional<Nutricionista> findByTokenConvite(UUID tokenConvite);
 
     @Query("SELECT new com.safenutri.safenutri_api.model.output.NutricionistaOutput(u.nome, u.email, u.genero.id, " +
             "u.dtNascimento, u.created, " +

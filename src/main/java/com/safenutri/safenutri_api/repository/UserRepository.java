@@ -3,12 +3,16 @@ package com.safenutri.safenutri_api.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.safenutri.safenutri_api.model.entity.User;
+import com.safenutri.safenutri_api.model.output.FeedbackOutput;
+import com.safenutri.safenutri_api.model.output.UserListOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
 import com.safenutri.safenutri_api.model.output.UserPieChartOutput;
 import com.safenutri.safenutri_api.model.projection.QtdUserByMesProjection;
@@ -23,7 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT new com.safenutri.safenutri_api.model.output.UserOutput(u.nome, u.email, u.genero.id, " +
             "u.dtNascimento, u.created, " +
-            "(SELECT COUNT(rf) FROM ReceitaFavorita rf WHERE rf.user.id = :userId) AS qntdFavoritas, " + 
+            "(SELECT COUNT(rf) FROM ReceitaFavorita rf WHERE rf.user.id = :userId) AS qntdFavoritas, " +
             "(SELECT COUNT(ra) FROM ReceitaAvaliacao ra WHERE ra.user.id = :userId) AS qntdAvaliadas, " +
             "(SELECT COUNT(r) FROM Receita r WHERE r.user.id = :userId) AS qntdMinhasReceitas) " +
             "FROM User u " +
@@ -42,15 +46,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<UserPieChartOutput> countUserGroupByRestricao();
 
     @Query(value = """
-        SELECT 
-            DATE_TRUNC('month', created) AS mes,
-            COUNT(*) AS qntd
-        FROM public.user
-        WHERE activated = true
-        AND DATE_PART('year', created) = DATE_PART('year', CURRENT_DATE)
-        GROUP BY mes
-        ORDER BY mes
-        """, nativeQuery = true)
+            SELECT
+                DATE_TRUNC('month', created) AS mes,
+                COUNT(*) AS qntd
+            FROM public.user
+            WHERE activated = true
+            AND DATE_PART('year', created) = DATE_PART('year', CURRENT_DATE)
+            GROUP BY mes
+            ORDER BY mes
+            """, nativeQuery = true)
     List<QtdUserByMesProjection> getQuantidadeUsuariosByMes();
+
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.UserListOutput(u.id, u.nome, u.email, u.dtNascimento, u.created) FROM User u WHERE u.activated = :ativo")
+        Page<UserListOutput> findAllUserPaginado(Pageable pageable, @Param("ativo") boolean ativo);
 
 }

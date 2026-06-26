@@ -1,4 +1,4 @@
-package com.safenutri.safenutri_api.core.security;
+package com.safenutri.safenutri_api.core.security.jwt;
 
 import java.io.IOException;
 

@@ -3,8 +3,10 @@ import java.time.LocalDateTime;
 
 public record ReportReceitaOutput(
     Long id,
+    Long receitaId,
     String nomeReceita,
     String nomeAutorReport,
     LocalDateTime data,
-    String motivo
+    String motivo,
+    String status
 ) {}

@@ -3,7 +3,7 @@ package com.safenutri.safenutri_api.api.controller;
 import com.safenutri.safenutri_api.api.service.FeedbackService;
 import com.safenutri.safenutri_api.model.input.FeedbackInput;
 import com.safenutri.safenutri_api.model.output.FeedbackOutput;
-import com.safenutri.safenutri_api.core.security.UserPrincipal;
+import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

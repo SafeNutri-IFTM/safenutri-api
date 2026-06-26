@@ -2,10 +2,12 @@ package com.safenutri.safenutri_api.model.output;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
+@NoArgsConstructor // Adicionado para facilitar a instanciação
 @Data
 @Getter
 @Setter
@@ -21,6 +23,14 @@ public class ReceitaCardOutput {
     private Boolean favoritada;
     private Boolean activated;
 
+    // --- NOVOS CAMPOS PARA ATENDER AO FIGMA ---
+    private String foto;
+    private Double carboidratos;
+    private Double proteinas;
+    private String statusDenuncia; // Ex: 'SUSPENSA', 'EM ANÁLISE'
+    private String motivoDenuncia; // Descrição do report
+
+    // Este é o seu construtor original, ele DEVE ser mantido para não quebrar o código existente!
     public ReceitaCardOutput(Long id, String tipoReceita, String titulo, String descricao, Integer tempo,
         Integer calorias, Double mediaAvaliacao, Boolean favoritada, Boolean activated
     ) {

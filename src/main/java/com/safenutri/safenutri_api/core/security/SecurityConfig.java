@@ -1,6 +1,7 @@
-package com.safenutri.safenutri_api.core.config;
+package com.safenutri.safenutri_api.core.security;
 
-import com.safenutri.safenutri_api.core.security.JwtAuthFilter;
+import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +16,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.safenutri.safenutri_api.core.security.jwt.JwtAuthFilter;
+import com.safenutri.safenutri_api.core.security.rateLimit.RateLimitingFilter;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+    private final RateLimitingFilter rateLimitingFilter;
     private final JwtAuthFilter jwtAuthFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
@@ -48,8 +52,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/auth/oauth2/success").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/google/register-user", "/auth/google/register-nutri").permitAll()
                         .requestMatchers(HttpMethod.GET, "/nutricionista/*/publico").permitAll()
+                        .requestMatchers("/ws/**", "/ws-chat/**", "/error").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated())
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                        }))
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler((request, response, authentication) -> {
                             OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
@@ -62,7 +73,8 @@ public class SecurityConfig {
                                     : urlFrontend;
                             response.sendRedirect(baseUrl + "/login?error=cancelado");
                         }))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
