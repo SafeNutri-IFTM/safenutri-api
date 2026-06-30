@@ -26,4 +26,8 @@ public class ReceitaRestricaoService {
     public List<RestricaoOutput> findByReceitaId(Long id) {
         return receitaRestricaoRepository.findByReceitaId(id);
     }
+
+    public List<RestricaoOutput> findMostUsedRestricoesByUserId(Long userId) {
+        return receitaRestricaoRepository.findMostUsedRestricoesByUserId(userId);
+    }
 }
