@@ -3,6 +3,7 @@ package com.safenutri.safenutri_api.api.service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 
@@ -86,7 +87,7 @@ public class NutricionistaService {
     }
 
     @Transactional
-    public void cadastrarNutricionistaGoogle(String email, String nome, String crnEstado, String crnNumero) {
+    public void cadastrarNutricionistaGoogle(String email, String nome, String foto, String crnEstado, String crnNumero) {
 
         Boolean crnValido = crnValidation.pesquisarCrn(crnEstado, crnNumero);
 
@@ -118,6 +119,11 @@ public class NutricionistaService {
 
         String crnCompleto = crnEstado + "/" + crnNumero;
         Nutricionista nutricionista = new Nutricionista(savedUser, crnCompleto);
+        nutricionista.setTokenConvite(UUID.randomUUID());
+        nutricionista.setImagem(foto);
+
+        System.out.println("\n\n\n\n\n\nFoto recebida no service: " + foto);
+
         nutricionistaRepository.save(nutricionista);
     }
 

@@ -53,6 +53,9 @@ public class AuthController {
     public ResponseEntity<?> loginGoogle(@RequestAttribute("userGoogle") OAuth2User userGoogle) {
         String email = userGoogle.getAttribute("email");
         String nome = userGoogle.getAttribute("name");
+        String foto = userGoogle.getAttribute("picture");
+
+        System.out.println("Foto Google: " + foto);
 
         try {
             User user = userService.loginGoogle(email, nome);
@@ -65,7 +68,8 @@ public class AuthController {
 
         } catch (RuntimeException e) {
             if ("USUARIO_NAO_ENCONTRADO_GOOGLE".equals(e.getMessage())) {
-                String url = urlFrontend + "/login?register_google=true&email=" + email + "&nome=" + nome;
+                String url = urlFrontend + "/login?register_google=true&email=" + email + "&nome=" + nome + "&foto="
+                        + foto;
                 return ResponseEntity.status(302).header("Location", url).build();
             }
 
@@ -158,10 +162,14 @@ public class AuthController {
         try {
             String email = payload.get("email");
             String nome = payload.get("nome");
+            String foto = payload.get("foto");
             String crnEstado = payload.get("crnEstado");
             String crnNumero = payload.get("crnNumero");
 
-            nutricionistaService.cadastrarNutricionistaGoogle(email, nome, crnEstado, crnNumero);
+            System.out.println("\n\n\n\n\n\nPayload: " + payload);
+            System.out.println("Foto recebida: " + foto);
+
+            nutricionistaService.cadastrarNutricionistaGoogle(email, nome, foto, crnEstado, crnNumero);
 
             User user = userService.findByExistEmail(email)
                     .orElseThrow(() -> new RuntimeException("Erro interno ao buscar usuário após cadastro."));
