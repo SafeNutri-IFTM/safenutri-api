@@ -44,6 +44,8 @@ public class NutricionistaService {
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
     private final ReceitaFavoritaRepository receitaFavoritaRepository;
     private final ReceitaRepository receitaRepository;
+    private final AtividadeRecenteService atividadeRecenteService;
+    private final ReceitaRestricaoService receitaRestricaoService;
 
     @Transactional(readOnly = true)
     public NutricionistaOutput getProfileInfos(Long userId) {
@@ -142,9 +144,16 @@ public class NutricionistaService {
 
         List<ReceitaCardOutput> receitas = receitaRepository.findTop4PublicasByUserId(
                 userId, PageRequest.of(0, 4));
-
+ 
         String nome = nutricionista.getUser().getNome();
         String iniciais = nome != null && !nome.isEmpty() ? nome.substring(0, 1).toUpperCase() : "";
+ 
+        List<AtividadeRecenteOutput> atividades = atividadeRecenteService.buscarRecentes(userId);
+ 
+        List<String> restricoes = receitaRestricaoService.findMostUsedRestricoesByUserId(userId)
+                .stream()
+                .map(RestricaoOutput::getRestricao)
+                .toList();
 
         return new PerfilNutricionistaPublicoOutput(
                 nutricionista.getId(),
@@ -152,8 +161,10 @@ public class NutricionistaService {
                 iniciais,
                 nutricionista.getCRN(),
                 nutricionista.getDescPerfil(),
+                restricoes,
                 estatisticas,
-                receitas);
+                receitas,
+                atividades);
     }
 
     @Transactional
