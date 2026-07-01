@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/documentos-legais/atual").permitAll()
                         .requestMatchers(HttpMethod.POST, "/documentos-legais").permitAll()
                         .requestMatchers(HttpMethod.GET, "/receita/download-image/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/recuperarSenha/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/recuperar-senha/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/mudar-senha").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/oauth2/success").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/google/register-user", "/auth/google/register-nutri").permitAll()

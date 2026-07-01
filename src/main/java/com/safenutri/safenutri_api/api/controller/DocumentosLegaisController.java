@@ -1,6 +1,7 @@
 package com.safenutri.safenutri_api.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -43,6 +44,7 @@ public class DocumentosLegaisController {
     }
 
     @PostMapping("/aceitar")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Registra que o usuário autenticado aceitou a versão atual de um documento")
     public ResponseEntity<Token> aceitarDocumento(
             @AuthenticationPrincipal UserPrincipal userPrincipal,

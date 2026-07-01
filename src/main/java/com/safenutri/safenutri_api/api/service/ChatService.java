@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.safenutri.safenutri_api.model.output.ContatoOutput;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class ChatService {
             throw new AccessDeniedException("Você não tem permissão para enviar mensagens a este usuário pois não há vínculo profissional ativo.");
         }
 
-        String sql = "INSERT INTO mensagem (remetente_id, destinatario_id, conteudo, data_envio) VALUES (?, ?, ?, ?) RETURNING id";
+        String sql = "INSERT INTO mensagem (remetente_id, destinatario_id, conteudo, created) VALUES (?, ?, ?, ?) RETURNING id";
         LocalDateTime agora = LocalDateTime.now();
 
         Long idSalvo = jdbcTemplate.queryForObject(sql, Long.class,
@@ -43,18 +42,18 @@ public class ChatService {
     }
 
     public List<MensagemOutput> buscarHistorico(Long usuarioA, Long usuarioB) {
-        String sql = "SELECT id, remetente_id, destinatario_id, conteudo, data_envio " +
+        String sql = "SELECT id, remetente_id, destinatario_id, conteudo, created " +
                 "FROM mensagem " +
                 "WHERE (remetente_id = ? AND destinatario_id = ?) " +
                 "OR (remetente_id = ? AND destinatario_id = ?) " +
-                "ORDER BY data_envio ASC";
+                "ORDER BY created ASC";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             MensagemOutput mensagem = new MensagemOutput(rs.getLong("id"),
                     rs.getLong("remetente_id"),
                     rs.getLong("destinatario_id"),
                     rs.getString("conteudo"),
-                    rs.getTimestamp("data_envio").toLocalDateTime());
+                    rs.getTimestamp("created").toLocalDateTime());
             return mensagem;
         }, usuarioA, usuarioB, usuarioB, usuarioA);
     }
@@ -64,7 +63,7 @@ public class ChatService {
                 "(SELECT conteudo FROM mensagem m " +
                 " WHERE (m.remetente_id = u.id AND m.destinatario_id = ?) " +
                 "    OR (m.remetente_id = ? AND m.destinatario_id = u.id) " +
-                " ORDER BY data_envio DESC LIMIT 1) as ultima_mensagem " +
+                " ORDER BY created DESC LIMIT 1) as ultima_mensagem " +
                 "FROM \"user\" u " +
                 "JOIN paciente p ON (p.user_id = u.id OR p.nutricionista_id = u.id) " +
                 "WHERE (p.user_id = ? OR p.nutricionista_id = ?) AND u.id != ?";

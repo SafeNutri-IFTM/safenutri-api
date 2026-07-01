@@ -5,6 +5,7 @@ import java.util.Map;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +37,7 @@ public class ReceitaController {
     private final UploadService uploadService;
 
     @GetMapping("/avaliadas")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Lista as receitas avaliadas pelo usuário autenticado")
     public ResponseEntity<Page<ReceitaCardOutput>> getReceitasAvaliadas(
             @AuthenticationPrincipal UserPrincipal user,
@@ -48,7 +50,8 @@ public class ReceitaController {
     }
 
     @GetMapping("/busca")
-    @Operation(summary = "Busca receitas pelo título (termo) com paginação")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Busca receitas pelo título")
     public ResponseEntity<Page<ReceitaCardOutput>> buscarReceitasFeed(
             @RequestParam(required = false, defaultValue = "") String termo,
             @RequestParam(defaultValue = "0") int page,
@@ -59,6 +62,7 @@ public class ReceitaController {
     }
 
     @GetMapping("/minhas-receitas")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca as receitas cadastradas pelo usuário autenticado")
     public ResponseEntity<Page<ReceitaCardOutput>> getMinhasReceitas(
             @AuthenticationPrincipal UserPrincipal user,
@@ -73,6 +77,7 @@ public class ReceitaController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca as informações de uma receita pelo ID")
     public ResponseEntity<ReceitaDetalheOutput> buscarPorId(@PathVariable Long id) {
         try {
@@ -84,6 +89,7 @@ public class ReceitaController {
     }
 
     @GetMapping("/download-image/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca a imagem da receita pelo ID")
     public ResponseEntity<?> getImage(@PathVariable Long id) {
         try {
@@ -111,6 +117,7 @@ public class ReceitaController {
     }
 
     @GetMapping("/receita-completa/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca os detalhes completos de uma receita pelo ID (Receita, Passos e Restrições)")
     public ResponseEntity<?> getReceitaById(@PathVariable Long id) {
         try {
@@ -123,7 +130,8 @@ public class ReceitaController {
     }
 
     @GetMapping("/{id}/minha-avaliacao")
-    @Operation(summary = "Busca a avaliação do usuário logado para uma receita específica")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Busca a avaliação do usuário autenticado para uma receita específica")
     public ResponseEntity<?> getMinhaAvaliacao(
             @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id
@@ -141,7 +149,8 @@ public class ReceitaController {
     }
 
     @GetMapping("/favoritas")
-    @Operation(summary = "Lista receitas favoritas", description = "Retorna a página de receitas que o usuário logado favoritou")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Retorna as receitas favoritadas pelo usuário autenticado")
     public ResponseEntity<Page<ReceitaCardOutput>> getFavoritas(
             @AuthenticationPrincipal UserPrincipal user,
             @RequestParam(defaultValue = "0") int page,
@@ -153,7 +162,8 @@ public class ReceitaController {
     }
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    @Operation(summary = "Cria uma receita", description = "Cria uma nova receita com base nas informações fornecidas")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Cria uma receita")
     public ResponseEntity<?> save(
             @AuthenticationPrincipal UserPrincipal user,
             @RequestPart("receita") @Valid ReceitaInput receitaInput,
@@ -171,7 +181,8 @@ public class ReceitaController {
     }
 
     @PostMapping("/{id}/avaliar")
-    @Operation(summary = "Adiciona ou atualiza a avaliação do usuário logado para uma receita")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Adiciona ou atualiza a avaliação do usuário autenticado para uma receita")
     public ResponseEntity<?> avaliarReceita(
             @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id,
@@ -188,7 +199,8 @@ public class ReceitaController {
     }
 
     @PostMapping("/{id}/favoritar")
-    @Operation(summary = "Favorita uma receita", description = "Adiciona a receita a lista de receitas favoritas do usuário logado")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Adiciona uma receita específica a lista de receitas favoritas do usuário autenticado")
     public ResponseEntity<?> favoritar(
             @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id
@@ -203,7 +215,8 @@ public class ReceitaController {
     }
 
     @PostMapping("/{id}/denunciar")
-    @Operation(summary = "Denuncia uma receita", description = "Cria uma denúncia/reporte para uma receita específica associada ao usuário autenticado")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Cria uma denúncia do usuário autenticado para uma receita específica")
     public ResponseEntity<?> denunciarReceita(
             @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id,
@@ -222,7 +235,8 @@ public class ReceitaController {
     }
 
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    @Operation(summary = "Atualiza uma receita", description = "Atualiza uma receita com base nas informações fornecidas")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Atualiza uma receita do usuário autenticado")
     public ResponseEntity<?> update(
             @AuthenticationPrincipal UserPrincipal user,
             @RequestPart("receita") @Valid ReceitaInput receitaInput,
@@ -242,6 +256,7 @@ public class ReceitaController {
     }
 
     @PatchMapping("/{id}/deactivate")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Desativa uma receita do usuário autenticado")
     public ResponseEntity<Void> desativarReceita(
             @AuthenticationPrincipal UserPrincipal user,
@@ -252,6 +267,7 @@ public class ReceitaController {
     }
 
     @PatchMapping("/{id}/activate")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Ativa uma receita do usuário autenticado")
     public ResponseEntity<Void> ativarReceita(
             @AuthenticationPrincipal UserPrincipal user,
@@ -262,7 +278,8 @@ public class ReceitaController {
     }
 
     @DeleteMapping("/{id}/desfavoritar")
-    @Operation(summary = "Desfavorita uma receita")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Retira uma receita específica do lista de receitas favoritas do usuário autenticado")
     public ResponseEntity<?> desfavoritar(
             @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id

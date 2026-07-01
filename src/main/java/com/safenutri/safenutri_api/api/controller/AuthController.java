@@ -5,7 +5,7 @@ import java.util.Map;
 
 import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +38,7 @@ public class AuthController {
     private String urlFrontend;
 
     @GetMapping("/claims")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Retornar claims usados para criar o token")
     public ResponseEntity<Claims> obterClaims() {
         try {
@@ -90,13 +91,15 @@ public class AuthController {
     }
 
     @PostMapping("/verify-token")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Verifica o token do usuário")
     public boolean verifyToken() {
         String tokenLimpo = jwtService.recuperarTokenDoHeader();
         return jwtService.tokenValido(tokenLimpo);
     }
 
-    @PostMapping("/recuperarSenha/{email}")
+    @PostMapping("/recuperar-senha/{email}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Envia um email de recuperação de senha")
     public ResponseEntity<?> recuperarSenha(@PathVariable String email) {
         try {

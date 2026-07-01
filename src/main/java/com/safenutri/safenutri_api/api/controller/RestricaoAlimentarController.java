@@ -3,7 +3,7 @@ package com.safenutri.safenutri_api.api.controller;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -30,12 +30,15 @@ public class RestricaoAlimentarController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Retorna informações sobre uma restrição alimentar específica")
     public ResponseEntity<RestricaoListOutput> buscarPorId(@PathVariable Long id) {
         RestricaoListOutput dto = restricaoAlimentarService.buscarPorId(id);
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/todas")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca todas as restrições alimentares ativas cadastradas no sistema com descrição")
     public ResponseEntity<Page<RestricaoListOutput>> getAllActivatedComDesc(
             @RequestParam(defaultValue = "0") int page,
@@ -46,6 +49,7 @@ public class RestricaoAlimentarController {
     }
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cria uma nova restrição alimentar que será visível para todos os usuários")
     public ResponseEntity<Void> saveRestricaoAlimentar(
             @RequestBody RestricaoAlimentarInput restricaoAlimentarInput) {
@@ -54,6 +58,7 @@ public class RestricaoAlimentarController {
     }
 
     @PutMapping("/{id}/inativar")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Inativa uma restrição alimentar pelo ID")
     public ResponseEntity<Void> inativar(@PathVariable Long id) {
         restricaoAlimentarService.inativar(id);
@@ -61,6 +66,7 @@ public class RestricaoAlimentarController {
     }
 
     @PutMapping("/{id}/ativar")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Inativa uma restrição alimentar pelo ID")
     public ResponseEntity<Void> ativar(@PathVariable Long id) {
         restricaoAlimentarService.ativar(id);
