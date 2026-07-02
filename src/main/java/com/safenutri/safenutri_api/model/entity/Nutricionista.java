@@ -41,4 +41,11 @@ public class Nutricionista extends DefaultEntity {
         this.user = user;
         this.CRN = CRN;
     }
+
+    @PrePersist
+    public void gerarTokenr() {
+        if (this.tokenConvite == null) {
+            this.tokenConvite = UUID.randomUUID();
+        }
+    }
 }
