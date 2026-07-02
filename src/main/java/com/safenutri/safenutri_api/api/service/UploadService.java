@@ -21,9 +21,12 @@ public class UploadService {
     @Value("${filediretorioReceita}")
     private String directoryReceita;
 
+    @Value("${filediretorioNutricionistas}")
+    private String directoryNutricionistas;
+
     public String saveFotoReceita(MultipartFile file) throws IOException {
         String contentType = file.getContentType();
-        
+
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new IOException("Arquivo não é uma imagem válida");
         }
@@ -34,7 +37,7 @@ public class UploadService {
         Files.createDirectories(path.getParent());
         Files.write(path, file.getBytes());
 
-        return fileName;   
+        return fileName;
     }
 
     public void deletarFotoReceita(String nomeArquivo) {
@@ -42,7 +45,7 @@ public class UploadService {
             Path caminho = Paths.get(directoryReceita, nomeArquivo);
             Files.deleteIfExists(caminho);
         } catch (IOException e) {
-         System.err.println("Erro ao deletar imagem antiga: " + e.getMessage());
+            System.err.println("Erro ao deletar imagem antiga: " + e.getMessage());
         }
     }
 
@@ -60,9 +63,46 @@ public class UploadService {
             }
 
             return new UrlResource(filePath.toUri());
-            
+
         } catch (Exception e) {
             throw new RuntimeException("Erro ao processar o arquivo", e);
+        }
+    }
+
+    public String saveFotoPerfil(MultipartFile file) throws IOException {
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IOException("Arquivo não é uma imagem válida");
+        }
+        String fileName = UUID.randomUUID() + ".png";
+        Path path = Paths.get(directoryNutricionistas, fileName);
+        Files.createDirectories(path.getParent());
+        Files.write(path, file.getBytes());
+        return fileName;
+    }
+
+    public void deletarFotoPerfil(String nomeArquivo) {
+        try {
+            Path caminho = Paths.get(directoryNutricionistas, nomeArquivo);
+            Files.deleteIfExists(caminho);
+        } catch (IOException e) {
+            System.err.println("Erro ao deletar imagem de perfil: " + e.getMessage());
+        }
+    }
+
+    public Resource carregarImagemPerfil(String nomeArquivo) {
+        try {
+            Path basePath = Paths.get(directoryNutricionistas).toAbsolutePath().normalize();
+            Path filePath = basePath.resolve(nomeArquivo).normalize();
+            if (!filePath.startsWith(basePath)) {
+                throw new SecurityException("Acesso inválido ao diretório.");
+            }
+            if (!Files.exists(filePath) || !Files.isReadable(filePath)) {
+                throw new FileNotFoundException("Arquivo não encontrado.");
+            }
+            return new UrlResource(filePath.toUri());
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao carregar imagem", e);
         }
     }
 }

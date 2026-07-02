@@ -55,8 +55,6 @@ public class AuthController {
         String nome = userGoogle.getAttribute("name");
         String foto = userGoogle.getAttribute("picture");
 
-        System.out.println("Foto Google: " + foto);
-
         try {
             User user = userService.loginGoogle(email, nome);
 
@@ -165,9 +163,6 @@ public class AuthController {
             String foto = payload.get("foto");
             String crnEstado = payload.get("crnEstado");
             String crnNumero = payload.get("crnNumero");
-
-            System.out.println("\n\n\n\n\n\nPayload: " + payload);
-            System.out.println("Foto recebida: " + foto);
 
             nutricionistaService.cadastrarNutricionistaGoogle(email, nome, foto, crnEstado, crnNumero);
 

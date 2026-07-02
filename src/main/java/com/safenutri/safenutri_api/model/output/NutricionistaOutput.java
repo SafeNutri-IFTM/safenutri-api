@@ -25,9 +25,10 @@ public class NutricionistaOutput {
     private Long diasConta;
     private String descricao;
     private String crn;
+    private String imagem;
 
     public NutricionistaOutput(String nome, String email, Long genero, LocalDate dtNascimento, LocalDateTime created,
-                      Long qntdFavoritas, Long qntdAvaliadas, Long qntdMinhasReceitas, Long paciente, String descricao, String crn) {
+                      Long qntdFavoritas, Long qntdAvaliadas, Long qntdMinhasReceitas, Long paciente, String descricao, String crn, String imagem) {
         this.nome = nome;
         this.email = email;
         this.genero = genero;
@@ -39,5 +40,6 @@ public class NutricionistaOutput {
         this.paciente = paciente;
         this.descricao = descricao;
         this.crn = crn;
+        this.imagem = imagem;
     }
 }
