@@ -160,7 +160,8 @@ public class NutricionistaService {
                 nutricionista.getCRN(),
                 nutricionista.getDescPerfil(),
                 estatisticas,
-                receitas);
+                receitas,
+                nutricionista.getImagem());
     }
 
     @Transactional

@@ -28,7 +28,8 @@ public class ChatService {
 
     public MensagemOutput salvar(MensagemOutput mensagem) {
         if (!verificarVinculo(mensagem.getRemetenteId(), mensagem.getDestinatarioId())) {
-            throw new AccessDeniedException("Você não tem permissão para enviar mensagens a este usuário pois não há vínculo profissional ativo.");
+            throw new AccessDeniedException(
+                    "Você não tem permissão para enviar mensagens a este usuário pois não há vínculo profissional ativo.");
         }
 
         String sql = "INSERT INTO mensagem (remetente_id, destinatario_id, conteudo, data_envio) VALUES (?, ?, ?, ?) RETURNING id";
@@ -64,13 +65,19 @@ public class ChatService {
                 "(SELECT conteudo FROM mensagem m " +
                 " WHERE (m.remetente_id = u.id AND m.destinatario_id = ?) " +
                 "    OR (m.remetente_id = ? AND m.destinatario_id = u.id) " +
-                " ORDER BY data_envio DESC LIMIT 1) as ultima_mensagem " +
+                " ORDER BY data_envio DESC LIMIT 1) as ultima_mensagem, " +
+                "n.imagem_perfil as imagem " +
                 "FROM \"user\" u " +
                 "JOIN paciente p ON (p.user_id = u.id OR p.nutricionista_id = u.id) " +
+                "LEFT JOIN nutricionista n ON n.user_id = u.id " +
                 "WHERE (p.user_id = ? OR p.nutricionista_id = ?) AND u.id != ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            ContatoOutput contato = new ContatoOutput(rs.getLong("id"), rs.getString("nome"), rs.getString("ultima_mensagem"));
+            ContatoOutput contato = new ContatoOutput();
+            contato.setId(rs.getLong("id"));
+            contato.setNome(rs.getString("nome"));
+            contato.setUltimaMensagem(rs.getString("ultima_mensagem"));
+            contato.setImagem(rs.getString("imagem"));
             return contato;
         }, meuId, meuId, meuId, meuId, meuId);
     }

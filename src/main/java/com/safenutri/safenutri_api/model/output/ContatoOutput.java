@@ -11,4 +11,5 @@ public class ContatoOutput {
     private Long id;
     private String nome;
     private String ultimaMensagem;
+    private String imagem;
 }
