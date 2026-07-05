@@ -18,5 +18,6 @@ public class PerfilNutricionistaPublicoOutput {
     private List<String> restricoes;
     private EstatisticasNutricionistaOutput estatisticas;
     private List<ReceitaCardOutput> receitas;
+    private String imagem;
     private List<AtividadeRecenteOutput> atividades;
 }

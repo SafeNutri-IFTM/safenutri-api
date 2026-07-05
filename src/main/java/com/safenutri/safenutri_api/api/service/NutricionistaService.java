@@ -1,14 +1,17 @@
 package com.safenutri.safenutri_api.api.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.safenutri.safenutri_api.core.utils.CrnValidation;
 
@@ -44,6 +47,7 @@ public class NutricionistaService {
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
     private final ReceitaFavoritaRepository receitaFavoritaRepository;
     private final ReceitaRepository receitaRepository;
+    private final UploadService uploadService;
     private final AtividadeRecenteService atividadeRecenteService;
     private final ReceitaRestricaoService receitaRestricaoService;
 
@@ -88,7 +92,8 @@ public class NutricionistaService {
     }
 
     @Transactional
-    public void cadastrarNutricionistaGoogle(String email, String nome, String crnEstado, String crnNumero) {
+    public void cadastrarNutricionistaGoogle(String email, String nome, String foto, String crnEstado,
+            String crnNumero) {
 
         Boolean crnValido = crnValidation.pesquisarCrn(crnEstado, crnNumero);
 
@@ -120,6 +125,8 @@ public class NutricionistaService {
 
         String crnCompleto = crnEstado + "/" + crnNumero;
         Nutricionista nutricionista = new Nutricionista(savedUser, crnCompleto);
+        nutricionista.setTokenConvite(UUID.randomUUID());
+        nutricionista.setImagem(foto);
         nutricionistaRepository.save(nutricionista);
     }
 
@@ -164,18 +171,32 @@ public class NutricionistaService {
                 restricoes,
                 estatisticas,
                 receitas,
+                nutricionista.getImagem(),
                 atividades);
     }
 
     @Transactional
     public void deactivateAccount(Long userId) {
-        Nutricionista nutri =  findByUserId(userId);
+        Nutricionista nutri = findByUserId(userId);
         nutri.setActivated(false);
     }
 
     @Transactional
     public void activateAccount(Long userId) {
-        Nutricionista nutri =  findByUserId(userId);
+        Nutricionista nutri = findByUserId(userId);
         nutri.setActivated(true);
+    }
+
+    @Transactional
+    public String atualizarFoto(Long userId, MultipartFile foto) throws IOException {
+        Nutricionista nutri = findByUserId(userId);
+        String imagemAtual = nutri.getImagem();
+        if (imagemAtual != null && !imagemAtual.startsWith("http")) {
+            uploadService.deletarFotoPerfil(imagemAtual);
+        }
+        String novoNome = uploadService.saveFotoPerfil(foto);
+        nutri.setImagem(novoNome);
+        nutricionistaRepository.save(nutri);
+        return novoNome;
     }
 }

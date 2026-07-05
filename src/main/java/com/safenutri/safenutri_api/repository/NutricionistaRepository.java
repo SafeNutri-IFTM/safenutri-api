@@ -24,7 +24,7 @@ public interface NutricionistaRepository extends JpaRepository<Nutricionista, Lo
             "(SELECT COUNT(ra) FROM ReceitaAvaliacao ra WHERE ra.user.id = :userId) AS qntdAvaliadas, " +
             "(SELECT COUNT(r) FROM Receita r WHERE r.user.id = :userId) AS qntdMinhasReceitas, " +
             "(SELECT COUNT(p) FROM Paciente p WHERE p.nutricionista.id = :userId) AS paciente," +
-            "n.descPerfil, n.CRN) " +
+            "n.descPerfil, n.CRN, n.imagem) " +
             "FROM User u " +
             "JOIN Nutricionista n ON u.id = n.user.id " +
             "WHERE u.id = :userId")

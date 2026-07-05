@@ -553,8 +553,10 @@ public class ReceitaService {
                             Optional<Nutricionista> nutricionista = nutricionistaRepository.findByUserId(aval.getUser().getId());
                             if (nutricionista.isPresent()) {
                                 map.put("nutricionistaId", nutricionista.get().getId());
+                                map.put("imagem", nutricionista.get().getImagem());
                             } else {
                                 map.put("nutricionistaId", 1L); // fallback seguro se o usuário não tiver nutricionista
+                                map.put("imagem", null);
                             }
                             
                             avaliacoesNutri.add(map);
