@@ -22,4 +22,11 @@ public interface ReceitaRestricaoRepository extends JpaRepository<ReceitaRestric
     "FROM ReceitaRestricao rr WHERE rr.receita.id = :receitaId")
     List<RestricaoOutput> findByReceitaId(@Param("receitaId") Long receitaId);
 
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.RestricaoOutput(rr.restricao.id, rr.restricao.restricao) " +
+           "FROM ReceitaRestricao rr " +
+           "WHERE rr.receita.user.id = :userId " +
+           "GROUP BY rr.restricao.id, rr.restricao.restricao " +
+           "ORDER BY COUNT(rr.id) DESC")
+    List<RestricaoOutput> findMostUsedRestricoesByUserId(@Param("userId") Long userId);
+
 }

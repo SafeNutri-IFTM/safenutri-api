@@ -3,7 +3,7 @@ package com.safenutri.safenutri_api.api.controller;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -20,6 +20,7 @@ import com.safenutri.safenutri_api.model.output.UserPieChartOutput;
 
 @RestController
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/dashboard")
 public class DashboardController {
     private final DashboardService dashboardService;
@@ -52,6 +53,7 @@ public class DashboardController {
     }
 
     @GetMapping("/qntd-pacientes")
+    @Operation(summary = "Retorna a quantidade de pacientes do nutricionista autenticado")
     public ResponseEntity<Long> countQntdPacientes(
             @AuthenticationPrincipal UserPrincipal user
     ) {
@@ -60,6 +62,7 @@ public class DashboardController {
     }
 
     @GetMapping("/qntd-receitas")
+    @Operation(summary = "Retorna a quantidade de receitas cadastradas pelo nutricionista autenticado")
     public ResponseEntity<Long> countQntdReceitas(
             @AuthenticationPrincipal UserPrincipal user
     ) {
@@ -68,6 +71,7 @@ public class DashboardController {
     }
 
     @GetMapping("/receitas-restricao")
+    @Operation(summary = "Retorna a quantidade de receitas cadastradas pelo nutricionista autenticado agrupando-as por restrição alimentar")
     public ResponseEntity<List<ReceitaPieChartOutput>> countGroupByRestricao(
             @AuthenticationPrincipal UserPrincipal user
     ) {
@@ -76,6 +80,7 @@ public class DashboardController {
     }
 
     @GetMapping("/qntd-receitas-gerais")
+    @Operation(summary = "Retorna a quantidade de receitas cadastradas no sistema")
     public ResponseEntity<Long> countAllReceitas(
         @AuthenticationPrincipal UserPrincipal user
     ) {
@@ -84,6 +89,7 @@ public class DashboardController {
     }
 
     @GetMapping("/qntd-restricoes")
+    @Operation(summary = "Retorna a quantidade de restrições alimentares cadastradas no sistema")
     public ResponseEntity<Long> countAllRestricoes(
         @AuthenticationPrincipal UserPrincipal user
     ) {
@@ -92,6 +98,7 @@ public class DashboardController {
     }
 
     @GetMapping("/users")
+    @Operation(summary = "Retorna a quantidade de usuários cadastrados no sistema")
     public ResponseEntity<Long> countAllUsers(
         @AuthenticationPrincipal UserPrincipal user
     ) {
@@ -100,6 +107,7 @@ public class DashboardController {
     }
 
     @GetMapping("/users-restricao")
+    @Operation(summary = "Retorna a quantidade de usuários agrupando-os por restrição alimentar")
     public ResponseEntity<List<UserPieChartOutput>> countUserGroupByRestricao(
         @AuthenticationPrincipal UserPrincipal user
     ) {
@@ -108,6 +116,7 @@ public class DashboardController {
     }
 
     @GetMapping("/users-mes")
+    @Operation(summary = "Retorna a quantidade de usuários cadastrados no sistema agrupando-os por mês")
     public ResponseEntity<List<QtdUserByMesOutput>> countUserByMes(
         @AuthenticationPrincipal UserPrincipal user
     ) {

@@ -5,12 +5,12 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,6 @@ import com.safenutri.safenutri_api.model.entity.User;
 import com.safenutri.safenutri_api.model.enums.RoleEnum;
 import com.safenutri.safenutri_api.model.input.UserInput;
 import com.safenutri.safenutri_api.model.output.AtividadeRecenteOutput;
-import com.safenutri.safenutri_api.model.output.FeedbackOutput;
 import com.safenutri.safenutri_api.model.output.RestricaoOutput;
 import com.safenutri.safenutri_api.model.output.UserListOutput;
 import com.safenutri.safenutri_api.model.output.UserOutput;
@@ -37,6 +36,7 @@ public class UserController {
     private final AtividadeRecenteService atividadeRecenteService;
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca os dados do perfil do usuário autenticado")
     public ResponseEntity<UserOutput> getUserPerfil(
             @AuthenticationPrincipal UserPrincipal user) {
@@ -45,6 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/restricoes")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca as restrições alimentares do usuário autenticado")
     public ResponseEntity<List<RestricaoOutput>> listaUserRestricoes(
             @AuthenticationPrincipal UserPrincipal user) {
@@ -53,6 +54,7 @@ public class UserController {
     }
 
     @GetMapping("/atividades-recentes")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca as atividades recentes do usuário autenticado")
     public ResponseEntity<List<AtividadeRecenteOutput>> listaUserAtividadesRecentes(
             @AuthenticationPrincipal UserPrincipal user) {
@@ -69,15 +71,18 @@ public class UserController {
     }
 
     @PutMapping
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Atualiza os dados do perfil do usuário autenticado")
-    public ResponseEntity<User> atualizarPerfil(
+    public ResponseEntity<Void> atualizarPerfil(
             @AuthenticationPrincipal UserPrincipal user,
-            @RequestBody @Valid UserInput input) {
-        User userAtualizado = userService.atualizarPerfil(user.getId(), input);
-        return ResponseEntity.ok(userAtualizado);
+            @RequestBody @Valid UserInput input
+        ) {
+            userService.atualizarPerfil(user.getId(), input);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/atualizar-restricoes")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Atualiza as restrições alimentares do usuário autenticado")
     public ResponseEntity<Void> atualizarRestricoes(
             @AuthenticationPrincipal UserPrincipal user,
@@ -88,6 +93,7 @@ public class UserController {
     }
 
     @PatchMapping("/deactivate")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Desativa a conta do usuário autenticado (ou de outro se admin)")
     public ResponseEntity<Void> desativarConta(
             @AuthenticationPrincipal UserPrincipal user,
@@ -102,6 +108,7 @@ public class UserController {
     }
 
     @PatchMapping("/activate")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Ativa a conta do usuário autenticado (ou de outro se admin)")
     public ResponseEntity<Void> ativarConta(
             @AuthenticationPrincipal UserPrincipal user,
@@ -116,6 +123,8 @@ public class UserController {
     }
 
     @GetMapping("/todos")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Retorna todos os usuário cadastrados no sistema")
     public ResponseEntity<Page<UserListOutput>> listarTodosUsuarios(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

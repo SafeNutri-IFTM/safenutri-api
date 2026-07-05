@@ -3,7 +3,7 @@ package com.safenutri.safenutri_api.api.controller;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -23,6 +23,7 @@ public class RestricaoPessoalController {
     private final RestricaoPessoalService restricaoPessoalService;
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca todas as restrições pessoais do usuário autenticado")
     public ResponseEntity<List<RestricaoOutput>> getAllActivated(
             @AuthenticationPrincipal UserPrincipal user
@@ -32,6 +33,7 @@ public class RestricaoPessoalController {
     }
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cria uma nova restrição que será visível apenas para o usuário logado")
     public ResponseEntity<Void> saveRestricaoAlimentar(
             @AuthenticationPrincipal UserPrincipal user,

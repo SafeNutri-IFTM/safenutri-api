@@ -263,13 +263,6 @@ public class ReceitaService {
             Receita receita = receitaRepository.findById(r.getId()).orElse(null);
             
             if (receita != null) {
-                // Envia a imagem para o ecrã
-                r.setFoto(receita.getImagem());
-                
-                // Define os macros
-                r.setCarboidratos(0.0); 
-                r.setProteinas(0.0);
-
                 // Se a receita estiver INATIVA, vamos ver qual é o status dos Reports
                 if (r.getActivated() != null && !r.getActivated()) {
                     List<ReceitaDenuncia> denuncias = receitaDenunciaRepository.findByReceitaId(r.getId());

@@ -22,11 +22,6 @@ public class ReceitaCardOutput {
     private Double mediaAvaliacao;
     private Boolean favoritada;
     private Boolean activated;
-
-    // --- NOVOS CAMPOS PARA ATENDER AO FIGMA ---
-    private String foto;
-    private Double carboidratos;
-    private Double proteinas;
     private String statusDenuncia; // Ex: 'SUSPENSA', 'EM ANÁLISE'
     private String motivoDenuncia; // Descrição do report
 

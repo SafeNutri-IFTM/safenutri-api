@@ -3,7 +3,7 @@ package com.safenutri.safenutri_api.api.controller;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +33,7 @@ public class NutricionistaController {
     private final UploadService uploadService;
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca os dados do perfil do nutricionista autenticado")
     public ResponseEntity<NutricionistaOutput> getNutricionistaPerfil(
             @AuthenticationPrincipal UserPrincipal user) {
@@ -47,6 +48,8 @@ public class NutricionistaController {
     }
 
     @GetMapping("/link")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Retorna link de vínculo para pacientes")
     public ResponseEntity<Map<String, String>> obterLinkConvite(@AuthenticationPrincipal UserPrincipal user) {
         Nutricionista nutri = nutricionistaService.findByUserId(user.getId());
         Map<String, String> response = new HashMap<>();
@@ -62,6 +65,7 @@ public class NutricionistaController {
     }
 
     @PatchMapping("/deactivate")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Desativa a conta do nutricionista autenticado")
     public ResponseEntity<Void> desativarConta(
             @AuthenticationPrincipal UserPrincipal user) {
@@ -70,6 +74,7 @@ public class NutricionistaController {
     }
 
     @PatchMapping("/activate")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Ativa a conta do nutricionista autenticado")
     public ResponseEntity<Void> ativarConta(
             @AuthenticationPrincipal UserPrincipal user) {
