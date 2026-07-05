@@ -227,4 +227,111 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
 
         @Query("SELECT COUNT(*) AS total FROM Receita r")
         Long countAll();
+
+    @Query("SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
+        "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+        "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+        "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
+        "FROM Receita r " +
+        "JOIN Nutricionista n ON n.user.id = r.user.id " +
+        "JOIN r.tipoReceita tr " +
+        "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+        "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
+        "WHERE r.publicBoolean = TRUE AND r.activated = TRUE " +
+        "AND LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) " +
+        "AND (:filtrarTipos = FALSE OR LOWER(tr.tipoReceita) IN :tipos) " +
+        "AND (:porcaoExata IS NULL OR r.porcao = :porcaoExata) " +
+        "AND (:porcaoMaior IS NULL OR r.porcao >= :porcaoMaior) " +
+        "AND (:tempoAte IS NULL OR r.tempoPreparo <= :tempoAte) " +
+        "AND (:caloriasAte IS NULL OR r.calorias <= :caloriasAte) " +
+        "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
+        "ORDER BY COALESCE(AVG(ra.qntdEstrela), 0.0) DESC, r.id ASC"
+    )
+    Page<ReceitaCardOutput> findByFiltrosAvancados(
+        @Param("termo") String termo,
+        @Param("filtrarTipos") boolean filtrarTipos,
+        @Param("tipos") List<String> tipos,
+        @Param("porcaoExata") Integer porcaoExata,
+        @Param("porcaoMaior") Integer porcaoMaior,
+        @Param("tempoAte") Integer tempoAte,
+        @Param("caloriasAte") Integer caloriasAte,
+        @Param("userId") Long userId,
+        Pageable pageable);
+
+    // ==========================================
+    // SQL PARA RECEITAS AVALIADAS COM FILTROS
+    // ==========================================
+    @Query(value = "SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
+            "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+            "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+            "(CASE WHEN f.id IS NOT NULL THEN true ELSE false END), r.activated) " +
+            "FROM Receita r JOIN r.tipoReceita tr " +
+            "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+            "LEFT JOIN ReceitaFavorita f ON f.receita.id = r.id AND f.user.id = :userId " +
+            "WHERE EXISTS (SELECT 1 FROM ReceitaAvaliacao rau WHERE rau.receita.id = r.id AND rau.user.id = :userId) " +
+            "AND (:termo = '' OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
+            "AND (:filtrarTipos = FALSE OR LOWER(tr.tipoReceita) IN :tipos) " +
+            "AND (:porcaoExata IS NULL OR r.porcao = :porcaoExata) " +
+            "AND (:porcaoMaior IS NULL OR r.porcao >= :porcaoMaior) " +
+            "AND (:tempoAte IS NULL OR r.tempoPreparo <= :tempoAte) " +
+            "AND (:caloriasAte IS NULL OR r.calorias <= :caloriasAte) " +
+            "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated, f.id " +
+            "ORDER BY r.id DESC", 
+            countQuery = "SELECT COUNT(r) FROM Receita r JOIN r.tipoReceita tr WHERE EXISTS (" +
+                            "SELECT 1 FROM ReceitaAvaliacao rau WHERE rau.receita.id = r.id AND rau.user.id = :userId" +
+                            ") AND (:termo = '' OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
+                            "AND (:filtrarTipos = FALSE OR LOWER(tr.tipoReceita) IN :tipos) " +
+                            "AND (:porcaoExata IS NULL OR r.porcao = :porcaoExata) " +
+                            "AND (:porcaoMaior IS NULL OR r.porcao >= :porcaoMaior) " +
+                            "AND (:tempoAte IS NULL OR r.tempoPreparo <= :tempoAte) " +
+                            "AND (:caloriasAte IS NULL OR r.calorias <= :caloriasAte)")                                                                                     
+    Page<ReceitaCardOutput> findReceitasAvaliadasByFiltrosAvancados(
+            @Param("userId") Long userId, 
+            @Param("termo") String termo,
+            @Param("filtrarTipos") boolean filtrarTipos,
+            @Param("tipos") List<String> tipos,
+            @Param("porcaoExata") Integer porcaoExata,
+            @Param("porcaoMaior") Integer porcaoMaior,
+            @Param("tempoAte") Integer tempoAte,
+            @Param("caloriasAte") Integer caloriasAte,
+            Pageable pageable);
+
+    // ==========================================
+    // SQL PARA RECEITAS FAVORITAS COM FILTROS
+    // ==========================================
+    @Query(value = "SELECT new com.safenutri.safenutri_api.model.output.ReceitaCardOutput(" +
+            "r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, " +
+            "COALESCE(AVG(ra.qntdEstrela), 0.0), " +
+            "true, r.activated) " +
+            "FROM Receita r JOIN r.tipoReceita tr " +
+            "LEFT JOIN ReceitaAvaliacao ra ON ra.receita.id = r.id " +
+            "JOIN ReceitaFavorita f ON f.receita.id = r.id " +
+            "WHERE f.user.id = :userId " +
+            "AND (:termo = '' OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
+            "AND (:filtrarTipos = FALSE OR LOWER(tr.tipoReceita) IN :tipos) " +
+            "AND (:porcaoExata IS NULL OR r.porcao = :porcaoExata) " +
+            "AND (:porcaoMaior IS NULL OR r.porcao >= :porcaoMaior) " +
+            "AND (:tempoAte IS NULL OR r.tempoPreparo <= :tempoAte) " +
+            "AND (:caloriasAte IS NULL OR r.calorias <= :caloriasAte) " +
+            "GROUP BY r.id, tr.tipoReceita, r.titulo, r.descricao, r.tempoPreparo, r.calorias, r.activated " +
+            "ORDER BY r.id DESC", 
+            countQuery = "SELECT COUNT(r) FROM Receita r JOIN r.tipoReceita tr JOIN ReceitaFavorita f ON f.receita.id = r.id WHERE f.user.id = :userId " +
+                            "AND (:termo = '' OR LOWER(r.titulo) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
+                            "AND (:filtrarTipos = FALSE OR LOWER(tr.tipoReceita) IN :tipos) " +
+                            "AND (:porcaoExata IS NULL OR r.porcao = :porcaoExata) " +
+                            "AND (:porcaoMaior IS NULL OR r.porcao >= :porcaoMaior) " +
+                            "AND (:tempoAte IS NULL OR r.tempoPreparo <= :tempoAte) " +
+                            "AND (:caloriasAte IS NULL OR r.calorias <= :caloriasAte)")                                                                                     
+    Page<ReceitaCardOutput> findFavoritasByFiltrosAvancados(
+            @Param("userId") Long userId, 
+            @Param("termo") String termo,
+            @Param("filtrarTipos") boolean filtrarTipos,
+            @Param("tipos") List<String> tipos,
+            @Param("porcaoExata") Integer porcaoExata,
+            @Param("porcaoMaior") Integer porcaoMaior,
+            @Param("tempoAte") Integer tempoAte,
+            @Param("caloriasAte") Integer caloriasAte,
+            Pageable pageable);
+
+    
 }
