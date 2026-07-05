@@ -367,16 +367,24 @@ public class ReceitaService {
         });
     }
 
-    public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size, String termo) {
+    public Page<ReceitaCardOutput> getReceitasAvaliadas(
+            Long userId, int page, int size, String termo,
+            List<String> tipos, String porcao, String tempoAte, Integer caloriasAte) {
+        
         Pageable pageable = PageRequest.of(page, size);
         String termoBusca = (termo != null) ? termo : "";
-        Page<ReceitaCardOutput> rcoPage;
 
-        rcoPage = receitaRepository.findReceitasAvaliadasByUserId(userId, termoBusca, pageable);
+        Integer tempoMaximoMinutos = converterTempoParaMinutos(tempoAte);
+        Integer porcaoExata = extrairPorcaoExata(porcao);
+        Integer porcaoMaior = extrairPorcaoMaior(porcao);
+        List<String> tiposSeguros = limparListaTipos(tipos);
+        boolean filtrarTipos = !tiposSeguros.get(0).equals("vazio");
+
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.findReceitasAvaliadasByFiltrosAvancados(
+                userId, termoBusca, filtrarTipos, tiposSeguros, porcaoExata, porcaoMaior, tempoMaximoMinutos, caloriasAte, pageable);
 
         return rcoPage.map(r -> {
-            String tempoFormato = formatarTempo(r.getTempo());
-            r.setTempoFormatado(tempoFormato);
+            r.setTempoFormatado(formatarTempo(r.getTempo()));
             return r;
         });
     }
@@ -436,14 +444,70 @@ public class ReceitaService {
         return receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
     }
 
-    public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
+    public Page<ReceitaCardOutput> buscarReceitasPaginadas(
+            String termo, 
+            List<String> tipos, 
+            String porcao, 
+            String tempoAte, 
+            Integer caloriasAte, 
+            int page, 
+            int size) {
+        
         String termoBusca = (termo != null) ? termo : "";
         Long userId = jwtService.getIdUsuario();
-
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReceitaCardOutput> rcoPage;
 
-        rcoPage = receitaRepository.findByTituloPaginado(termoBusca, userId, pageable);
+        // 1. Tratamento do Tempo (Converter "HH:mm" para minutos totais)
+        Integer tempoMaximoMinutos = null;
+        if (tempoAte != null && !tempoAte.trim().isEmpty() && tempoAte.contains(":")) {
+            String[] partes = tempoAte.split(":");
+            Integer horas = Integer.parseInt(partes[0]);
+            Integer minutos = Integer.parseInt(partes[1]);
+            tempoMaximoMinutos = (horas * 60) + minutos;
+        }
+
+        // 2. Tratamento da Porção (Lidando com a string "6+" vinda do Frontend)
+        Integer porcaoExata = null;
+        Integer porcaoMaior = null;
+        if (porcao != null && !porcao.trim().isEmpty()) {
+            if (porcao.contains("+")) {
+                porcaoMaior = Integer.parseInt(porcao.replace("+", ""));
+            } else {
+                porcaoExata = Integer.parseInt(porcao);
+            }
+        }
+
+        // 3. CORREÇÃO: Tratamento seguro de Lista garantindo que o banco de dados entenda a cláusula IN
+        List<String> tiposSeguros = new ArrayList<>();
+        if (tipos != null && !tipos.isEmpty()) {
+            for (String t : tipos) {
+                // Quebra por vírgula se o Spring falhar no parse da URL, remove espaços e força minúsculo
+                if (t.contains(",")) {
+                    for(String s : t.split(",")) {
+                        tiposSeguros.add(s.trim().toLowerCase());
+                    }
+                } else {
+                    tiposSeguros.add(t.trim().toLowerCase());
+                }
+            }
+        }
+        
+        boolean filtrarTipos = !tiposSeguros.isEmpty();
+        if (!filtrarTipos) {
+            tiposSeguros.add("vazio"); // Evita que o Hibernate gere a sintaxe inválida: IN ()
+        }
+
+        // 4. Executa a busca cruzando todos os dados no banco
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.findByFiltrosAvancados(
+                termoBusca,
+                filtrarTipos,
+                tiposSeguros,
+                porcaoExata,
+                porcaoMaior,
+                tempoMaximoMinutos,
+                caloriasAte,
+                userId,
+                pageable);
 
         return rcoPage.map(r -> {
             String tempoFormato = formatarTempo(r.getTempo());
@@ -566,18 +630,61 @@ public class ReceitaService {
         receitaFavoritaRepository.save(favorita);
     }
 
-    public Page<ReceitaCardOutput> getFavoritas(Long userId, int page, int size, String termo) {
+    public Page<ReceitaCardOutput> getFavoritas(
+            Long userId, int page, int size, String termo,
+            List<String> tipos, String porcao, String tempoAte, Integer caloriasAte) {
+        
         Pageable pageable = PageRequest.of(page, size);
         String termoBusca = (termo != null) ? termo : "";
-        Page<ReceitaCardOutput> rcoPage;
 
-        rcoPage = receitaFavoritaRepository.findFavoritasByUserId(userId, termoBusca, pageable);
+        Integer tempoMaximoMinutos = converterTempoParaMinutos(tempoAte);
+        Integer porcaoExata = extrairPorcaoExata(porcao);
+        Integer porcaoMaior = extrairPorcaoMaior(porcao);
+        List<String> tiposSeguros = limparListaTipos(tipos);
+        boolean filtrarTipos = !tiposSeguros.get(0).equals("vazio");
+
+        // Utilizando o ReceitaRepository centralizado
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.findFavoritasByFiltrosAvancados(
+                userId, termoBusca, filtrarTipos, tiposSeguros, porcaoExata, porcaoMaior, tempoMaximoMinutos, caloriasAte, pageable);
 
         return rcoPage.map(r -> {
-            String tempoFormato = formatarTempo(r.getTempo());
-            r.setTempoFormatado(tempoFormato);
+            r.setTempoFormatado(formatarTempo(r.getTempo()));
             return r;
         });
+    }
+
+    // ==========================================
+    // HELPERS PARA MANTER O CÓDIGO LIMPO (Clean Code)
+    // ==========================================
+    private Integer converterTempoParaMinutos(String tempoAte) {
+        if (tempoAte != null && !tempoAte.trim().isEmpty() && tempoAte.contains(":")) {
+            String[] partes = tempoAte.split(":");
+            return (Integer.parseInt(partes[0]) * 60) + Integer.parseInt(partes[1]);
+        }
+        return null;
+    }
+
+    private Integer extrairPorcaoExata(String porcao) {
+        return (porcao != null && !porcao.trim().isEmpty() && !porcao.contains("+")) ? Integer.parseInt(porcao) : null;
+    }
+
+    private Integer extrairPorcaoMaior(String porcao) {
+        return (porcao != null && !porcao.trim().isEmpty() && porcao.contains("+")) ? Integer.parseInt(porcao.replace("+", "")) : null;
+    }
+
+    private List<String> limparListaTipos(List<String> tipos) {
+        List<String> seguros = new ArrayList<>();
+        if (tipos != null && !tipos.isEmpty()) {
+            for (String t : tipos) {
+                if (t.contains(",")) {
+                    for(String s : t.split(",")) seguros.add(s.trim().toLowerCase());
+                } else {
+                    seguros.add(t.trim().toLowerCase());
+                }
+            }
+        }
+        if (seguros.isEmpty()) seguros.add("vazio");
+        return seguros;
     }
 
     @Transactional

@@ -43,21 +43,30 @@ public class ReceitaController {
             @AuthenticationPrincipal UserPrincipal user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false, defaultValue = "") String termo
+            @RequestParam(required = false, defaultValue = "") String termo,
+            @RequestParam(required = false) java.util.List<String> tipos,
+            @RequestParam(required = false) String porcao,
+            @RequestParam(required = false) String tempoAte,
+            @RequestParam(required = false) Integer caloriasAte
     ) {
-        Page<ReceitaCardOutput> receitas = receitaService.getReceitasAvaliadas(user.getId(), page, size, termo);
+        Page<ReceitaCardOutput> receitas = receitaService.getReceitasAvaliadas(
+                user.getId(), page, size, termo, tipos, porcao, tempoAte, caloriasAte);
         return ResponseEntity.ok(receitas);
     }
 
     @GetMapping("/busca")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Busca receitas pelo título")
+    @Operation(summary = "Busca receitas pelo título e filtros avançados")
     public ResponseEntity<Page<ReceitaCardOutput>> buscarReceitasFeed(
             @RequestParam(required = false, defaultValue = "") String termo,
+            @RequestParam(required = false) java.util.List<String> tipos,
+            @RequestParam(required = false) String porcao,
+            @RequestParam(required = false) String tempoAte,
+            @RequestParam(required = false) Integer caloriasAte,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<ReceitaCardOutput> receitas = receitaService.buscarReceitasPaginadas(termo, page, size);
+        Page<ReceitaCardOutput> receitas = receitaService.buscarReceitasPaginadas(termo, tipos, porcao, tempoAte, caloriasAte, page, size);
         return ResponseEntity.ok(receitas);
     }
 
@@ -155,9 +164,14 @@ public class ReceitaController {
             @AuthenticationPrincipal UserPrincipal user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false, defaultValue = "") String termo
+            @RequestParam(required = false, defaultValue = "") String termo,
+            @RequestParam(required = false) java.util.List<String> tipos,
+            @RequestParam(required = false) String porcao,
+            @RequestParam(required = false) String tempoAte,
+            @RequestParam(required = false) Integer caloriasAte
     ) {
-        Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(user.getId(), page, size, termo);
+        Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(
+                user.getId(), page, size, termo, tipos, porcao, tempoAte, caloriasAte);
         return ResponseEntity.ok(favoritas);
     }
 
