@@ -1,35 +1,74 @@
-# name: Deploy Backend Safenutri (Docker)
+name: Deploy Backend Safenutri (Docker Image via SCP)
 
-# on:
-#   push:
-#     branches:
-#       - dev
+on:
+  push:
+    branches:
+      - dev
 
-# jobs:
-#   build-and-deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout do código
-#         uses: actions/checkout@v4
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
-#       - name: Copiar arquivos para a VM2
-#         uses: appleboy/scp-action@master
-#         with:
-#           host: ${{ secrets.VM2_IP }}
-#           username: ${{ secrets.VM2_USERNAME }}
-#           key: ${{ secrets.VM2_SSH_KEY }}
-#           source: "."
-#           target: "/home/ubuntu/safenutri-api"
-#           strip_components: 0
+      - name: Cache do Maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-#       - name: Executar docker compose na VM (back)
-#         uses: appleboy/ssh-action@master
-#         with:
-#           host: ${{ secrets.VM2_IP }}
-#           username: ${{ secrets.VM2_USERNAME }}
-#           key: ${{ secrets.VM2_SSH_KEY }}
-#           script: |
-#             cd /home/ubuntu/safenutri-api
-#             docker compose down -v   # remove volumes antigos
-#             docker compose up -d --build
+      - name: Construir a imagem Docker
+        run: |
+          docker build -t safenutri-api:latest .
+
+      - name: Salvar imagem em arquivo tar
+        run: docker save safenutri-api:latest -o safenutri-api.tar
+
+      - name: Copiar imagem para a VM2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VM2_IP }}
+          username: ${{ secrets.VM2_USERNAME }}
+          key: ${{ secrets.VM2_SSH_KEY }}
+          source: "safenutri-api.tar"
+          target: "/home/ubuntu/safenutri-api/"
+
+      - name: Deploy na VM2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM2_IP }}
+          username: ${{ secrets.VM2_USERNAME }}
+          key: ${{ secrets.VM2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/safenutri-api
+
+            # Carrega a nova imagem
+            docker load -i safenutri-api.tar
+            rm safenutri-api.tar
+
+            # Cria pastas de upload
+            mkdir -p uploads/receitas uploads/nutricionistas
+            sudo chmod -R 777 uploads
+
+            # Para e remove containers antigos
+            docker compose down
+
+            # Sobe os containers
+            docker compose up -d
+
+            # Aguarda o container ficar pronto
+            sleep 10
+
+            # Copia imagens padrão (se existirem) para os volumes
+            docker exec safenutri-api sh -c "if [ -d /app/uploads_default/receitas ] && [ -z \"\$(ls -A /app/uploads/receitas 2>/dev/null)\" ]; then cp -r /app/uploads_default/receitas/* /app/uploads/receitas/ 2>/dev/null || true; fi"
+            docker exec safenutri-api sh -c "if [ -d /app/uploads_default/nutricionistas ] && [ -z \"\$(ls -A /app/uploads/nutricionistas 2>/dev/null)\" ]; then cp -r /app/uploads_default/nutricionistas/* /app/uploads/nutricionistas/ 2>/dev/null || true; fi"
+
+            # Reinicia a API para carregar as imagens
+            docker compose restart api
+
+            # Limpeza de imagens Docker órfãs (opcional)
+            docker image prune -f

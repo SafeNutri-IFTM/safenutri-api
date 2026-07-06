@@ -1,33 +1,82 @@
-services:
-  db:
-    image: postgres:18
-    container_name: safenutri-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: safenutri
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql
-    restart: unless-stopped
+name: Deploy Backend Safenutri (Docker Image via SCP)
 
-  api:
-    build: .
-    container_name: safenutri-api
-    depends_on:
-      - db
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/safenutri
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    ports:
-      - "8080:8080"
-    volumes:
-      - receita_uploads:/app/uploads/receitas
-    restart: unless-stopped
+on:
+  push:
+    branches:
+      - SN-218
 
-volumes:
-  postgres_data:
-  receita_uploads:
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Cache do Maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Construir a imagem Docker
+        run: |
+          docker build -t safenutri-api:latest .
+
+      - name: Salvar imagem em arquivo tar
+        run: docker save safenutri-api:latest -o safenutri-api.tar
+
+      - name: Copiar imagem para a VM2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VM2_IP }}
+          username: ${{ secrets.VM2_USERNAME }}
+          key: ${{ secrets.VM2_SSH_KEY }}
+          source: "safenutri-api.tar"
+          target: "/home/ubuntu/safenutri-api/"
+
+      - name: Copiar imagens de receitas para VM2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VM2_IP }}
+          username: ${{ secrets.VM2_USERNAME }}
+          key: ${{ secrets.VM2_SSH_KEY }}
+          source: "src/main/resources/arquivos/receitas"
+          target: "/home/ubuntu/safenutri-api/uploads/"
+          strip_components: 4
+
+      - name: Copiar imagens de nutricionistas para VM2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VM2_IP }}
+          username: ${{ secrets.VM2_USERNAME }}
+          key: ${{ secrets.VM2_SSH_KEY }}
+          source: "src/main/resources/arquivos/nutricionistas"
+          target: "/home/ubuntu/safenutri-api/uploads/"
+          strip_components: 4
+
+      - name: Deploy na VM2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM2_IP }}
+          username: ${{ secrets.VM2_USERNAME }}
+          key: ${{ secrets.VM2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/safenutri-api
+
+            # Carrega a nova imagem
+            docker load -i safenutri-api.tar
+
+            # Remove o tar para economizar espaço
+            rm safenutri-api.tar
+
+            # Ajusta permissões das pastas de upload
+            sudo chmod -R 777 uploads
+
+            # Para e remove containers antigos (sem apagar volumes)
+            docker compose down
+
+            # Sobe os containers com a nova imagem
+            docker compose up -d
