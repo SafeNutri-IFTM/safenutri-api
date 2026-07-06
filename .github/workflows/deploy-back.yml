@@ -3,7 +3,7 @@ name: Deploy Backend Safenutri (Docker Image via SCP)
 on:
   push:
     branches:
-      - SN-218
+      - dev
 
 jobs:
   build-and-deploy:
@@ -37,7 +37,7 @@ jobs:
           source: "safenutri-api.tar"
           target: "/home/ubuntu/safenutri-api/"
 
-      - name: Deploy e cópia das imagens
+      - name: Deploy na VM2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VM2_IP }}
@@ -50,23 +50,25 @@ jobs:
             docker load -i safenutri-api.tar
             rm safenutri-api.tar
 
-            # Cria as pastas de upload (se não existirem)
+            # Cria pastas de upload
             mkdir -p uploads/receitas uploads/nutricionistas
             sudo chmod -R 777 uploads
 
-            # Para e remove containers antigos (preserva volumes)
+            # Para e remove containers antigos
             docker compose down
 
-            # Sobe os containers (a API vai subir, mas as pastas de upload estão vazias)
+            # Sobe os containers
             docker compose up -d
 
-            # Aguarda o container da API ficar pronto (sleep simples)
-            sleep 5
+            # Aguarda o container ficar pronto
+            sleep 10
 
-            # Copia as imagens padrão do container para os volumes
-            # (se as pastas estiverem vazias, copia; se já tiver imagens, não sobrescreve)
-            docker exec safenutri-api sh -c "if [ -z \"\$(ls -A /app/uploads/receitas 2>/dev/null)\" ]; then cp -r /app/uploads_default/receitas/* /app/uploads/receitas/; fi"
-            docker exec safenutri-api sh -c "if [ -z \"\$(ls -A /app/uploads/nutricionistas 2>/dev/null)\" ]; then cp -r /app/uploads_default/nutricionistas/* /app/uploads/nutricionistas/; fi"
+            # Copia imagens padrão (se existirem) para os volumes
+            docker exec safenutri-api sh -c "if [ -d /app/uploads_default/receitas ] && [ -z \"\$(ls -A /app/uploads/receitas 2>/dev/null)\" ]; then cp -r /app/uploads_default/receitas/* /app/uploads/receitas/ 2>/dev/null || true; fi"
+            docker exec safenutri-api sh -c "if [ -d /app/uploads_default/nutricionistas ] && [ -z \"\$(ls -A /app/uploads/nutricionistas 2>/dev/null)\" ]; then cp -r /app/uploads_default/nutricionistas/* /app/uploads/nutricionistas/ 2>/dev/null || true; fi"
 
-            # Reinicia a API para garantir que as imagens sejam servidas (opcional)
+            # Reinicia a API para carregar as imagens
             docker compose restart api
+
+            # Limpeza de imagens Docker órfãs (opcional)
+            docker image prune -f
