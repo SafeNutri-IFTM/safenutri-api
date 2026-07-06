@@ -47,8 +47,7 @@ public class ReceitaController {
             @RequestParam(required = false) java.util.List<String> tipos,
             @RequestParam(required = false) String porcao,
             @RequestParam(required = false) String tempoAte,
-            @RequestParam(required = false) Integer caloriasAte
-    ) {
+            @RequestParam(required = false) Integer caloriasAte) {
         Page<ReceitaCardOutput> receitas = receitaService.getReceitasAvaliadas(
                 user.getId(), page, size, termo, tipos, porcao, tempoAte, caloriasAte);
         return ResponseEntity.ok(receitas);
@@ -64,9 +63,9 @@ public class ReceitaController {
             @RequestParam(required = false) String tempoAte,
             @RequestParam(required = false) Integer caloriasAte,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Page<ReceitaCardOutput> receitas = receitaService.buscarReceitasPaginadas(termo, tipos, porcao, tempoAte, caloriasAte, page, size);
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ReceitaCardOutput> receitas = receitaService.buscarReceitasPaginadas(termo, tipos, porcao, tempoAte,
+                caloriasAte, page, size);
         return ResponseEntity.ok(receitas);
     }
 
@@ -79,9 +78,9 @@ public class ReceitaController {
             @RequestParam(required = false) Long tipoReceitaId,
             @RequestParam(required = false, defaultValue = "true") Boolean activated,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Page<ReceitaCardOutput> receita = receitaService.getMinhasReceitas(user.getId(), termo, tipoReceitaId, activated, page, size);
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ReceitaCardOutput> receita = receitaService.getMinhasReceitas(user.getId(), termo, tipoReceitaId,
+                activated, page, size);
         return ResponseEntity.ok(receita);
     }
 
@@ -143,8 +142,7 @@ public class ReceitaController {
     @Operation(summary = "Busca a avaliação do usuário autenticado para uma receita específica")
     public ResponseEntity<?> getMinhaAvaliacao(
             @AuthenticationPrincipal UserPrincipal user,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         try {
             Map<String, Object> avaliacao = receitaService.getMinhaAvaliacao(id, user.getId());
 
@@ -168,8 +166,7 @@ public class ReceitaController {
             @RequestParam(required = false) java.util.List<String> tipos,
             @RequestParam(required = false) String porcao,
             @RequestParam(required = false) String tempoAte,
-            @RequestParam(required = false) Integer caloriasAte
-    ) {
+            @RequestParam(required = false) Integer caloriasAte) {
         Page<ReceitaCardOutput> favoritas = receitaService.getFavoritas(
                 user.getId(), page, size, termo, tipos, porcao, tempoAte, caloriasAte);
         return ResponseEntity.ok(favoritas);
@@ -181,8 +178,7 @@ public class ReceitaController {
     public ResponseEntity<?> save(
             @AuthenticationPrincipal UserPrincipal user,
             @RequestPart("receita") @Valid ReceitaInput receitaInput,
-            @RequestPart(value = "imagem", required = false) MultipartFile imagem
-    ) {
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem) {
         try {
             receitaInput.setImagem(imagem);
             receitaService.save(user.getId(), receitaInput);
@@ -200,8 +196,7 @@ public class ReceitaController {
     public ResponseEntity<?> avaliarReceita(
             @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id,
-            @RequestBody AvaliacaoInput input
-    ) {
+            @RequestBody AvaliacaoInput input) {
 
         try {
             receitaService.avaliar(user.getId(), id, input.getNota(), input.getComentario());
@@ -217,8 +212,7 @@ public class ReceitaController {
     @Operation(summary = "Adiciona uma receita específica a lista de receitas favoritas do usuário autenticado")
     public ResponseEntity<?> favoritar(
             @AuthenticationPrincipal UserPrincipal user,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         try {
             receitaService.favoritar(user.getId(), id);
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -234,8 +228,7 @@ public class ReceitaController {
     public ResponseEntity<?> denunciarReceita(
             @AuthenticationPrincipal UserPrincipal user,
             @PathVariable Long id,
-            @RequestBody @Valid ReceitaDenunciaInput input
-    ) {
+            @RequestBody @Valid ReceitaDenunciaInput input) {
         try {
             receitaService.denunciar(id, user.getId(), input.getMotivo());
 
@@ -255,8 +248,7 @@ public class ReceitaController {
             @AuthenticationPrincipal UserPrincipal user,
             @RequestPart("receita") @Valid ReceitaInput receitaInput,
             @RequestPart(value = "imagem", required = false) MultipartFile imagem,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
 
         try {
             receitaInput.setImagem(imagem);
@@ -274,8 +266,7 @@ public class ReceitaController {
     @Operation(summary = "Desativa uma receita do usuário autenticado")
     public ResponseEntity<Void> desativarReceita(
             @AuthenticationPrincipal UserPrincipal user,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         receitaService.desativarReceita(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -285,8 +276,7 @@ public class ReceitaController {
     @Operation(summary = "Ativa uma receita do usuário autenticado")
     public ResponseEntity<Void> ativarReceita(
             @AuthenticationPrincipal UserPrincipal user,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         receitaService.ativarReceita(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -296,8 +286,7 @@ public class ReceitaController {
     @Operation(summary = "Retira uma receita específica do lista de receitas favoritas do usuário autenticado")
     public ResponseEntity<?> desfavoritar(
             @AuthenticationPrincipal UserPrincipal user,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         try {
             receitaService.desfavoritar(user.getId(), id);
             return ResponseEntity.noContent().build();
@@ -306,6 +295,15 @@ public class ReceitaController {
                     .body("{\"error\": \"Erro ao remover receita da lista de receitas favoritas: " + e.getMessage()
                             + "\"}");
         }
+    }
+
+    @GetMapping("/{id}/is-owner")
+    @Operation(summary = "Verifica se o usuário autenticado é o dono da receita")
+    public ResponseEntity<Boolean> isOwner(
+            @AuthenticationPrincipal UserPrincipal user,
+            @PathVariable Long id) {
+        boolean isOwner = receitaService.isOwner(id, user.getId());
+        return ResponseEntity.ok(isOwner);
     }
 
 }
