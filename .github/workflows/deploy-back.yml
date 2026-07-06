@@ -3,7 +3,7 @@ name: Deploy Backend Safenutri (Docker Image via SCP)
 on:
   push:
     branches:
-      - SN-225
+      - dev
 
 jobs:
   build-and-deploy:
