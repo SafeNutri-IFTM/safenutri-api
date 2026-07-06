@@ -178,7 +178,8 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
                         +
                         "FROM Receita r " +
                         "JOIN ReceitaRestricao rr ON rr.receita.id = r.id " +
-                        "WHERE r.user.id = :nutricionistaId " +
+                        "WHERE r.user.id = :nutricionistaId AND " +
+                        "rr.restricao.activated = TRUE " +
                         "GROUP BY rr.restricao.id, rr.restricao.restricao " +
                         "ORDER BY COUNT(r.id) DESC")
         List<ReceitaPieChartOutput> countByNutricionistaIdAndGroupByRestricoes(@Param("nutricionistaId") Long nutricionistaId);
