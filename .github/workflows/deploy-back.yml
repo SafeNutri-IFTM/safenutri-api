@@ -21,7 +21,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Construir a imagem Docker (com build e cache)
+      - name: Construir a imagem Docker
         run: |
           docker build -t safenutri-api:latest .
 
@@ -37,7 +37,7 @@ jobs:
           source: "safenutri-api.tar"
           target: "/home/ubuntu/safenutri-api/"
 
-      - name: Deploy na VM2
+      - name: Deploy e cópia das imagens
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VM2_IP }}
@@ -45,13 +45,28 @@ jobs:
           key: ${{ secrets.VM2_SSH_KEY }}
           script: |
             cd /home/ubuntu/safenutri-api
+
             # Carrega a nova imagem
             docker load -i safenutri-api.tar
-            # Remove o arquivo tar para economizar espaço
             rm safenutri-api.tar
 
-            # Para e remove os containers antigos (sem apagar volumes)
+            # Cria as pastas de upload (se não existirem)
+            mkdir -p uploads/receitas uploads/nutricionistas
+            sudo chmod -R 777 uploads
+
+            # Para e remove containers antigos (preserva volumes)
             docker compose down
 
-            # Sobe os containers com a nova imagem
+            # Sobe os containers (a API vai subir, mas as pastas de upload estão vazias)
             docker compose up -d
+
+            # Aguarda o container da API ficar pronto (sleep simples)
+            sleep 5
+
+            # Copia as imagens padrão do container para os volumes
+            # (se as pastas estiverem vazias, copia; se já tiver imagens, não sobrescreve)
+            docker exec safenutri-api sh -c "if [ -z \"\$(ls -A /app/uploads/receitas 2>/dev/null)\" ]; then cp -r /app/uploads_default/receitas/* /app/uploads/receitas/; fi"
+            docker exec safenutri-api sh -c "if [ -z \"\$(ls -A /app/uploads/nutricionistas 2>/dev/null)\" ]; then cp -r /app/uploads_default/nutricionistas/* /app/uploads/nutricionistas/; fi"
+
+            # Reinicia a API para garantir que as imagens sejam servidas (opcional)
+            docker compose restart api
