@@ -1,16 +1,16 @@
 package com.safenutri.safenutri_api.api.controller;
 
-import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import com.safenutri.safenutri_api.model.output.MensagemOutput;
 import com.safenutri.safenutri_api.api.service.ChatService;
-import org.springframework.security.core.Authentication;
+import com.safenutri.safenutri_api.core.security.jwt.UserPrincipal;
+import com.safenutri.safenutri_api.model.output.MensagemOutput;
 
 @Controller
 @RequiredArgsConstructor

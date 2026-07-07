@@ -62,7 +62,7 @@ public class ReceitaService {
     private final PacienteService pacienteService;
     private final UserRestricaoService userRestricaoService;
     private final JwtService jwtService;
-    
+
     // Repositorios unidos (Avaliação + Favoritos)
     private final UserRepository userRepository;
     private final ReceitaAvaliacaoRepository receitaAvaliacaoRepository;
@@ -171,13 +171,15 @@ public class ReceitaService {
             processarModoPreparo(savedReceita, modoPreparoInputList);
         }
 
-        // Vamos buscar o status de "EM ANÁLISE" no banco (assumindo que o ID seja 3, por exemplo, ou buscar por nome)
+        // Vamos buscar o status de "EM ANÁLISE" no banco (assumindo que o ID seja 3,
+        // por exemplo, ou buscar por nome)
         StatusDenuncia statusEmAnalise = statusDenunciaRepository.findByStatus("EM ANÁLISE")
                 .orElseThrow(() -> new RuntimeException("Status EM ANÁLISE não cadastrado no BD"));
 
         // Buscar todas as denúncias desta receita que estão SUSPENSAS
-        List<ReceitaDenuncia> denunciasSuspensas = receitaDenunciaRepository.findAllByReceitaIdAndStatus_Status(id, "SUSPENSA");
-        
+        List<ReceitaDenuncia> denunciasSuspensas = receitaDenunciaRepository.findAllByReceitaIdAndStatus_Status(id,
+                "SUSPENSA");
+
         // Mudar o status de todas elas para "EM ANÁLISE"
         if (!denunciasSuspensas.isEmpty()) {
             for (ReceitaDenuncia denuncia : denunciasSuspensas) {
@@ -251,9 +253,11 @@ public class ReceitaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ReceitaCardOutput> getMinhasReceitas(Long userId, String termo, Long tipoReceitaId, Boolean activated, int page, int size) {
+    public Page<ReceitaCardOutput> getMinhasReceitas(Long userId, String termo, Long tipoReceitaId, Boolean activated,
+            int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, tipoReceitaId, activated, userId, pageable);
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.getMinhasReceitas(termo, tipoReceitaId, activated, userId,
+                pageable);
 
         return rcoPage.map(r -> {
             String tempoFormato = formatarTempo(r.getTempo());
@@ -261,23 +265,16 @@ public class ReceitaService {
 
             // --- INÍCIO DA INTEGRAÇÃO COM O FIGMA ---
             Receita receita = receitaRepository.findById(r.getId()).orElse(null);
-            
-            if (receita != null) {
-                // Envia a imagem para o ecrã
-                r.setFoto(receita.getImagem());
-                
-                // Define os macros
-                r.setCarboidratos(0.0); 
-                r.setProteinas(0.0);
 
+            if (receita != null) {
                 // Se a receita estiver INATIVA, vamos ver qual é o status dos Reports
                 if (r.getActivated() != null && !r.getActivated()) {
                     List<ReceitaDenuncia> denuncias = receitaDenunciaRepository.findByReceitaId(r.getId());
-                    
+
                     if (denuncias != null && !denuncias.isEmpty()) {
                         String statusPrioritario = null;
                         int prioridadeMaxima = 99; // Quanto menor o número, maior a gravidade
-                        
+
                         // =====================================================================
                         // 1º PASSO: Descobre qual é o status principal da receita (O Badge)
                         // =====================================================================
@@ -285,7 +282,7 @@ public class ReceitaService {
                             if (d.getStatus() != null) {
                                 String statusAtual = d.getStatus().getStatus().toUpperCase();
                                 int prioridadeAtual = 99;
-                                
+
                                 if (statusAtual.equals("SUSPENSA") || statusAtual.equals("EM CORREÇÃO")) {
                                     prioridadeAtual = 1;
                                 } else if (statusAtual.equals("EM ANÁLISE") || statusAtual.equals("EM ANALISE")) {
@@ -305,18 +302,19 @@ public class ReceitaService {
                         // 2º PASSO: Junta APENAS os motivos que batem com o status principal!
                         // =====================================================================
                         StringBuilder motivosAgrupados = new StringBuilder();
-                        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
+                                .ofPattern("dd/MM/yyyy");
 
                         for (ReceitaDenuncia d : denuncias) {
                             if (d.getStatus() != null && statusPrioritario != null) {
                                 String statusAtual = d.getStatus().getStatus().toUpperCase();
-                                
-                                // FILTRO MÁGICO 2.0: Se a receita está Suspensa, mostra Suspensos. 
+
+                                // FILTRO MÁGICO 2.0: Se a receita está Suspensa, mostra Suspensos.
                                 // Se a receita está Em Análise, mostra Em Análise!
                                 if (statusAtual.equals(statusPrioritario)) {
                                     if (d.getDescricao() != null && !d.getDescricao().trim().isEmpty()) {
                                         String dataFormatada = "";
-                                        
+
                                         if (d.getCreated() != null) {
                                             try {
                                                 dataFormatada = d.getCreated().format(formatter) + " - ";
@@ -324,20 +322,21 @@ public class ReceitaService {
                                                 dataFormatada = d.getCreated().toString() + " - ";
                                             }
                                         }
-                                        
+
                                         motivosAgrupados.append("• ")
-                                                        .append(dataFormatada)
-                                                        .append(d.getDescricao())
-                                                        .append("\n\n");
+                                                .append(dataFormatada)
+                                                .append(d.getDescricao())
+                                                .append("\n\n");
                                     }
                                 }
                             }
                         }
 
-                        // Envia para o Angular o status mais grave e os motivos perfeitamente filtrados!
+                        // Envia para o Angular o status mais grave e os motivos perfeitamente
+                        // filtrados!
                         if (statusPrioritario != null) {
                             r.setStatusDenuncia(statusPrioritario);
-                            r.setMotivoDenuncia(motivosAgrupados.toString().trim()); 
+                            r.setMotivoDenuncia(motivosAgrupados.toString().trim());
                         }
                     }
                 }
@@ -361,7 +360,8 @@ public class ReceitaService {
         } else {
 
             if (!nutricionistaIds.isEmpty()) {
-                rcoPage = receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, nutricionistaIds, userId, pageable);
+                rcoPage = receitaRepository.findByRestricoesIdAndNutricionistaId(restricoesIds, nutricionistaIds,
+                        userId, pageable);
             } else {
                 rcoPage = receitaRepository.findByRestricoesId(restricoesIds, userId, pageable);
             }
@@ -374,16 +374,25 @@ public class ReceitaService {
         });
     }
 
-    public Page<ReceitaCardOutput> getReceitasAvaliadas(Long userId, int page, int size, String termo) {
+    public Page<ReceitaCardOutput> getReceitasAvaliadas(
+            Long userId, int page, int size, String termo,
+            List<String> tipos, String porcao, String tempoAte, Integer caloriasAte) {
+
         Pageable pageable = PageRequest.of(page, size);
         String termoBusca = (termo != null) ? termo : "";
-        Page<ReceitaCardOutput> rcoPage;
 
-        rcoPage = receitaRepository.findReceitasAvaliadasByUserId(userId, termoBusca, pageable);
+        Integer tempoMaximoMinutos = converterTempoParaMinutos(tempoAte);
+        Integer porcaoExata = extrairPorcaoExata(porcao);
+        Integer porcaoMaior = extrairPorcaoMaior(porcao);
+        List<String> tiposSeguros = limparListaTipos(tipos);
+        boolean filtrarTipos = !tiposSeguros.get(0).equals("vazio");
+
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.findReceitasAvaliadasByFiltrosAvancados(
+                userId, termoBusca, filtrarTipos, tiposSeguros, porcaoExata, porcaoMaior, tempoMaximoMinutos,
+                caloriasAte, pageable);
 
         return rcoPage.map(r -> {
-            String tempoFormato = formatarTempo(r.getTempo());
-            r.setTempoFormatado(tempoFormato);
+            r.setTempoFormatado(formatarTempo(r.getTempo()));
             return r;
         });
     }
@@ -399,12 +408,12 @@ public class ReceitaService {
         }
 
         return rcoList.stream()
-            .map(r -> {
-                String tempoFormato = formatarTempo(r.getTempo());
-                r.setTempoFormatado(tempoFormato);
-                return r;
-            })
-        .toList();
+                .map(r -> {
+                    String tempoFormato = formatarTempo(r.getTempo());
+                    r.setTempoFormatado(tempoFormato);
+                    return r;
+                })
+                .toList();
     }
 
     public Long countByNutricionistaId(Long nutricionistaId) {
@@ -422,12 +431,12 @@ public class ReceitaService {
         rcoList = receitaRepository.findTop3(userId, PageRequest.of(0, 3));
 
         return rcoList.stream()
-            .map(r -> {
-                String tempoFormato = formatarTempo(r.getTempo());
-                r.setTempoFormatado(tempoFormato);
-                return r;
-            })
-        .toList();
+                .map(r -> {
+                    String tempoFormato = formatarTempo(r.getTempo());
+                    r.setTempoFormatado(tempoFormato);
+                    return r;
+                })
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -443,14 +452,72 @@ public class ReceitaService {
         return receitaRepository.findById(id).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
     }
 
-    public Page<ReceitaCardOutput> buscarReceitasPaginadas(String termo, int page, int size) {
+    public Page<ReceitaCardOutput> buscarReceitasPaginadas(
+            String termo,
+            List<String> tipos,
+            String porcao,
+            String tempoAte,
+            Integer caloriasAte,
+            int page,
+            int size) {
+
         String termoBusca = (termo != null) ? termo : "";
         Long userId = jwtService.getIdUsuario();
-
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReceitaCardOutput> rcoPage;
 
-        rcoPage = receitaRepository.findByTituloPaginado(termoBusca, userId, pageable);
+        // 1. Tratamento do Tempo (Converter "HH:mm" para minutos totais)
+        Integer tempoMaximoMinutos = null;
+        if (tempoAte != null && !tempoAte.trim().isEmpty() && tempoAte.contains(":")) {
+            String[] partes = tempoAte.split(":");
+            Integer horas = Integer.parseInt(partes[0]);
+            Integer minutos = Integer.parseInt(partes[1]);
+            tempoMaximoMinutos = (horas * 60) + minutos;
+        }
+
+        // 2. Tratamento da Porção (Lidando com a string "6+" vinda do Frontend)
+        Integer porcaoExata = null;
+        Integer porcaoMaior = null;
+        if (porcao != null && !porcao.trim().isEmpty()) {
+            if (porcao.contains("+")) {
+                porcaoMaior = Integer.parseInt(porcao.replace("+", ""));
+            } else {
+                porcaoExata = Integer.parseInt(porcao);
+            }
+        }
+
+        // 3. CORREÇÃO: Tratamento seguro de Lista garantindo que o banco de dados
+        // entenda a cláusula IN
+        List<String> tiposSeguros = new ArrayList<>();
+        if (tipos != null && !tipos.isEmpty()) {
+            for (String t : tipos) {
+                // Quebra por vírgula se o Spring falhar no parse da URL, remove espaços e força
+                // minúsculo
+                if (t.contains(",")) {
+                    for (String s : t.split(",")) {
+                        tiposSeguros.add(s.trim().toLowerCase());
+                    }
+                } else {
+                    tiposSeguros.add(t.trim().toLowerCase());
+                }
+            }
+        }
+
+        boolean filtrarTipos = !tiposSeguros.isEmpty();
+        if (!filtrarTipos) {
+            tiposSeguros.add("vazio"); // Evita que o Hibernate gere a sintaxe inválida: IN ()
+        }
+
+        // 4. Executa a busca cruzando todos os dados no banco
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.findByFiltrosAvancados(
+                termoBusca,
+                filtrarTipos,
+                tiposSeguros,
+                porcaoExata,
+                porcaoMaior,
+                tempoMaximoMinutos,
+                caloriasAte,
+                userId,
+                pageable);
 
         return rcoPage.map(r -> {
             String tempoFormato = formatarTempo(r.getTempo());
@@ -459,47 +526,50 @@ public class ReceitaService {
         });
     }
 
-    @Transactional 
+    @Transactional
     public Map<String, Object> getReceitaCompletaById(Long id) {
         Receita receita = receitaRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Receita não encontrada com ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada com ID: " + id));
 
         List<ModoPreparoOutput> passos = modoPreparoRepository.findByReceitaId(id);
         List<RestricaoOutput> receitaRestricoes = receitaRestricaoRepository.findByReceitaId(id);
-        
+
         List<ReceitaAvaliacao> avaliacoes = receitaAvaliacaoRepository.findByReceitaIdOrderByIdDesc(id);
         List<Map<String, Object>> avaliacoesNutri = new ArrayList<>();
-        
+
         double somaNutri = 0.0;
         int qtdNutri = 0;
         double somaUser = 0.0;
         int qtdUser = 0;
-        
+
         for (ReceitaAvaliacao aval : avaliacoes) {
             try {
                 if (aval.getUser() != null && aval.getUser().getRole() != null) {
-                    
+
                     String userRole = aval.getUser().getRole().getRole();
                     Double nota = aval.getQntdEstrela() != null ? aval.getQntdEstrela() : 0.0;
-                    
+
                     if (userRole != null && userRole.toUpperCase().equals("NUTRICIONISTA")) {
                         somaNutri += nota;
                         qtdNutri++;
-                        
+
                         if (aval.getDescricao() != null && !aval.getDescricao().trim().isEmpty()) {
                             Map<String, Object> map = new HashMap<>();
-                            map.put("nome", aval.getUser().getNome()); 
+                            map.put("nome", aval.getUser().getNome());
                             map.put("nota", aval.getQntdEstrela());
                             map.put("comentario", aval.getDescricao());
-                            map.put("avatar", null); 
-                            
-                            Optional<Nutricionista> nutricionista = nutricionistaRepository.findByUserId(aval.getUser().getId());
+                            map.put("avatar", null);
+
+                            Optional<Nutricionista> nutricionista = nutricionistaRepository
+                                    .findByUserId(aval.getUser().getId());
                             if (nutricionista.isPresent()) {
                                 map.put("nutricionistaId", nutricionista.get().getId());
+                                map.put("imagem", nutricionista.get().getImagem());
                             } else {
                                 map.put("nutricionistaId", 1L); // fallback seguro se o usuário não tiver nutricionista
+                                map.put("imagem", null);
                             }
-                            
+
                             avaliacoesNutri.add(map);
                         }
                     } else {
@@ -520,18 +590,18 @@ public class ReceitaService {
         response.put("passos", passos);
         response.put("restricoes", receitaRestricoes);
         response.put("avaliacoesNutricionistas", avaliacoesNutri);
-        
+
         response.put("mediaNutricionistas", mediaNutri);
         response.put("qtdAvaliacoesNutri", qtdNutri);
         response.put("mediaUsuarios", mediaUser);
         response.put("qtdAvaliacoesUser", qtdUser);
-        
+
         return response;
     }
 
     public Map<String, Object> getMinhaAvaliacao(Long receitaId, Long userId) {
         User user = userService.findById(userId);
-        
+
         return receitaAvaliacaoRepository.findByReceitaIdAndUserId(receitaId, user.getId())
                 .map(aval -> {
                     Map<String, Object> response = new HashMap<>();
@@ -571,18 +641,66 @@ public class ReceitaService {
         receitaFavoritaRepository.save(favorita);
     }
 
-    public Page<ReceitaCardOutput> getFavoritas(Long userId, int page, int size, String termo) {
+    public Page<ReceitaCardOutput> getFavoritas(
+            Long userId, int page, int size, String termo,
+            List<String> tipos, String porcao, String tempoAte, Integer caloriasAte) {
+
         Pageable pageable = PageRequest.of(page, size);
         String termoBusca = (termo != null) ? termo : "";
-        Page<ReceitaCardOutput> rcoPage;
 
-        rcoPage = receitaFavoritaRepository.findFavoritasByUserId(userId, termoBusca, pageable);
+        Integer tempoMaximoMinutos = converterTempoParaMinutos(tempoAte);
+        Integer porcaoExata = extrairPorcaoExata(porcao);
+        Integer porcaoMaior = extrairPorcaoMaior(porcao);
+        List<String> tiposSeguros = limparListaTipos(tipos);
+        boolean filtrarTipos = !tiposSeguros.get(0).equals("vazio");
+
+        // Utilizando o ReceitaRepository centralizado
+        Page<ReceitaCardOutput> rcoPage = receitaRepository.findFavoritasByFiltrosAvancados(
+                userId, termoBusca, filtrarTipos, tiposSeguros, porcaoExata, porcaoMaior, tempoMaximoMinutos,
+                caloriasAte, pageable);
 
         return rcoPage.map(r -> {
-            String tempoFormato = formatarTempo(r.getTempo());
-            r.setTempoFormatado(tempoFormato);
+            r.setTempoFormatado(formatarTempo(r.getTempo()));
             return r;
         });
+    }
+
+    // ==========================================
+    // HELPERS PARA MANTER O CÓDIGO LIMPO (Clean Code)
+    // ==========================================
+    private Integer converterTempoParaMinutos(String tempoAte) {
+        if (tempoAte != null && !tempoAte.trim().isEmpty() && tempoAte.contains(":")) {
+            String[] partes = tempoAte.split(":");
+            return (Integer.parseInt(partes[0]) * 60) + Integer.parseInt(partes[1]);
+        }
+        return null;
+    }
+
+    private Integer extrairPorcaoExata(String porcao) {
+        return (porcao != null && !porcao.trim().isEmpty() && !porcao.contains("+")) ? Integer.parseInt(porcao) : null;
+    }
+
+    private Integer extrairPorcaoMaior(String porcao) {
+        return (porcao != null && !porcao.trim().isEmpty() && porcao.contains("+"))
+                ? Integer.parseInt(porcao.replace("+", ""))
+                : null;
+    }
+
+    private List<String> limparListaTipos(List<String> tipos) {
+        List<String> seguros = new ArrayList<>();
+        if (tipos != null && !tipos.isEmpty()) {
+            for (String t : tipos) {
+                if (t.contains(",")) {
+                    for (String s : t.split(","))
+                        seguros.add(s.trim().toLowerCase());
+                } else {
+                    seguros.add(t.trim().toLowerCase());
+                }
+            }
+        }
+        if (seguros.isEmpty())
+            seguros.add("vazio");
+        return seguros;
     }
 
     @Transactional
@@ -614,5 +732,11 @@ public class ReceitaService {
 
     public Long countAll() {
         return receitaRepository.countAll();
+    }
+
+    public boolean isOwner(Long receitaId, Long userId) {
+        Receita receita = receitaRepository.findById(receitaId)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        return receita.getUser().getId().equals(userId);
     }
 }

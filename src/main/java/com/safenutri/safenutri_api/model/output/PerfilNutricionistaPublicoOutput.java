@@ -15,6 +15,9 @@ public class PerfilNutricionistaPublicoOutput {
     private String iniciais;
     private String crn;
     private String descricao;
+    private List<String> restricoes;
     private EstatisticasNutricionistaOutput estatisticas;
     private List<ReceitaCardOutput> receitas;
+    private String imagem;
+    private List<AtividadeRecenteOutput> atividades;
 }
