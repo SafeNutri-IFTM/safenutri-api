@@ -1,6 +1,6 @@
 # API - SAFENUTRI ![API](https://img.shields.io/badge/API-yellow)
 
-![SAFENUTRI logo](https://github.com/SafeNutri-IFTM/safenutri-front/raw/main/src/assets/LogoSafeNutri.png)
+<img src="src/assets/LogoSafeNutri-horizontal.png" width="30%" alt="Logo SafeNutri" style="margin-bottom: 10px;">
 
 Este é o repositório oficial da API do SafeNutri, um sistema de recomendações de receitas para pessoas com restrições alimentares, uma aplicação desenvolvida para auxiliar os usuários a não precisar mais ficar horas procurando receitas que sejam seguras para ele, pois o sistema já vai filtrar e sugerir receitas fornecidas por profissionais, se baseando na sua restrição alimentar.
 
